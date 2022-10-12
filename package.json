@@ -1,0 +1,28 @@
+{
+    "name": "@BlueSkyStatistics/dialogs/graphics",
+    "productName": "Charts and visiualization dialogs",
+    "description": "BlueSky Statistics Charts and visiualization dialogs",
+    "keywords": [],
+    "main": "nav.js",
+    "version": "1.0.0",
+    "author": "BlueSky Statistics",
+    "scripts": {},
+    "dependencies": {
+        "squirrelly": "7.9.2"
+    },
+    "devDependencies": {
+        "asar": "^3.1.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BlueSkyStatistics/graphicsDialogs.git"
+    },
+    "license": "AGLPL",
+    "bugs": {
+        "url": "https://github.com/BlueSkyStatistics/graphicsDialogs/issues"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "homepage": "https://www.blueskystatistics.com"
+}
