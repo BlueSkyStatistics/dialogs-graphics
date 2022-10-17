@@ -1,3 +1,4 @@
+
 var localization = {
     en: {
         title: "Scatter Plot",
@@ -95,6 +96,7 @@ class scatterPlot extends baseModal {
 require(ggplot2);
 require(ggthemes);
 require(stringr);
+{{ if (options.selected.sm == "rlm") }}require(MASS);{{/if}}
 {{ if (options.selected.scatter_type === "0") }}
 ## [Scatterplot (Points)]
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}}{{selected.fill[0] | safe}}{{selected.size[0] | safe}}{{selected.shape[0] | safe}})) +
