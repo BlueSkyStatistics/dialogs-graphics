@@ -139,7 +139,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         objects;
         var objects = {
-            content_var: { el: new srcVariableList(config) },
+            content_var: { el: new srcVariableList(config, {scroll:true}) },
             y: {
                 el: new dstVariableList(config, {
                     label: localization.en.y,
