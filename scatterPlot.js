@@ -100,8 +100,8 @@ require(stringr);
 {{ if (options.selected.scatter_type === "0") }}
 ## [Scatterplot (Points)]
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}}{{selected.fill[0] | safe}}{{selected.size[0] | safe}}{{selected.shape[0] | safe}})) +
-    {{selected.jitter | safe}}
     {{if (options.selected.sm != "")}}geom_smooth( method ="{{selected.sm | safe}}", alpha={{selected.opacity | safe}}, se={{selected.se | safe}},{{if (options.selected.fill[0] == "")}}{{if (options.selected.lineColor != "")}} , col ="{{selected.lineColor | safe}}"{{/if}}{{/if}}) + {{/if}} 
+    {{selected.jitter | safe}}
     labs({{selected.x[1] | safe}}{{selected.y[1] | safe}}{{selected.fill[1] | safe}},title= "Scatterplot for {{selected.x[2] | safe}} {{selected.y[2] | safe}} {{selected.fill[2] | safe}}") +
     xlab("{{selected.x_label | safe}}") +
     ylab("{{selected.y_label | safe}}") +
