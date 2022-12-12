@@ -17,7 +17,7 @@ var localization = {
         Facetscale: "Facet scale",
         normalCurveColor: "Optionally select a normal curve color (click outside color control to select)",
         rugPlot: "Display a rug plot (suitable for small datasets)",
-        normalCurve: "Display a normal curve (Missing values need to be removed for curve to display) ",
+        normalCurve: "Display a normal curve (Missing values are removed for curve to display)",
         help: {
             title: "Histogram",
             r_help: "help(geom_histogram, package=ggplot2)",
@@ -296,8 +296,8 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
             }
             if (code_vars.selected.normalCurve =="TRUE")
             {
-                code_vars.selected.normal = "stat_function(fun = dnorm, args = list(mean = mean(" + code_vars.dataset.name + "$" + value + ") , sd = sd(" +
-                code_vars.dataset.name + "$" + value + ")) , col = \"" + code_vars.selected.normalCurveColor +"\", size = 2) +\n"
+                code_vars.selected.normal = "stat_function(fun = dnorm, args = list(mean = mean(" + code_vars.dataset.name + "$" + value + ", na.rm = TRUE) , sd = sd(" +
+                code_vars.dataset.name + "$" + value + ", na.rm = TRUE)) , col = \"" + code_vars.selected.normalCurveColor +"\", size = 2) +\n"
             }
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
             if (code_vars.selected.normalCurve =="TRUE")
