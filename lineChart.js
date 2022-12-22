@@ -5,7 +5,7 @@ var localization = {
         label1: "Click on the tab below corresponding to the type of line chart you want. The default is connected by order.",
         x: "X axis",
         y: "Y axis, specify a numeric variable(s)",
-        color: "Color, specify a factor variable",
+        color: "Group/Color, specify a factor variable",
         line: "By Order",
         stair: "Stair Steps",
         path: "By occurrence",
@@ -117,7 +117,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             content_var: { el: new srcVariableList(config) },
             y: { el: new dstVariableList(config, { label: localization.en.y, no: "y", required: true, filter: "Numeric|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
             x: { el: new dstVariable(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
-            color: { el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',aes (color = {{color|safe}})', 'grouped in colors by: {{color|safe}}'] },
+            color: { el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',aes (color = {{color|safe}}, group = {{color|safe}})', 'grouped in colors by: {{color|safe}}'] },
             checkbox: { el: new checkbox(config, { label: localization.en.flipBox, style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
             Facetrow: {
                 el: new comboBox(config, {
