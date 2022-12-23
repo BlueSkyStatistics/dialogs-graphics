@@ -7,6 +7,7 @@ var localization = {
         y: "Y axis, specify a numeric variable(s)",
         color: "Group/Color, specify a factor variable",
         line: "By Order",
+        linetype: "A separate line type will be used for each level of the factor variable",
         stair: "Stair Steps",
         path: "By occurrence",
         lineChartType: "Click on the type of Line Chart below",
@@ -19,13 +20,16 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        sizePoint: "Size of the points",
+        sizeLine:"Width of the line",
         help: {
             title: "Line Chart",
             r_help: "help(geom_line, package=ggplot2)",
             body: `
             <b>Description</b></br>
+            The option to use a different line type for each level of the factor variable specified is provided to support publications that don't support color. 
             Creates a line chart (connected by order) or stair step plot or orders the line chart by occurrence of the points in the dataset. Click on the tab corresponding to the type of line chart you want.</br>
-            Line chart (connected by order): A line chart plots a line through points defined by the x and y coordinates and connects them in the order of variables on the x axis. When a color is set to a factor variable, the points are grouped by color and a separate line is generated for each color group.Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​</br>
+            Line chart (connected by order): A line chart plots a line through points defined by the x and y coordinates and connects them in the order of variables on the x axis. When a group/color is set to a factor variable, the points are grouped by color and a separate line is generated for each group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​</br>
             Stair step plot: A line chart plots a line through points defined by the x and y coordinates and creates a stair step plot, highlighting exactly when changes occur. When a color is set to a factor variable, the points are grouped by color and a separate line is generated for each color group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​</br>
             Ordered by occurrence: A line chart plots a line through points defined by the x and y coordinates and connects them in the order of in which variables occur in the dataset. When a color is set to a factor variable, the points are grouped by color and a separate line is generated for each color group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​.</br>
             <br/>
@@ -100,8 +104,9 @@ class lineChartModal extends baseModal {
             RCode: `## [Line chart (line drawn in order of variables on X axis)]
 require(ggplot2);
 require(ggthemes);
-ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}})) +
-    {{selected.chart}}( stat = "identity",position = "identity"{{selected.color[0]}},alpha=0.5) +
+ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.color[0]}})) +
+    {{selected.chart}}(stat = "identity", position = "identity", alpha=0.5{{if (options.selected.sizeLine != "")}}, size = {{selected.sizeLine | safe }}{{/if}}{{selected.linetype[0] | safe}}) +
+    geom_point({{if (options.selected.sizePoint != "")}}size = {{selected.sizePoint | safe }}{{/if}}) +
     labs({{selected.x[1] | safe}}{{selected.y[1] | safe}}, title= "Line chart ({{selected.label}})\nfor {{selected.x[2] | safe}} {{selected.y[2] | safe}} {{selected.color[1]}}") +
     xlab("{{selected.x_label|safe}}") + ylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip}} 
     {{selected.Facets | safe}} + {{selected.themes | safe}}
@@ -117,7 +122,11 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             content_var: { el: new srcVariableList(config) },
             y: { el: new dstVariableList(config, { label: localization.en.y, no: "y", required: true, filter: "Numeric|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
             x: { el: new dstVariable(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
-            color: { el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',aes (color = {{color|safe}}, group = {{color|safe}})', 'grouped in colors by: {{color|safe}}'] },
+            color: { el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', color = {{color|safe}}, group = {{color|safe}}, shape ={{color|safe}}', 'grouped in colors by: {{color|safe}}'] },
+
+            linetype: { el: new dstVariable(config, { label: localization.en.linetype, no: "linetype", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', aes (group = {{linetype |safe}}, linetype = {{linetype |safe}})', 'grouped in colors by: {{color|safe}}'] },
+
+
             checkbox: { el: new checkbox(config, { label: localization.en.flipBox, style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
             Facetrow: {
                 el: new comboBox(config, {
@@ -159,6 +168,55 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
+            title: {
+                el: new input(config, {
+                                no: 'title',
+                                label: localization.en.specify_a_title,
+                                allow_spaces:true,
+                                placeholder: "Chart title",
+                                extraction: "NoPrefix|UseComma"
+                            })},
+                            
+                 x_title: {
+                el:	new input(config, {
+                                no: 'x_title',
+                                label: localization.en.x_title,
+                                allow_spaces:true,
+                                placeholder: "X Axis",
+                                extraction: "NoPrefix|UseComma"
+                            })},
+                            
+                y_title: {
+                           el: new input(config, {
+                                no: 'y_title',
+                                allow_spaces:true,
+                                label: localization.en.y_title,
+                                placeholder: "Y Axis",
+                                extraction: "NoPrefix|UseComma"
+                            })},
+                sizePoint: {
+                    el: new inputSpinner(config, {
+                        no: 'sizePoint',
+                        label: localization.en.sizePoint,
+                        min: 0,
+                        max: 20,
+                        step: 0.1,
+                        value: 1,
+                        extraction: "NoPrefix|UseComma"
+                    })
+                    },
+                sizeLine: {
+                        el: new inputSpinner(config, {
+                            no: 'sizeLine',
+                            label: localization.en.sizeLine,
+                            min: 0,
+                            max: 20,
+                            step: 0.1,
+                            value: 1,
+                            width:"w-25",
+                            extraction: "NoPrefix|UseComma"
+                        })
+                        },
         }
         const tab1 = {
             state: "active",
@@ -184,27 +242,11 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var opts = new optionsVar(config, {
             no: "linechart_options",
             content: [
-                new input(config, {
-                    no: 'title',
-                    label: localization.en.specify_a_title,
-                    allow_spaces:true,
-                    placeholder: "Chart title",
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'x_title',
-                    label: localization.en.x_title,
-                    allow_spaces:true,
-                    placeholder: "X Axis",
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'y_title',
-                    allow_spaces:true,
-                    label: localization.en.y_title,
-                    placeholder: "Y Axis",
-                    extraction: "NoPrefix|UseComma"
-                })
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
+                objects.sizePoint.el,
+                objects.sizeLine.el
             ]
         })
         var Facets = {
@@ -227,6 +269,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.y.el.content,
                 objects.x.el.content,
                 objects.color.el.content,
+                objects.linetype.el.content,
                 new labelVar(config, { label: localization.en.lineChartType, h: 7 }).content,
                 navs.content,
                 objects.checkbox.el.content],
@@ -254,6 +297,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     x: instance.dialog.prepareSelected({ x: instance.objects.x.el.getVal()[0] }, instance.objects.x.r),
                     y: instance.dialog.prepareSelected({ y: value }, instance.objects.y.r),
                     color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
+                    linetype: instance.dialog.prepareSelected({ linetype: instance.objects.linetype.el.getVal()[0] }, instance.objects.linetype.r),
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                     chart: instance.navs.getActive('r-value'),
                     label: instance.navs.tabs[parseInt(instance.navs.getActive('el-index'))].content,
@@ -262,6 +306,8 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
                     Facetwrap: instance.objects.Facetwrap.el.getVal(),
                     Facetscale: instance.objects.Facetscale.el.getVal(),
+                    sizePoint: instance.objects.sizePoint.el.getVal(),
+                    sizeLine: instance.objects.sizeLine.el.getVal()
                 }
             }
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
