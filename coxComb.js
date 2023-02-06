@@ -22,27 +22,45 @@ var localization = {
             r_help: "help(coord_polar, package='ggplot2')",
             body: `
             <b>Description</b></br>
-A Coxcomb/Bulls Eye chart (or a circle chart) is a circular statistical graphic, which is divided into concentric  circles to illustrate numerical proportion. In a Coxcomb/Bulls Eye chart, the width length of each concentric circle (and consequently its  area), is proportional to the quantity it represents. The quantity can be represented as a count or percentage.</br>​
+A Coxcomb/Bulls Eye chart (or a circle chart) is a circular statistical graphic, which is divided into slices/concentric circles to illustrate numerical proportion. In a Coxcomb/Bulls Eye chart, the width length of each concentric circle (and consequently its  area), is proportional to the quantity it represents. The quantity can be represented as a count or percentage.</br>​
 Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-When you specify multiple x variables, we create a separate Cox comb/Bulls eye for each x variable.</br>
+When you specify multiple x variables, we create a separate Coxcomb/Bulls eye for each x variable.</br>
 <b>Usage</b>
 <br/>
 <code>
-#You can create a Coxcomb/Bulls Eye chart for a single factor variable, a concentric circle will be created for each level of the factor variable. The width of the concentric circle is proportional to the counts of each level of the factor level. Here the factor variable will correspond to the fill as below<br/>
-ggplot(data=Dataset2,aes(x ='',fill=var1)) +​
+#You can create a Bulls Eye chart for a single factor variable, a concentric circle will be created for each level of the factor variable. The width of the concentric circle is proportional to the counts of each level of the factor level. Here the factor variable will correspond to the fill as below<br/>
+#penguins is a dataset in the equatiomatic R package
+ggplot(data=penguins,aes(x ='',fill=species)) +​
                  geom_bar(alpha=1,width =0.9) +​
                  coord_polar("x") +​
-                 labs(y ="Count",fill ="var1",title= "Coxcomb/Bulls Eye Chart  with X aesthetic:,Y aesthetic: Count,Fill: var1")​</br></br>
-#You can create a Coxcomb/Bulls Eye chart by specifying a scale/numeric variable as the y variable and a factor variable that serves as a fill. Here a concentric circle is created for each level of the fill factor variable. The width of the concentric circle is proportional to the sum of the y values at each level of the factor level. Here the factor variable will correspond to the fill as below<br/>
-ggplot(data=Dataset2,aes(x ='',y=var1,fill=var2)) +​
+                 labs(y ="Count",fill ="var1",title= "Bulls Eye Chart  with Fill: species")​</br></br>
+#You can create a Bulls Eye chart by specifying a scale/numeric variable as the y variable and a factor variable that serves as a fill. Here a concentric circle is created for each level of the fill factor variable. The width of the concentric circle is proportional to the sum of the y values at each level of the factor level. Here the factor variable will correspond to the fill as below<br/>
+ggplot(data=penguins,aes(x ='', y = bill_length_mm, fill = species)) +​
                  geom_bar(alpha=1,width =0.9,stat="identity") +​
                  coord_polar("x") +​
-                 labs(y ="var1",fill ="var2",title= "Coxcomb/Bulls Eye chart  with X aesthetic:,Y aesthetic: var1,Fill: var2") </br></br>
-#You can specify a x variable, y variable and fill. The slices are created for every level of the x variable and filled by the sum of the values of the y variable for each level of the variable specified in the fill. The slices are divided by levels of the fill variable. The area occupied by each level of the fill variable within the slice is proportional to the sum of the counts of the y variable that match the slice and fill variable.<br/>
-​ggplot(data=Dataset2,aes(x =var3,y=var2,fill=var1)) +​
-                 geom_bar(alpha=1,width =0.9,stat="identity") +​
-                 coord_polar("x") +
-                 labs(x ="var3",y ="var2",fill ="var1",title= "Coxcomb/Bulls Eye chart  with X aesthetic: var3,Y aesthetic: var2,Fill: var1")<br/>
+                 labs(y ="var1",fill ="var2",title= "Bulls Eye chart  with X aesthetic:,Y aesthetic: var1,Fill: var2") </br></br>
+
+#You can create a Coxcomb plot by specifying an x variable, The slices are created for every level of the x variable, the radius of each slice is proportional to the count<br/>
+    ggplot(data=penguins, aes(x=island, )) +
+        geom_bar( alpha=1,width=1,) +
+        coord_polar("x") +
+        labs(x="island",  title= "Coxcomb plot with X aesthetic: island") +
+        xlab("island") + ylab("Count")</br></br>
+
+#You can generate a Coxcomb plot by specifying a X variable and a fill. Slices are created for each level of the x variable. Each slice is filled by the count of the cases in each level of the fill variable specified.
+ggplot(data=penguins, aes(x=island,fill=species )) +
+	geom_bar( alpha=1, width=1) +
+	coord_polar("x") +
+	labs(x="island",  title= "Coxcomb plot with X aesthetic: island fill: species") +
+	xlab("island") + ylab("Count")</br></br>
+
+
+#You can create a Coxcomb plot by specifying an x variable, y variable and fill. The slices are created for every level of the x variable and filled by the sum of the values of the y variable for each level of the variable specified in the fill. The slices are divided by levels of the fill variable. The area occupied by each level of the fill variable within the slice is proportional to the sum of the counts of the y variable that match the slice and fill variable.<br/>
+ggplot(data=penguins, aes(x=island,y=bill_depth_mm,fill=species )) +
+	geom_bar( alpha=1,width=1,stat = "identity") +
+	coord_polar("x") +
+	labs(x="island", y="bill_depth_mm", title= "Coxcomb plot with X aesthetic: island Y aesthetic: bill_depth_mm fill: species") +
+	xlab("island") + ylab("bill_depth_mm")</br></br>
 </code> <br/>
 <b>Arguments</b><br/>
 <ul>
@@ -102,10 +120,10 @@ require(ggplot2);
 require(ggthemes);
 require(stringr);
 ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#else}}{{selected.x[0] | safe}}{{/if}}{{selected.y[0] | safe}}{{selected.color[0] | safe}} )) +
-    geom_bar( {{if (options.selected.rdgrp1)}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
+    geom_bar( {{if (options.selected.rdgrp1=="TRUE")}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
     coord_polar("x") +
     labs({{selected.x[1] | safe}} {{selected.y[1] | safe}} title= "Coxcomb plot with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + ylab("{{if (options.selected.y_label == "")}}Count{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}}  {{selected.flipaxis | safe}}  
+    xlab("{{selected.x_label|safe}}") + ylab("{{if (options.selected.y_label == "")}}{{if (options.selected.rdgrp1=="TRUE")}}Proportion{{#else}}Count{{/if}}{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}}  {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
 `,
             pre_start_r: JSON.stringify({
@@ -158,7 +176,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     newline: true,
                     true_value: "TRUE",
                     false_value: "FALSE",
-                    no: "referenceline"
+                    no: "rdgrp1"
                 })
             },
             flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },

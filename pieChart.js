@@ -30,20 +30,18 @@ var localization = {
             <br/>
             <code>
             #You can create a pie chart for a single factor variable, the pies will represent the counts of each level of the factor level. Here the factor variable will correspond to the fill<br/>
-            ggplot(data=Dataset2,aes(x ='',fill=var1)) +
-                             geom_bar(alpha=1,width =0.9) +
-                             coord_polar("y") +
-                             labs(y ="Count",fill ="var1",title= "Pie Chart  with X aesthetic:,Y aesthetic: Count,Fill: var1")</br></br>
+            ggplot(data=penguins, aes(x='', fill=species )) +
+	geom_bar( alpha=1,width=1,) +
+	coord_polar("y") +
+	labs(  title= "Pie chart with fill: species") +
+	ylab("") + 
+	xlab("Count")</br></br>
             #You can create a pie chart  by specifying a scale/numeric variable as the y variable,  and filling the slices of the pie by a factor variable. The pies are filled by summing the values of the y variable for each  level of the factor variable, see example below<br/>
-            ggplot(data=Dataset2,aes(x ='',y=var1,fill=var2)) +
-                             geom_bar(alpha=1,width =0.9,stat="identity") +
-                             coord_polar("y") +
-                             labs(y ="var1",fill ="var2",title= "Pie Chart  with X aesthetic:,Y aesthetic: var1,Fill: var2") </br></br>
-            #You can specify a x variable, y variable and fill. The slices are created for every level of the x variable and filled by the sum of the values of the y variable for each level of the variable specified in the fill.<br/>
-            ​ggplot(data=Dataset2,aes(x =var3,y=var2,fill=var1)) +
-                             geom_bar(alpha=1,width =0.9,stat="identity") +
-                             coord_polar("y") +
-                             labs(x ="var3",y ="var2",fill ="var1",title= "Pie Chart  with X aesthetic: var3,Y aesthetic: var2,Fill: var1")<br/>
+            ggplot(data = penguins, aes(x = "", y = bill_length_mm, fill = species)) + geom_bar(alpha = 1,
+                width = 0.9, stat = "identity") + coord_polar("y") </br></br>
+    #You can specify a x variable, y variable and fill. The slices are created for every level of the x variable and filled by the sum of the values of the y variable for each level of the variable specified in the fill.<br/>
+    ggplot(data = penguins, aes(x = island, y = bill_length_mm, fill = species)) + geom_bar(alpha = 1,
+        width = 0.9, stat = "identity")<br/><br/>
             </code> <br/>
             <b>Arguments</b><br/>
             <ul>
@@ -103,11 +101,11 @@ require(ggplot2);
 require(ggthemes);
 require(stringr);
 ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#else}}{{selected.x[0] | safe}}{{/if}}{{selected.y[0] | safe}}{{selected.color[0] | safe}} )) +
-    geom_bar( {{if (options.selected.rdgrp1)}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
+    geom_bar( {{if (options.selected.rdgrp1=="TRUE")}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
     coord_polar("y") +
     labs({{selected.x[1] | safe}} {{selected.y[1] | safe}} title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
     ylab("{{selected.x_label|safe}}") + 
-    xlab("{{if (options.selected.y_label == "")}}Count{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    xlab("{{if (options.selected.y_label == "")}}{{if (options.selected.rdgrp1=="TRUE")}}Proportion{{#else}}Count{{/if}}{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
 `,
             pre_start_r: JSON.stringify({
@@ -155,10 +153,12 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             rdgrp1: {
                 el: new checkbox(config, {
                     label: localization.en.rdgrp1,
+                    bs_type: "valuebox",
+                    extraction: "BooleanValue",
                     newline: true,
                     true_value: "TRUE",
                     false_value: "FALSE",
-                    no: "referenceline"
+                    no: "rdgrp1"
                 })
             },
             flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },

@@ -105,7 +105,7 @@ class BarChartModal extends baseModal {
             RCode: `
 {{ if (options.selected.bar_type === "0") }}
 ## [Bar Chart With Counts]
-detach(dplyr)
+detach(package:dplyr)   
 require(plyr)
 require(dplyr)
 require(tidyr)
