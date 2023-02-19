@@ -23,7 +23,7 @@ var localization = {
         label4: "Place values in the cell",
         valuesNo: "Yes",
         valuesYes: "No",
-        noteColors: "Choose a color for cell values (click outside color control to select):",
+        noteColors: "Choose a color for cell values (After color selection, click outside the control to apply):",
         help: {
             title: "HeatMap",
             r_help: "help(heatmap.2,package='gplots')",

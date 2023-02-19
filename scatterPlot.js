@@ -12,7 +12,7 @@ var localization = {
         flipaxis: "Flip axis",
         jitter: "Apply jitter effect",
         sm: "Smoothing model",
-        lineColor: "Color of the smoothing line (click outside color control to select)",
+        lineColor: "Color of the smoothing line (After color selection, click outside the control to apply)",
         se: "Plot standard errors",
         bins: "Number of bins",
         squaredbins: "Number of bins",

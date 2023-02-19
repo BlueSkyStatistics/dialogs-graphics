@@ -178,7 +178,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 }),
                 new colorInput(config, {
                     no: 'color',
-                    label: "Select a color (click outside color control to select)",
+                    label: "Select a color (After color selection, click outside the control to apply)",
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",

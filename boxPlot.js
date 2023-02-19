@@ -14,7 +14,7 @@ var localization = {
         specify_a_title: "Enter a title",
         x_title: "X Axis Label",
         y_title: "Y Axis Label",
-        barcolor: "Select a color for the lines around the boxes (click outside color control to select)",
+        barcolor: "Select a color for the lines around the boxes (After color selection, click outside the control to apply)",
         Facetrow: "Facet row",
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
