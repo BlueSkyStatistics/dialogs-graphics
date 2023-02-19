@@ -5,7 +5,7 @@ var localization = {
         x: "X axis, specify a numeric variable(s)",
         bins: "Specify the number of bins",
         binwidth: "Bin width",
-        barcolor: "Optionally select a fill color (click outside color control to select)",
+        barcolor: "Optionally select a fill color (After color selection, click outside the control to apply)",
         alpha: "Opacity (0-1)",
         flip: "Flip Axis",
         specify_a_title: "Enter a title",
@@ -15,7 +15,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
-        normalCurveColor: "Optionally select a normal curve color (click outside color control to select)",
+        normalCurveColor: "Optionally select a normal curve color (After color selection, click outside the control to apply)",
         rugPlot: "Display a rug plot (suitable for small datasets)",
         normalCurve: "Display a normal curve (Missing values are removed for curve to display)",
         help: {

@@ -4,12 +4,10 @@ var localization = {
         navigation: "Frequencies",
         x: "X axis",
         y: "Color, specify a factor variable",
-        bins: "Number of bins",
-        barcolor: "Line Color (click outside color control to select)",
+        bins: "Number of bins (applies only when the variable on the X axis is a factor variable)",
+        barcolor: "Line Color (After color selection, click outside the control to apply)",
         tab1: "Numeric",
         tab2: "Factor",
-        label1: "The X axis must be a factor variable",
-        label2: "You must specify a Grouping/Color variable",
         alpha: "Opacity (0-1)",
         flip: "Flip Axis",
         specify_a_title: "Enter a title",
@@ -83,7 +81,7 @@ require(ggplot2);
 require(ggthemes);
 {{ if (options.selected.frequency_type === "0") }}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.y[1] | safe}} )) +
-    geom_freqpoly({{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}} {{selected.alpha | safe}}{{if (options.selected.barcolor != "")}} , color ="{{selected.barcolor | safe}}" {{/if}}) +
+    geom_freqpoly({{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}} {{selected.alpha | safe}}{{if (options.selected.y[0] =="")}} {{if (options.selected.barcolor != "")}} , color ="{{selected.barcolor | safe}}" {{/if}}{{/if}}) +
     labs({{selected.x[1] | safe}},y ="Counts" {{selected.y[2] | safe}}, title= "Frequency chart for variable {{selected.x[3] | safe}}  {{selected.y[3] | safe}}") +
     xlab("{{selected.x_label|safe}}") + 
     ylab("{{selected.y_label|safe}}") + 
@@ -116,7 +114,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             y: {
                 el: new dstVariable(config, { label: localization.en.y, no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
-                r: [',colour={{y|safe}}', ',group={{y|safe}}', ',colour="{{y|safe}}"', 'grouped by levels of variable {{y|safe}}']
+                r: [',colour={{y|safe}}', ',group={{y|safe}}', ',colour="{{y|safe}}"', 'grouped by levels of variable {{y|safe}}', '{{y|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
@@ -193,24 +191,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 })
             },
         }
-        const tab1 = {
-            state: "active",
-            no: "numeric",
-            label: localization.en.tab1,
-            content: [objects.bins.el.content,
-            objects.barcolor.el.content,].join("")
-        }
-        const tab2 = {
-            state: "",
-            no: "factor",
-            label: localization.en.tab2,
-            content: [
-                new labelVar(config, { label: localization.en.label1, h: 6 }).content,
-                new labelVar(config, { label: localization.en.label2, h: 6 }).content,
-            ].join("")
-        }
-        var tabs = new tabsView(config, { no: "Chart_type", tabs: [tab1, tab2], extraction: "NoPrefix" })
-        var opts = new optionsVar(config, {
+          var opts = new optionsVar(config, {
             no: "frequency_chart_options",
             content: [
                 new input(config, {
@@ -255,8 +236,10 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.y.el.content,
                 objects.alpha.el.content,
                 objects.flipaxis.el.content,
+                objects.bins.el.content,
+                objects.barcolor.el.content,
             ],
-            bottom: [tabs.content, opts.content, Facets.el.content],
+            bottom: [opts.content, Facets.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-frequency_graph_fixed",
@@ -265,12 +248,15 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             }
         }
         super(config, objects, content);
-        this.tabs = tabs
         this.opts = opts
     }
     prepareExecution(instance) {
+        let allColAttr = fetchAllColumnAttributes()
+        let colinfo = {};
         var res = [];
+        let cmd ="";
         instance.objects.x.el.getVal().forEach(function (value) {
+            colinfo = allColAttr[value]      
             var code_vars = {
                 dataset: {
                     name: getActiveDataset()
@@ -281,7 +267,6 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     flipaxis: instance.objects.flipaxis.el.getVal() ? instance.objects.flipaxis.r : "",
                     alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
                     bins: instance.dialog.prepareSelected({ bins: instance.objects.bins.el.getVal() }, instance.objects.bins.r),
-                    frequency_type: instance.tabs.getActive('el-index'),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
@@ -289,15 +274,30 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     Facetscale: instance.objects.Facetscale.el.getVal(),
                 }
             }
-            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
-            // code_vars.selected["y_label"] = "Counts"
-            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? "Counts" : instance.opts.config.content[2].getVal()
-            code_vars.selected["barcolor"] = instance.objects.barcolor.el.getVal()
-            code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
-            code_vars.selected.themes = themeRsyntax;
-            let cmd = instance.dialog.renderR(code_vars)
-            cmd = removenewline(cmd);
-            res.push({ cmd: cmd, cgid: newCommandGroup() })
+            if (colinfo.ColClass =="factor" || colinfo.ColClass =="ordinal")
+            {
+                code_vars.selected.frequency_type= "1"
+            }
+            else
+            {
+                code_vars.selected.frequency_type= "0"
+            }
+            if ( code_vars.selected.frequency_type ==1 && code_vars.selected.y[4] ==""  )
+            {   
+                cmd = "cat(\"ERROR. As the x variable: " + value + " is a factor, you must specify a color/grouping variable\")"
+                res.push({ cmd: cmd, cgid: newCommandGroup() })
+            }
+            else
+            {
+                code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
+                code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? "Counts" : instance.opts.config.content[2].getVal()
+                code_vars.selected["barcolor"] = instance.objects.barcolor.el.getVal()
+                code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
+                code_vars.selected.themes = themeRsyntax;
+                cmd = instance.dialog.renderR(code_vars)
+                cmd = removenewline(cmd);
+                res.push({ cmd: cmd, cgid: newCommandGroup() })
+            }
         })
         return res;
     }

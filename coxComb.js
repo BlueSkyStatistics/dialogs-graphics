@@ -9,7 +9,7 @@ var localization = {
         width: "Width",
         rdgrp1: "Fill proportions",
         flip: "Flip axis",
-        barcolor: "Bar color (click outside color control to select)",
+        barcolor: "Bar color (After color selection, click outside the control to apply)",
         specify_a_title: "Enter a title",
         x_title: "X Axis Label",
         y_title: "Y Axis Label",
