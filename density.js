@@ -146,7 +146,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             fillcolor: {
                 el: new colorInput(config, {
                     no: 'fillcolor',
-                    label: "Fill Color (click outside color control to select)",
+                    label: "Fill Color (After color selection, click outside the control to apply)",
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
