@@ -22,51 +22,65 @@ var localization = {
             r_help: "help(geom_freqpoly, package='ggplot2')",
             body: `
             <b>Description</b></br>
-            Create a frequency plot for a numeric or factor variable. Click the Numeric tab below, for frequency plot of a numeric and click the Factor tab for a frequency plot of a factor variable. A frequency plot is a graph that shows the pattern in a set of data by plotting how often particular values (the counts) of a numeric variable (see x: below) occur.  To create a frequency plot for every group of x values, set group to a factor variable and the  x values that correspond to each level for the factor variable are plotted in a different color.</br>
-            When generating a frequency plot for a numeric variable, you must specify the number of bins. Counts will be plotted for each bin.</br>
-            When generating a frequency plot for a factor variable say A, you must group by another factor level say B. We then display the counts of each level of A grouped by each level of B.</br> Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-            <br/>
+            Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin. Histograms (geom_histogram()) display the counts with bars; frequency polygons (geom_freqpoly()) display the counts with lines. Frequency polygons are more suitable when you want to compare the distribution across the levels of a categorical variable. </br>
+            NOTE: We ignore the color selected if there is a grouping/color variable specified as a different color is selected for each level of the grouping variable.</br>
+            When you specify multiple x variables, we create a separate Frequency chart for each x variable.</br>
             <b>Usage</b>
             <br/>
-            <code> 
-            ggplot(data = Dataset5,aes(x = engine,colour = origin,group = origin)) +geom_freqpoly(binwidth=10)  + labs(x = "engine",stat = "Count",colour = "origin") +ggtitle("Test graph") +theme_calc()+facet_grid(cylinder~.)
-            ggplot(data = Dataset5,aes(x = engine)) +geom_freqpoly() 
-            </code> <br/>
+            <code>
+            #You can create a Frequency chart for one or more numeric variables. The default number of bins is set to 30.</br>
+            #The example below uses the mtcars dataset in the datasets package<br/>
+            ggplot(data=mtcars, aes(x=mpg  )) +
+                geom_freqpoly(  bins =30, alpha=1, color ="#727272" )​</br></br>
+            
+            #You can create a Frequency chart for one or more numeric variables and group the chart by a factor variable. The default number of bins is set to 30.</br>
+            #The example below uses the mtcars dataset in the datasets package<br/>
+            ggplot(data=mtcars, aes(x=mpg,colour=cyl ,group=cyl )) +
+                geom_freqpoly(  bins =30, alpha=1,)</br></br>
+            
+            #You can create a frequency chart/line chart by grouping one factor variable by another</br>
+            #You need to right click on cyl and am in the variable view to make it a factor</br>
+            ggplot(data=mtcars, aes(x=cyl,colour=am ,group=am )) +
+                geom_freqpoly(stat = "Count",alpha=1,)</br></br>
+                </code> <br/>  
             <b>Arguments</b><br/>
             <ul>
             <li>
-            data: The default dataset
+            data: The default dataset​
             </li>
             <li>
-            aes():    Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
+            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
             </li>
             <li>
-            x: the  numeric variable to plot counts for
+            group:  An optional factor/categorical variable. 
             </li>
             <li>
-            group: An optional factor variable that groups the x values. A separate frequency plot is created for each group of x: values as determined by levels of the factor variable
+            geom_freqpoly(): Creates the frequency plot
             </li>
             <li>
-            color: an optional factor variable to color x values that correspond to the level of the factor variable.
+            bins: Number of bins.
             </li>
             <li>
-            Labs(): Change axis labels and legend titles(This is optional)
+            Labs(): Change axis labels and legend titles(This is optional)​
             </li>
             <li>
-            facet_grid(): Lay out panels in a grid(This is optional)
+            facet_grid(): Lay out panels in a grid(This is optional)​
             </li>
             <li>
-            theme_calc(): Specifies the calculator theme(This is optional)
+            theme_calc(): Specifies the calculator theme(This is optional)​
             </li>
             <li>
-            geom_freqpoly (): Generates a frequency polygon. Bin width defaults to 1/bins =1/30 where bins =30 by default 
-            </li>
-            <li>        
-            coord_flip(): Flip axis(This is optional)
+            coord_flip(): Flip axis(This is optional)​
             </li>
             <li>
-            Package: ggplot2,ggthemes
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_freqpoly ), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)
+            alpha: Controls opacity, takes values between 0-1. 1 means no opacity.
+            </li>
+            </ul>
+            <b>Package</b></br>
+            ggplot2;ggthemes;</br>
+            <b>Help</b></br>
+            help(geom_freqpoly,package=ggplot2)</br>
+            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_freqpoly), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)​           
       `}
     }
 }
@@ -248,7 +262,8 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             }
         }
         super(config, objects, content);
-        this.opts = opts
+        this.opts = opts;
+        this.help = localization.en.help;
     }
     prepareExecution(instance) {
         let allColAttr = fetchAllColumnAttributes()
