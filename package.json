@@ -1,10 +1,10 @@
 {
     "name": "@BlueSkyStatistics/dialogs/graphics",
-    "productName": "Charts and visiualization dialogs",
-    "description": "BlueSky Statistics Charts and visiualization dialogs",
+    "productName": "Charts and visualization dialogs",
+    "description": "BlueSky Statistics Charts and visualization dialogs",
     "keywords": [],
     "main": "nav.js",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "author": "BlueSky Statistics",
     "scripts": {},
     "dependencies": {
