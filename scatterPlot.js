@@ -301,6 +301,32 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
+            title: {
+                el: new input(config, {
+                    no: "title",
+                    label: localization.en.specify_a_title,
+                    allow_spaces:true,
+                    placeholder: "Chart title",
+                    extraction: "NoPrefix|UseComma"
+                })
+				},
+				x_title: {
+                el:new input(config, {
+                    no: 'x_title',
+                    label: localization.en.x_title,
+                    allow_spaces:true,
+                    placeholder: "X Axis",
+                    extraction: "NoPrefix|UseComma"
+                })},
+				y_title: {
+                el: new input(config, {
+                    no: 'y_title',
+                    label: localization.en.y_title,
+                    allow_spaces:true,
+                    placeholder: "Y Axis",
+                    extraction: "NoPrefix|UseComma"
+                })},
+
             tabs: {}
         }
         const tab1 = {
@@ -325,27 +351,10 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var opts = new optionsVar(config, {
             no: "Scatterplot_options",
             content: [
-                new input(config, {
-                    no: "title",
-                    label: localization.en.specify_a_title,
-                    allow_spaces:true,
-                    placeholder: "Chart title",
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'x_title',
-                    label: localization.en.x_title,
-                    allow_spaces:true,
-                    placeholder: "X Axis",
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'y_title',
-                    label: localization.en.y_title,
-                    allow_spaces:true,
-                    placeholder: "Y Axis",
-                    extraction: "NoPrefix|UseComma"
-                })
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el
+                
             ]
         })
         var Facets = {
