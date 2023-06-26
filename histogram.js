@@ -207,31 +207,37 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "histogram_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
                     label: localization.en.specify_a_title,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     allow_spaces:true,
                     label: localization.en.x_title,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
                     label: localization.en.y_title,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
+            })},            
+        }
+        var opts = new optionsVar(config, {
+            no: "histogram_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
                 objects.barcolor.el,
                 objects.normalCurveColor.el,
                 objects.rugPlot.el

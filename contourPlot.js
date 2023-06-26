@@ -151,32 +151,32 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "Contour_plot_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: 'specify_a_title',
                     label: localization.en.specify_a_title,
                     placeholder: "Chart title",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     label: "X Axis Label",
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     label: "Y Axis Label",
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
-                new colorInput(config, {
+            })},
+            color: {
+                el: new colorInput(config, {
                     no: 'color',
                     label: "Select a color (After color selection, click outside the control to apply)",
                     placeholder: "#727272",
@@ -184,7 +184,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     type: "character",
                     extraction: "TextAsIs",
                     value: "#727272"
-                })
+            })}
+
+        }
+        var opts = new optionsVar(config, {
+            no: "Contour_plot_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
+                objects.color.el
             ]
         })
         var Facets = {

@@ -194,31 +194,37 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "density_chart_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
                     label: localization.en.specify_a_title,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     label: localization.en.x_title,
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     label: localization.en.x_title,
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
+            })},            
+        }
+        var opts = new optionsVar(config, {
+            no: "density_chart_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
                 objects.fillcolor.el,
             ]
         })

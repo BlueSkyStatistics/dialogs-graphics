@@ -257,31 +257,37 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "plotOfMeans_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: 'title',
                     label: "Chart Title",
                     allow_spaces:true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     allow_spaces:true,
                     label: "X Axis Label",
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
                     label: "Y Axis Label",
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-                })
+            })}           
+        }
+        var opts = new optionsVar(config, {
+            no: "plotOfMeans_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el
             ]
         })
         var Facets = {
