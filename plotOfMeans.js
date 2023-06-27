@@ -264,32 +264,32 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
                     allow_spaces:true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-            })},
-            x_title: {
+                })},	
+			x_title: {
                 el: new input(config, {
                     no: 'x_title',
                     allow_spaces:true,
                     label: "X Axis Label",
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
-            })},
-            y_title: {
+                })},
+			y_title: {
                 el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
                     label: "Y Axis Label",
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-            })}           
+                })},
         }
-        var opts = new optionsVar(config, {
+        var opts = {el: new optionsVar(config, {
             no: "plotOfMeans_options",
             content: [
                 objects.title.el,
-                objects.x_title.el,
-                objects.y_title.el
+                    objects.x_title.el,
+                    objects.y_title.el,
             ]
-        })
+        })};
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
@@ -305,7 +305,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
         const content = {
             left: [objects.content_var.el.content],
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.checkbox.el.content, objects.alpha.el.content, objects.label1.el.content, objects.radiobuttonNo.el.content, objects.radiobuttonSe.el.content, objects.radiobuttonSd.el.content, objects.radiobuttonCi.el.content, objects.confidenceInterval.el.content,],
-            bottom: [opts.content, Facets.el.content],
+            bottom: [opts.el.content, Facets.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-line-dot-chart",
@@ -332,15 +332,18 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                     alpha: instance.objects.alpha.el.getVal(),
                     confidenceInterval: instance.objects.confidenceInterval.el.getVal(),
-                    title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
                     Facetwrap: instance.objects.Facetwrap.el.getVal(),
                     Facetscale: instance.objects.Facetscale.el.getVal(),
                 }
             }
-            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
-            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+            //Aaron: please retain the comments below, I may want to reuse thus
+           // code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
+           // code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+           code_vars.selected["title"] = instance.objects.title.el.getVal() === "" ? "" : `ggtitle("${instance.objects.title.el.getVal()}") + `
+           code_vars.selected["x_label"] = instance.objects.x_title.el.getVal() === "" ? code_vars.selected.x[3] : instance.objects.x_title.el.getVal()
+           code_vars.selected["y_label"] = instance.objects.y_title.el.getVal() === "" ? code_vars.selected.y[3] : instance.objects.y_title.el.getVal()
             if (!(code_vars.selected.Facetcolumn.length == 0 && code_vars.selected.Facetrow.length == 0 && code_vars.selected.Facetwrap.length == 0)) {
                 code_vars.selected.tempFacets = stringWithFacetsForPlotOfMeans(code_vars.selected.Facetrow, code_vars.selected.Facetcolumn, code_vars.selected.Facetwrap)
             }
