@@ -213,39 +213,47 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "frequency_chart_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: "specify_a_title",
                     label: localization.en.specify_a_title,
                     allow_spaces:true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     label: localization.en.x_title,
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
                     label: localization.en.y_title,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
-                objects.distribution.el,
-                objects.label1.el,
-                new input(config, {
+            })},   
+            dparams: {
+                el: new input(config, {
                     no: 'dparams',
                     allow_spaces:true,
                     label: localization.en.dparams,
                     extraction: "NoPrefix|UseComma"
-                }),
+            })}         
+        }
+        var opts = new optionsVar(config, {
+            no: "frequency_chart_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
+                objects.distribution.el,
+                objects.label1.el,
+                objects.dparams.el
             ]
         })
         var Facets = {

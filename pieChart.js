@@ -213,31 +213,37 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "frequency_chart_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: "specify_a_title",
                     label: localization.en.specify_a_title,
                     allow_spaces:true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     label: localization.en.x_title,
                     allow_spaces:true,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {
+                el: new input(config, {
                     no: 'y_title',
                     label: localization.en.y_title,
                     allow_spaces:true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
+            })},            
+        }
+        var opts = new optionsVar(config, {
+            no: "frequency_chart_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el
             ]
         })
         var Facets = {

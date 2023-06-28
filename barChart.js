@@ -232,6 +232,47 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                     default: ""
                 })
             },
+            title: {
+                el: new input(config, {
+                    no: "specify_a_title",
+                    label: localization.en.specify_a_title,
+                    placeholder: "Chart title",
+                    allow_spaces:true,
+                    extraction: "NoPrefix|UseComma"
+            })},
+            x_title: {            
+                el: new input(config, {
+                    no: 'x_title',
+                    label: localization.en.x_title,
+                    placeholder: "X Axis",
+                    allow_spaces:true,
+                    extraction: "NoPrefix|UseComma"
+            })},
+            y_title: {
+                el: new input(config, {
+                    no: 'y_title',
+                    label: localization.en.y_title,
+                    placeholder: "Y Axis",
+                    allow_spaces:true,
+                    extraction: "NoPrefix|UseComma"
+            })},
+            fill1: {
+                el: new colorInput(config, {
+                    no: 'fill1',
+                    label: localization.en.fill1,
+                    placeholder: "#727272",
+                    allow_spaces:true,
+                    type: "character",
+                    extraction: "TextAsIs",
+                    value: "#727272"
+                })},
+            dropna: {
+                el: new checkbox(config, { 
+                    label: localization.en.dropna, 
+                    no: "dropna", 
+                    extraction: "Boolean" 
+                })},
+                        
         }
         const tab1 = {
             state: "active",
@@ -274,38 +315,11 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
         var opts = new optionsVar(config, {
             no: "barchart_options",
             content: [
-                new input(config, {
-                    no: "specify_a_title",
-                    label: localization.en.specify_a_title,
-                    placeholder: "Chart title",
-                    allow_spaces:true,
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'x_title',
-                    label: localization.en.x_title,
-                    placeholder: "X Axis",
-                    allow_spaces:true,
-                    extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
-                    no: 'y_title',
-                    label: localization.en.y_title,
-                    placeholder: "Y Axis",
-                    allow_spaces:true,
-                    extraction: "NoPrefix|UseComma"
-                }),
-               new colorInput(config, {
-                        no: 'fill1',
-                        label: localization.en.fill1,
-                        placeholder: "#727272",
-                        allow_spaces:true,
-                        type: "character",
-                        extraction: "TextAsIs",
-                        value: "#727272"
-                    }),
-                new checkbox(config, { label: localization.en.dropna, no: "dropna", extraction: "Boolean" }),
-                
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el,
+                objects.fill1.el,
+                objects.dropna.el
             ]
         })
         var Facets = {

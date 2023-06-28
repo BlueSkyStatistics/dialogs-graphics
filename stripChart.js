@@ -208,31 +208,37 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     default: ""
                 })
             },
-        }
-        var opts = new optionsVar(config, {
-            no: "Stripchart_options",
-            content: [
-                new input(config, {
+            title: {
+                el: new input(config, {
                     no: 'specify_a_title',
                     allow_spaces:true,
                     label: localization.en.specify_a_title,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            x_title: {
+                el: new input(config, {
                     no: 'x_title',
                     label: localization.en.x_title,
                     allow_spaces:true,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
-                }),
-                new input(config, {
+            })},
+            y_title: {            
+                el: new input(config, {
                     no: 'y_title',
                     label: localization.en.y_title,
                     allow_spaces:true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-                })
+            })},
+        }
+        var opts = new optionsVar(config, {
+            no: "Stripchart_options",
+            content: [
+                objects.title.el,
+                objects.x_title.el,
+                objects.y_title.el
             ]
         })
         var Facets = {
