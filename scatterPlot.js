@@ -139,7 +139,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         objects;
         var objects = {
-            content_var: { el: new srcVariableList(config, {scroll:true}) },
+            content_var: { el: new { el: new srcVariableList(config) }},
             y: {
                 el: new dstVariableList(config, {
                     label: localization.en.y,
@@ -327,7 +327,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     extraction: "NoPrefix|UseComma"
                 })},
 
-            tabs: {}
+           
         }
         const tab1 = {
             state: "active",
@@ -347,7 +347,9 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             label: localization.en.tab3,
             content: [objects.squaredBins.el.content].join("")
         }
-        objects.tabs = {el : new tabsView(config, { no: "bar_type", tabs: [tab1, tab2, tab3], extraction: "NoPrefix" })}
+       // objects.tabs = {el : new tabsView(config, { no: "bar_type", tabs: [tab1, tab2, tab3], extraction: "NoPrefix" })}
+
+       var tabs = new tabsView(config, { no: "bar_type",  tabs: [tab1, tab2, tab3], extraction: "NoPrefix" })
         var opts = new optionsVar(config, {
             no: "Scatterplot_options",
             content: [
@@ -372,7 +374,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const content = {
             left: [objects.content_var.el.content],
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.checkbox.el.content],
-            bottom: [new labelVar(config, { label: "Select the type of Scatterplot", h: 5 }).content, objects.tabs.el.content, opts.content, Facets.el.content],
+            bottom: [new labelVar(config, { label: "Select the type of Scatterplot", h: 5 }).content,tabs.content, opts.content, Facets.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-scatter_plot",
@@ -381,7 +383,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             }
         }
         super(config, objects, content);
-        this.tabs = objects.tabs
+        this.tabs = tabs
         this.opts = opts
         this.help = localization.en.help;
     }
@@ -396,7 +398,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     x: instance.dialog.prepareSelected({ x: instance.objects.x.el.getVal()[0] }, instance.objects.x.r),
                     y: instance.dialog.prepareSelected({ y: value }, instance.objects.y.r),
                     fill: instance.dialog.prepareSelected({ fill: instance.objects.fill.el.getVal()[0] }, instance.objects.fill.r),
-                    scatter_type: instance.tabs.el.getActive('el-index'),
+                    scatter_type: instance.tabs.getActive('el-index'),
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                     jitter: instance.objects.jitter.el.getVal() ? instance.objects.jitter.r : "geom_point() +\n",
                     lineColor: instance.objects.lineColor.el.getVal(),
