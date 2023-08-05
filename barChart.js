@@ -280,7 +280,7 @@ class BarChartModal extends baseModal {
                         label: localization.en.relFreq,
                         no: "relFreq",
                         extraction: "Boolean",
-                        state: "checked"
+                        
                     })
                 },
                         
