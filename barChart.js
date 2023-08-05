@@ -11,7 +11,7 @@ var localization = {
         barType: "Type of bar graph",
         stackedBar: "Stacked bar graph",
         sideBySide: "Show groups side by side",
-        fillPercent: "Fill percentage of bar",
+        fillPercent: "Fill bars",
         errorBarOptions: "Error bars",
         noErrBars: "No error bars",
         stderr: "Standard errors",
@@ -28,11 +28,13 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        relFreq: "Relative frequencies",        
+
         help: {
             title: "Bar Chart Help",
             r_help: "help(geom_bar, package=ggplot2)",
             body: `A bar chart or bar graph is a chart that presents grouped data with rectangular bars with lengths proportional to the values that they represent. The bars can be plotted vertically or horizontally. The bars can be grouped by an optional factor variable. The groups can be stacked on a single bar or displayed side by side. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.
-        You can create a barplot for a single factor variable, the bars will represent the counts of each level of the factor level. Here the factor variable will be on the x axis, see example below 
+        You can create a barplot for a single factor variable, the bars will represent the counts of each level of the factor level. Here the factor variable will be on the x axis, see example below. When the relative frequencies checkbox is selected, we show relative frequency instead of counts on the y axis.
         <br />
         <code> 
          ggplot(data=Dataset2,aes(x =year)) +
@@ -103,49 +105,50 @@ class BarChartModal extends baseModal {
             label: localization.en.title,
             modalType: "two",
             RCode: `
-{{ if (options.selected.bar_type === "0") }}
-## [Bar Chart With Counts]
-detach(package:dplyr)   
-require(plyr)
-require(dplyr)
-require(tidyr)
-require(ggplot2);
-require(ggthemes);
-require(stringr);
-{{dataset.name}}  %>% {{if (options.selected.dropna )}}tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} ) %>%{{/if}}
-ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}{{if( options.selected.y[0] !="")}}{{selected.y[0] | safe}}{{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}}{{if( options.selected.y[0] !="")}},stat="identity"{{/if}}{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="")}},y='Count'{{#else}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if ( options.selected.y[2] =="")}} Y='Count'{{#else}}{{selected.y[2] | safe}}{{/if}} {{selected.fill[2] | safe}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
-{{ #else }}
-## [Bar Chart (with means)]
-require(ggplot2);
-require(ggthemes);
-require(Rmisc);
-{{ if (options.selected.y[0] != "" && options.selected.x[0] != "") }}
-temp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
-\ntemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
-pd <- position_dodge(0.9)
-{{ if (!options.selected.showTopOfBars ) }}
-temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
-    geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}}
-    labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + 
-    ylab("{{selected.y_label|safe}}") + 
-    {{selected.title|safe}}
-    {{selected.flip | safe}}
-    {{selected.Facets | safe}} + {{selected.themes | safe}}
-{{#else}}
-temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
-    {{ selected.radio | safe}}   geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
-    labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + 
-    ylab("{{selected.y_label|safe}}") + 
-    {{selected.title|safe}}
-    {{selected.flip | safe}}
-    {{selected.Facets | safe}} + {{selected.themes | safe}}
-{{/if}}
-{{#else}}
-cat("Error: You must select a Y variable and a X variable/grouping variable to plot a Bar Chart with Means")
-{{/if}}
-{{/if}}`,
+            {{ if (options.selected.bar_type === "0") }}
+            ## [Bar Chart With Counts]
+            detach(package:dplyr)  
+            require(plyr)
+            require(dplyr)
+            require(tidyr)
+            require(ggplot2);
+            require(ggthemes);
+            require(stringr);
+            {{dataset.name}}  %>% {{if (options.selected.dropna )}}tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} ) %>%{{/if}}
+            ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}{{if( options.selected.y[0] !="")}}{{selected.y[0] | safe}}{{/if}}{{if(options.selected.relFreq == "TRUE")}}, y = ..count../sum(..count..){{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}}{{if( options.selected.y[0] !="")}},stat="identity"{{/if}}{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
+            {{ #else }}
+            ## [Bar Chart (with means)]
+            require(ggplot2);
+            require(ggthemes);
+            require(Rmisc);
+            {{ if (options.selected.y[0] != "" && options.selected.x[0] != "") }}
+            temp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
+            \ntemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+            pd <- position_dodge(0.9)
+            {{ if (!options.selected.showTopOfBars ) }}
+            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
+                geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}}
+                labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
+                xlab("{{selected.x_label|safe}}") +
+                ylab("{{selected.y_label|safe}}") +
+                {{selected.title|safe}}
+                {{selected.flip | safe}}
+                {{selected.Facets | safe}} + {{selected.themes | safe}}
+            {{#else}}
+            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
+                {{ selected.radio | safe}}   geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
+                labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
+                xlab("{{selected.x_label|safe}}") +
+                ylab("{{selected.y_label|safe}}") +
+                {{selected.title|safe}}
+                {{selected.flip | safe}}
+                {{selected.Facets | safe}} + {{selected.themes | safe}}
+            {{/if}}
+            {{#else}}
+            cat("Error: You must select a Y variable and a X variable/grouping variable to plot a Bar Chart with Means")
+            {{/if}}
+            {{/if}}
+            `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
                 Facetcolumn: "returnFactorNamesOfFactorVars('{{dataset.name}}',cross=TRUE)",
@@ -272,6 +275,14 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                     no: "dropna", 
                     extraction: "Boolean" 
                 })},
+                relFreq : {
+                    el: new checkbox(config, {
+                        label: localization.en.relFreq,
+                        no: "relFreq",
+                        extraction: "Boolean",
+                        state: "checked"
+                    })
+                },
                         
         }
         const tab1 = {
@@ -279,10 +290,13 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
             no: "count",
             label: "Count",
             content: [
+                objects.relFreq.el.content,
+               // new checkbox(config, { label: localization.en.relFreq, no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
                 new labelVar(config, { label: localization.en.barType, h: 6 }).content,
                 new radioButton(config, { label: localization.en.stackedBar, no: "count", increment: "stack", value: "stack", state: "checked", extraction: "ValueAsIs" }).content,
                 new radioButton(config, { label: localization.en.sideBySide, no: "count", increment: "dodge", value: "dodge", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.fillPercent, no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content
+                new radioButton(config, { label: localization.en.fillPercent, no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content,
+                
             ].join("")
         }
         const tab2 = {
@@ -365,6 +379,8 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                     fill: instance.dialog.prepareSelected({ fill: instance.objects.fill.el.getVal()[0] }, instance.objects.fill.r),
                     bar_type: instance.tabs.getActive('el-index'),
                     radio: instance.tabs.getActive('el-index') === "1" ? "" : common.getCheckedRadio(instance.tabs.getActive('el-group')),
+                    //relFreq: common.getCheckedCheckbox(instance.tabs.getActive('el-group')) ? "TRUE":"FALSE",
+                    relFreq: instance.objects.relFreq.el.getVal()? "TRUE":"FALSE",
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                     opacity: instance.objects.slider.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") +\n `,
@@ -374,10 +390,22 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                     Facetscale: instance.objects.Facetscale.el.getVal(),
                     fill1: instance.opts.config.content[3].getVal(),
                     dropna: instance.opts.config.content[4].getVal(),
+                    
                 }
             }
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
-            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? "Count" : instance.opts.config.content[2].getVal()
+           // code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? "Count" : instance.opts.config.content[2].getVal()
+           code_vars.selected.y_label =instance.opts.config.content[2].getVal()
+            if (code_vars.selected.y_label == "" )
+            {
+                if (code_vars.selected.radio =="fill" || code_vars.selected.relFreq == "TRUE")
+                {
+                    code_vars.selected.y_label = "Proportion(0-1)"
+                }
+                else {
+                    code_vars.selected.y_label = "Count"
+                }
+            }
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
             if (code_vars.selected.Facetrow[0] ==undefined )
             {
@@ -428,6 +456,7 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                         radio: instance.tabs.getActive('el-index') === "1" ? instance.dialog.renderSample(errorBarOptions, { y: value }) : common.getCheckedRadio(instance.tabs.getActive('el-group')),
                         //cilevel is used only for Barchart means
                         //cilevel : common.getSliderValueInTab(`${instance.config.id}_cilevel`),
+                        relFreq: instance.objects.relFreq.el.getVal()? "TRUE":"FALSE",
                         cilevel: common.getVal(`${instance.config.id}_cilevel`),
                         showTopOfBars: common.getVal(`${instance.config.id}_hide`),
                         flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
@@ -442,8 +471,24 @@ cat("Error: You must select a Y variable and a X variable/grouping variable to p
                         dropna: instance.opts.config.content[4].getVal(),
                     }
                 }
+
+                if (code_vars.selected.y[0] != "" && code_vars.selected.relFreq == "TRUE") {
+                    dialog.showMessageBoxSync({ type: "error", buttons: ["OK"], title: "Invalid option", message: `You cannot specify Y variable(s) when relative frequencies is selected.` })
+                    return res
+                  }
+
                 code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
                 code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+                if (code_vars.selected.y_label == "" )
+                {
+                    if (code_vars.selected.radio =="fill" || code_vars.selected.relFreq == "TRUE")
+                    {
+                        code_vars.selected.y_label = "Proportion(0-1)"
+                    }
+                    else {
+                        code_vars.selected.y_label = "Count"
+                    }
+                }
                 if (code_vars.selected.Facetrow[0] ==undefined )
                 {
                     code_vars.selected.Facetrow[0] =""

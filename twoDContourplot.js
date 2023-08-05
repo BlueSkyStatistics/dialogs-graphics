@@ -24,6 +24,7 @@ class twoDContourplot extends baseModal {
             modalType: "two",
             RCode: `
 require(ggplot2)
+require(ggthemes)
 ggplot({{dataset.name}}, aes(x={{selected.tvarbox1 | safe}}, y={{selected.tvarbox2 | safe}}, z={{selected.tvarbox3 | safe}})) +
 geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
 `
