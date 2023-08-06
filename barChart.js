@@ -472,7 +472,7 @@ class BarChartModal extends baseModal {
                     }
                 }
 
-                if (code_vars.selected.y[0] != "" && code_vars.selected.relFreq == "TRUE") {
+                if (code_vars.selected.y[0] != "" && code_vars.selected.relFreq == "TRUE" && errorBarOptions != "") {
                     dialog.showMessageBoxSync({ type: "error", buttons: ["OK"], title: "Invalid option", message: `You cannot specify Y variable(s) when relative frequencies is selected.` })
                     return res
                   }
