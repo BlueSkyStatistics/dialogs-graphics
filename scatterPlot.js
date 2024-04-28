@@ -389,6 +389,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
     }
     prepareExecution(instance) {
         var res = [];
+        let count =0
         instance.objects.y.el.getVal().forEach(function (value) {
             var code_vars = {
                 dataset: {
@@ -422,7 +423,15 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
             cmd = removenewline(cmd);
-            res.push({ cmd: cmd, cgid: newCommandGroup() })
+            if (count ==0)
+            {
+                res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`,`${instance.config.label}`) })
+            }
+            else
+            {
+                res.push({ cmd: cmd, cgid: newCommandGroup() })
+            }
+            count++
         })
         return res;
     }
