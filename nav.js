@@ -42,7 +42,10 @@ const nav =
             "icon": "icon-chart-pie-solid",
             "children": [
                 "./coxComb",
-                "./pieChart"
+                "./pieChart",
+                "./pieChartNew",
+                "./pieChartFin",
+
             ]
         },
         "./scatterPlot",
