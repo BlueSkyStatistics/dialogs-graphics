@@ -107,52 +107,64 @@ BSkyTemp <- table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPercents 
 BSkyTemp <- as.data.frame(BSkyTemp)
 #names(counts_df) <- c("{{selected.pieVar | safe}}", "Count")
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
-BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  geom_text(aes(label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
+  geom_text(aes(x =1.6,label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
   theme_void() +
-  labs(title = "Distribution of {{selected.pieVar | safe}}") + {{selected.themes | safe}}
+  labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+    ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+    xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{/if}}
+
+
 
 
 #Fill and x variable but no y variable
 {{if (options.selected.yVar ==undefined && options.selected.xVar !=undefined && options.selected.color[5] != undefined)}}
 {{if (options.selected.concentricCircles)}} 
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n())
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 #Creating a new factor variable
 BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 #Calculating percents
-BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  geom_text(aes(label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
+  geom_text(aes(x=1.6, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
   theme_void() +
-  labs(title = "Distribution of {{selected.pieVar | safe}}") + {{selected.themes | safe}}
+    labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+    ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+    xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{#else}}
 #No concentric circles
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n())
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 #Creating a new factor variable
 BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 #Calculating percents
-BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  geom_text(aes(label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
+  geom_text(aes(x=1.6, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
   theme_void() +
-  labs(title = "Distribution of {{selected.pieVar | safe}}") + {{selected.themes | safe}}
+  labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+  ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+  xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{/if}}
 {{/if}}
-
 
 
 
@@ -160,7 +172,7 @@ ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{s
 {{if (options.selected.yVar !=undefined && options.selected.color[5] != undefined)}}
 {{if (options.selected.concentricCircles)}} 
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE))
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 {{if(options.selected.xVar != undefined)}}
 #Creating a new factor variable if x variable is specified
@@ -168,34 +180,43 @@ BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 {{/if}}
 #Calculating percents
-BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
-  geom_text(aes(label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
+  geom_text(aes(x=1.6,label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
   theme_void() +
-  labs(title = "Distribution of {{selected.pieVar | safe}}") + {{selected.themes | safe}}
+  labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.xVar | safe}}{{/if}}") + 
+      xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{#else}}
 #No concentric circles
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE))
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
     names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 {{if(options.selected.xVar != undefined)}}
 #Creating a new factor variable if x variable is specified
 BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 {{/if}}
-    #Calculating percents
-    BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
-    ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+   #Calculating percents
+   # BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+   BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+   ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
       geom_bar(width = 1, stat = "identity") +
       coord_polar("y", start = 0) +
-      geom_text(aes(label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
+      geom_text(aes(x=1.6,label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
       theme_void() +
-      labs(title = "Distribution of {{selected.pieVar | safe}}") + {{selected.themes | safe}}
-    
+      labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.xVar | safe}}{{/if}}") + 
+      xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+     {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{/if}}
 {{/if}}
+
+
 
 
 `,
@@ -446,7 +467,7 @@ BSkyTemp <- BSkyTemp  %>%
            
             let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
             code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
-            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
+            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() 
             code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
             code_vars.selected.themes = themeRsyntax;
@@ -526,7 +547,7 @@ BSkyTemp <- BSkyTemp  %>%
             let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
             code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
            
-                code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
+                code_vars.selected["x_label"] = instance.opts.config.content[1].getVal()
                 code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
                 code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
                 code_vars.selected.themes = themeRsyntax;
