@@ -188,7 +188,7 @@ ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.
   geom_text(aes(x=1.6,label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
   theme_void() +
   labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
-      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.xVar | safe}}{{/if}}") + 
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
       xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{#else}}
@@ -210,7 +210,7 @@ BSkyTemp <- BSkyTemp  %>%
       geom_text(aes(x=1.6,label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.newVariable | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +
       theme_void() +
       labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
-      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.xVar | safe}}{{/if}}") + 
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
       xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
      {{selected.Facets | safe}} + {{selected.themes | safe}}
 {{/if}}
@@ -468,7 +468,8 @@ BSkyTemp <- BSkyTemp  %>%
             let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
             code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() 
-            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+            //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
@@ -548,7 +549,8 @@ BSkyTemp <- BSkyTemp  %>%
             code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
            
                 code_vars.selected["x_label"] = instance.opts.config.content[1].getVal()
-                code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+                //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+                code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
                 code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
                 code_vars.selected.themes = themeRsyntax;
                 let cmd = instance.dialog.renderR(code_vars)
