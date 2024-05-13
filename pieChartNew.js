@@ -117,9 +117,17 @@ BSkyTemp <- as.data.frame(BSkyTemp)
 #names(counts_df) <- c("{{selected.pieVar | safe}}", "Count")
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
 ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
-  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x ={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +{{/if}}
+  
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x ={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
   labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
     ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
@@ -142,9 +150,16 @@ BSkyTemp <- BSkyTemp  %>%
 #Calculating percents
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
 ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
-  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +{{/if}}
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
     labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
     ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
@@ -161,9 +176,16 @@ BSkyTemp <- BSkyTemp  %>%
 #Calculating percents
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
 ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
-  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels!="TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", "(", Percentage, "%)")), position = position_stack(vjust = 0.5)) +{{/if}}
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels!="TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
   labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
   ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
@@ -469,6 +491,7 @@ BSkyTemp <- BSkyTemp  %>%
                     xVar: instance.objects.x.el.getVal()[0],
                     yVar: instance.objects.y.el.getVal()[0],
                     radius :instance.objects.radius.el.getVal(),
+                    suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
                     //rdgrp1: instance.objects.rdgrp1.el.getVal(),
                     suppressLabels: instance.objects.suppressLabels.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
@@ -551,6 +574,7 @@ BSkyTemp <- BSkyTemp  %>%
                         radius :instance.objects.radius.el.getVal(),
                         xVar: value,
                         yVar: instance.objects.y.el.getVal()[0],
+                        suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
                         //   rdgrp1: instance.objects.rdgrp1.el.getVal(),
                         suppressLabels: instance.objects.suppressLabels.el.getVal(),
                         title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
