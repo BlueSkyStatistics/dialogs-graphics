@@ -98,10 +98,10 @@ var localization = {
         `}
     }
 }
-class BarChartModal extends baseModal {
+class BarChartModalNew extends baseModal {
     constructor() {
         var config = {
-            id: "barChartModal",
+            id: "barChartModalNew",
             label: localization.en.title,
             modalType: "two",
             RCode: `
@@ -114,8 +114,9 @@ class BarChartModal extends baseModal {
             require(ggplot2);
             require(ggthemes);
             require(stringr);
-            {{dataset.name}}  %>% {{if (options.selected.dropna )}}tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} ) %>%{{/if}}
-            ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}{{if( options.selected.y[0] !="")}}{{selected.y[0] | safe}}{{/if}}{{if(options.selected.relFreq == "TRUE")}}, y = ..count../sum(..count..){{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}}{{if( options.selected.y[0] !="")}},stat="identity"{{/if}}{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
+
+           {{dataset.name}}  %>% {{if (options.selected.dropna )}}tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} ) %>%{{/if}}
+            ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}{{if( options.selected.y[0] !="")}}{{selected.y[0] | safe}}{{/if}}{{if(options.selected.relFreq == "TRUE")}}, y = ..count../sum(..count..){{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}}{{if( options.selected.y[0] !="")}},stat="identity"{{/if}}{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +\n\tgeom_text(stat='count', aes(label=paste (after_stat(count), "\n", after_stat(count)/sum(count)), vjust=-0.5))+\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{ #else }}
             ## [Bar Chart (with means)]
             require(ggplot2);
@@ -511,4 +512,4 @@ class BarChartModal extends baseModal {
         return res;
     }
 }
-module.exports.item = new BarChartModal().render()
+module.exports.item = new BarChartModalNew().render()

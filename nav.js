@@ -4,6 +4,8 @@ const nav =
     "tab": "graphics",
     "buttons": [
         "./barChart",
+        "./barChartNew",
+        "./barChartFin",
         "./boxPlot",
         "./contourPlot",
         "./twoDContourplot",
