@@ -428,10 +428,7 @@ BSkyTemp <- BSkyTemp  %>%
                   extraction: "NoPrefix|UseComma"
                 })
               },
-              label2: { el: new labelVar(config, { no: 'label2', label: localization.en.radiusNote, h: 9 }) }
-         
-            
-            
+              label2: { el: new labelVar(config, { no: 'label2', label: localization.en.radiusNote, h: 9 }) }            
         }
         var opts = new optionsVar(config, {
             no: "frequency_chart_options",
@@ -444,8 +441,6 @@ BSkyTemp <- BSkyTemp  %>%
                 objects.suppressThreshold.el,
                 objects.radius.el,
                 objects.label2.el
-               
-
             ]
         })
         var Facets = {
@@ -468,7 +463,6 @@ BSkyTemp <- BSkyTemp  %>%
                 objects.x.el.content,
                 objects.alpha.el.content,
                 objects.width.el.content,
-              //  objects.rdgrp1.el.content,
                 objects.flipaxis.el.content,
                 objects.concentricCircles.el.content,
             ],
@@ -532,18 +526,11 @@ BSkyTemp <- BSkyTemp  %>%
             let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
             
             code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
-
-
-          /*   if (code_vars.selected.y[5] !== '') {
-                nonEmptyStrings.push(code_vars.selected.y[5]);
-            } */
             code_vars.selected.generatedVarName = undefined
             if (code_vars.selected.color[5] != "" && code_vars.selected.x[5] != ""){
                 code_vars.selected.generatedVarName = code_vars.selected.color[5] + "_" + code_vars.selected.x[5]
                 code_vars.selected.pieVar = code_vars.selected.generatedVarName
             }
-           
-
             if (code_vars.selected.yVar == undefined)
             {
                 code_vars.selected.newVariable = "Counts"+"_for_each_" + code_vars.selected.pieVar
@@ -599,20 +586,23 @@ BSkyTemp <- BSkyTemp  %>%
                 }
 
                 code_vars.selected.stringForDatasetWithFreqPercents = ""
-            // Initialize an empty array to hold non-empty strings
-            let nonEmptyStrings = [];
+                // Initialize an empty array to hold non-empty strings
+                let nonEmptyStrings = [];
            
-            if (code_vars.selected.color[5] !== '') {
-                nonEmptyStrings.push(code_vars.selected.color[5]);
-            }
+                if (code_vars.selected.color[5] !== '') {
+                    nonEmptyStrings.push(code_vars.selected.color[5]);
+                }
 
-            // Check if each input string is not empty, then add it to the array
-            if (code_vars.selected.x[5] !== '') {
-                nonEmptyStrings.push(code_vars.selected.x[5]);
-            }
-            let namesOfDataset = nonEmptyStrings.concat()
+                // Check if each input string is not empty, then add it to the array
+                if (code_vars.selected.x[5] !== '') {
+                    nonEmptyStrings.push(code_vars.selected.x[5]);
+                }
+                //Creates a , separated string with the contents of the array
+                //so if the 1st element of the array is val1 and the 2nd element is val2
+                //arr.concat() = val1,val2
+                let namesOfDataset = nonEmptyStrings.concat()
 
-            let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
+                let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
             
             code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
             code_vars.selected.generatedVarName = undefined
