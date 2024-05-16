@@ -157,11 +157,21 @@ class BarChartModalNew extends baseModal {
             require(ggthemes);
             require(Rmisc);
             {{ if (options.selected.y[0] != "" && options.selected.x[0] != "") }}
-            temp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
-            \ntemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+            BSkyTemp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
+            \nBSkyTemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+            
+            BSkyTemp$Percentage <- with(BSkyTemp, base::round(N / sum(N) * 100), digits =BSkyGetDecimalDigitSetting())
+            BSkyTemp$NAsString = as.character(BSkyTemp$N)
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp <- BSkyTemp %>%
+            dplyr::mutate(
+                PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+                {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", NAsString),
+                )
+            
             pd <- position_dodge(0.9)
             {{ if (!options.selected.showTopOfBars ) }}
-            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
+            BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
                 geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}}
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
@@ -170,7 +180,7 @@ class BarChartModalNew extends baseModal {
                 {{selected.flip | safe}}
                 {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{#else}}
-            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
+            BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
                 {{ selected.radio | safe}}   geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
