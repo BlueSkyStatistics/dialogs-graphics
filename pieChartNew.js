@@ -112,13 +112,13 @@ require(ggthemes);
 require(stringr);
 #Only fill
 {{if (options.selected.yVar ==undefined && options.selected.xVar ==undefined && options.selected.color[5] !=undefined)}}
-BSkyTemp <- base::table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("always"))
+BSkyTemp <- base::table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("ifany"))
 BSkyTemp <- as.data.frame(BSkyTemp)
 #names(counts_df) <- c("{{selected.pieVar | safe}}", "Count")
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" , sep="")
 BSkyTemp <- BSkyTemp %>%
   dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),

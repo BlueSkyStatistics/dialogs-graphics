@@ -125,7 +125,7 @@ class BarChartModalNew extends baseModal {
             {{/if}}
 
             {{if (options.selected.y[3] !="")}}
-            BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.fill[4] | safe}}{{if (options.selected.x[3] != undefined)}}, {{selected.x[3] | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
+            BSkyTemp <- {{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}} %>%\n dplyr::group_by({{selected.fill[4] | safe}}{{if (options.selected.x[3] != undefined)}}, {{selected.x[3] | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
             names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
             {{if(options.selected.x[3] != undefined)}}
             #Creating a new factor variable if x variable is specified
@@ -138,7 +138,7 @@ class BarChartModalNew extends baseModal {
             BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
             BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
             {{#else}}
-            BSkyTemp <- base::table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("always"))
+            BSkyTemp <- base::table({{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("ifany"))
             BSkyTemp <- as.data.frame(BSkyTemp)
             names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
@@ -150,7 +150,7 @@ class BarChartModalNew extends baseModal {
                 {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
                 )
             {{/if}}
-            BSkyTemp  %>% ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}, y = {{selected.newVariable | safe}}{{if(options.selected.relFreq == "TRUE")}}, y = ..count../sum(..count..){{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) {{if (options.selected.suppressLabels != "TRUE")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_stack(vjust = 0.5)) {{/if}}+\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
+            BSkyTemp %>% ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}, {{if(options.selected.relFreq == "TRUE")}} y = Percentage/100{{#else}}y = {{selected.newVariable | safe}}{{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) {{if (options.selected.suppressLabels != "TRUE" && options.selected.radio != "fill")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), {{if(options.selected.radio =="dodge")}}position = position_dodge(width = 0.8)){{#else}}position = position_stack(vjust = 0.5)){{/if}}{{/if}}+\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{ #else }}
             ## [Bar Chart (with means)]
             require(ggplot2);
@@ -158,8 +158,8 @@ class BarChartModalNew extends baseModal {
             require(Rmisc);
             {{ if (options.selected.y[0] != "" && options.selected.x[0] != "") }}
             BSkyTemp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
-            \nBSkyTemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
-            
+            \nBSkyTemp <-Rmisc::summarySE( BSkyTemp, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+   
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(N / sum(N) * 100), digits =BSkyGetDecimalDigitSetting())
             BSkyTemp$NAsString = as.character(BSkyTemp$N)
             BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
@@ -172,7 +172,8 @@ class BarChartModalNew extends baseModal {
             pd <- position_dodge(0.9)
             {{ if (!options.selected.showTopOfBars ) }}
             BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
-                geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}}
+                geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}} 
+                {{if (options.selected.suppressLabels != "TRUE")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_dodge(width = 0.8))+ {{/if}}
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
                 ylab("{{selected.y_label|safe}}") +
@@ -181,7 +182,8 @@ class BarChartModalNew extends baseModal {
                 {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{#else}}
             BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
-                {{ selected.radio | safe}}   geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
+                {{ selected.radio | safe}}   geom_bar( position="dodge", alpha={{selected.opacity}}, stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
+                {{if (options.selected.suppressLabels != "TRUE")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_dodge(width = 0.8)) + {{/if}}
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
                 ylab("{{selected.y_label|safe}}") +
