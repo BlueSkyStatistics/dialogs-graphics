@@ -125,13 +125,29 @@ class BarChartModalNew extends baseModal {
             {{/if}}
 
             {{if (options.selected.y[3] !="")}}
+
+            {{if(options.selected.fill[4] != "")}}
             BSkyTemp <- {{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}} %>%\n dplyr::group_by({{selected.fill[4] | safe}}{{if (options.selected.x[3] != undefined)}}, {{selected.x[3] | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
             names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+            {{#else}}
+            BSkyTemp <- {{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}} %>%\n dplyr::group_by({{selected.x[3] | safe}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
+            names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+            {{/if}}
+
             {{if(options.selected.x[3] != undefined)}}
+            {{if(options.selected.fill[4] != "")}}
             #Creating a new factor variable if x variable is specified
             BSkyTemp <- BSkyTemp  %>%
             dplyr::mutate({{selected.fill[4] | safe }}_{{selected.x[3] | safe }} = paste({{selected.fill[4] | safe }}, {{selected.x[3] | safe }}, sep = "_"))
+            {{#else}}
+            #Creating a new factor variable if x variable is specified
+            BSkyTemp <- BSkyTemp  %>%
+            dplyr::mutate({{selected.x[3] | safe }} = paste({{selected.x[3] | safe }}, sep = ""))
             {{/if}}
+
+            {{/if}}
+            
+            
             #Calculating percents
             #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
