@@ -277,7 +277,7 @@ BSkyTemp <- BSkyTemp  %>%
                 r: ['y={{y|safe}},', 'y="{{y|safe}}",', 'y="{{y|safe}}",', '{{y|safe}}', ' Y aesthetic: {{y|safe}}', '{{y|safe}}']
             },
             color: {
-                el: new dstVariable(config, { label: localization.en.fill, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: localization.en.fill, no: "color", required:true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: ['fill={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', '{{color|safe}}', ' fill: {{color|safe}}','{{color|safe}}']
             },
             alpha: {

@@ -235,6 +235,7 @@ class BarChartModalNew extends baseModal {
                 el: new dstVariable(config, {
                     label: localization.en.x,
                     no: "x",
+                    required:true,
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
                 }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}' ]
