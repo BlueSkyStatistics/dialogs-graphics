@@ -3,7 +3,7 @@ const nav =
     "name": "Graphics",
     "tab": "graphics",
     "buttons": [
-        "./barChart",
+        "./barChartNew",
         "./boxPlot",
         "./contourPlot",
         "./twoDContourplot",
@@ -42,7 +42,7 @@ const nav =
             "icon": "icon-chart-pie-solid",
             "children": [
                 "./coxComb",
-                "./pieChart"
+                "./pieChartNew"
             ]
         },
         "./scatterPlot",
