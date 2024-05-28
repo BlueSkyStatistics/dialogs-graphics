@@ -4,6 +4,7 @@ var localization = {
         navigation: "Histogram",
         x: "X axis, specify a numeric variable(s)",
         bins: "Specify the number of bins",
+        fill: "Group by (factor variable)",
         binwidth: "Bin width",
         barcolor: "Optionally select a fill color (After color selection, click outside the control to apply)",
         alpha: "Opacity (0-1)",
@@ -84,8 +85,9 @@ class histogram extends baseModal {
             RCode: `## [Histogram]
 require(ggplot2);
 require(ggthemes);
-ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
-    geom_histogram({{if (options.selected.binwidth != "")}}  binwidth ={{selected.binwidth | safe}},{{/if}} {{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}}{{selected.alpha | safe}}{{if (options.selected.barcolor != "")}}  fill ="{{selected.barcolor | safe}}" {{/if}} {{if( options.selected.normalCurve =="TRUE")}}, aes(y =..density..){{/if}}) +
+{{if (options.selected.settingPalette !="")}}{{selected.settingPalette | safe}}{{/if}}
+ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected.fill[4] !="")}}{{selected.fill[0] | safe}}{{/if}})) +
+    geom_histogram({{if (options.selected.binwidth != "")}} binwidth ={{selected.binwidth | safe}},{{/if}} {{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}}{{selected.alpha | safe}}{{if (options.selected.fill[4] =="")}}  fill ="{{selected.barcolor | safe}}" {{/if}} {{if( options.selected.normalCurve =="TRUE")}}, aes(y =after_stat(density)){{/if}}) +
     {{if( options.selected.normalCurve =="TRUE")}}{{selected.normal | safe}}{{/if}}
     {{selected.rugPlot | safe}}
     labs({{selected.x[1] | safe}}, title= "Histogram for variable {{selected.x[3] | safe}}") +
@@ -107,6 +109,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
             x: {
                 el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
+            },
+            fill: {
+                el: new dstVariable(config, {
+                    label: localization.en.fill,
+                    no: "fill",
+                    filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
+                    extraction: "NoPrefix|UseComma",
+                }), r: [',colour={{fill|safe}}', ',fill="{{fill|safe}}"', ', Fill: {{fill|safe}}', ',"{{fill|safe}}"', "{{fill|safe}}"]
             },
             alpha: {
                 el: new advancedSlider(config, {
@@ -259,6 +269,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
             left: [objects.content_var.el.content],
             right: [
                 objects.x.el.content,
+                objects.fill.el.content,
                 objects.bins.el.content,
                 objects.binwidth.el.content,
                 objects.alpha.el.content,
@@ -279,6 +290,11 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
     }
     prepareExecution(instance) {
         var res = [];
+
+        var dataset = getActiveDataset();
+                   
+        var data = store.get(dataset);
+
         instance.objects.x.el.getVal().forEach(function (value) {
             var code_vars = {
                 dataset: {
@@ -287,6 +303,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
                 selected: {
                     x: instance.dialog.prepareSelected({ x: value }, instance.objects.x.r),
                     flipaxis: instance.objects.flipaxis.el.getVal() ? instance.objects.flipaxis.r : "",   
+                    fill: instance.dialog.prepareSelected({ fill: instance.objects.fill.el.getVal() }, instance.objects.fill.r),
                     normalCurve: instance.objects.normalCurve.el.getVal() ? instance.objects.normalCurve.r : "",
                     rugPlot: instance.objects.rugPlot.el.getVal() ? instance.objects.rugPlot.r : "",
                     alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
@@ -300,10 +317,30 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}})) +
                     normalCurveColor: instance.objects.normalCurveColor.el.getVal()
                 }
             }
+            code_vars.selected.settingPalette =""
             if (code_vars.selected.normalCurve =="TRUE")
             {
+               let normalCurveSyntax =""
+                if (code_vars.selected.fill[4] != "")
+                {
+                    
+                    data.cols.forEach(function(element){
+                        if (element.Name == code_vars.selected.fill[4]){
+                            code_vars.selected.settingPalette ="library(RColorBrewer)\n"
+                            code_vars.selected.settingPalette += "num_levels <- " + element.Levels.length +"\n";
+                            code_vars.selected.settingPalette += "palette <- brewer.pal(num_levels, \"Set1\")\n"
+
+                            element.Levels.forEach (function(val){
+                                normalCurveSyntax =normalCurveSyntax +"stat_function(fun = dnorm, args = list(mean = mean(" + code_vars.dataset.name + "[which(" + code_vars.dataset.name + "$" + code_vars.selected.fill[4] + " == " + val +"),c(\"" +value+ "\")]" + ", na.rm = TRUE) , sd = sd(" +
+                                code_vars.dataset.name + "[which(" + code_vars.dataset.name + "$" + code_vars.selected.fill[4] + " == " + val +"),c(\"" +value+ "\")]" + ", na.rm = TRUE)) , aes (color = factor(" +val+ ")), linewidth  = 1) +\n"
+                            })                                                             
+                            }         
+                        })
+                        code_vars.selected.normal =normalCurveSyntax
+                } else {
                 code_vars.selected.normal = "stat_function(fun = dnorm, args = list(mean = mean(" + code_vars.dataset.name + "$" + value + ", na.rm = TRUE) , sd = sd(" +
-                code_vars.dataset.name + "$" + value + ", na.rm = TRUE)) , col = \"" + code_vars.selected.normalCurveColor +"\", size = 2) +\n"
+                code_vars.dataset.name + "$" + value + ", na.rm = TRUE)) , col = \"" + code_vars.selected.normalCurveColor +"\", linewidth = 1) +\n"
+                }
             }
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
             if (code_vars.selected.normalCurve =="TRUE")
