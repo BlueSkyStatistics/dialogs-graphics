@@ -46,6 +46,7 @@ const nav =
             ]
         },
         "./scatterPlot",
+        "./scatterPlotMatrix",
         "./stemAndLeaf",
         "./stripChart",
         "./violinPlot"
