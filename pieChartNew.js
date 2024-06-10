@@ -6,7 +6,6 @@ var localization = {
         suppressThreshold: "Suppress labels for counts and percentage below the specified threshold percentage",
         radius: "Specify a radius to display labels (increasing the radius moves labels outwards)",
         radiusNote: "Note: Above option does not apply when the option to display concentric circles is selected.",
-
         navigation: "Pie Chart",
         concentricCircles: "Display concentric circles (Applies only when X axis variable specified)",
         x: "X axis, specify factor variable(s)",
@@ -28,13 +27,12 @@ var localization = {
             title: "Pie Chart",
             r_help: "help(coord_polar, package='ggplot2')",
             body: `
-            Document radius = 1.6
-            Document width makes the pie chart smaller
-
             <b>Description</b></br>
             A pie chart (or a circle chart) is a circular statistical graphic, which is divided into slices to illustrate numerical proportion. In a pie chart, the arc length of each slice (and consequently its central angle and area), is proportional to the quantity it represents. The quantity can be represented as a count or percentage.
             Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-            When you specify multiple x variables, we create a separate pie chart for each x variable. 
+            When you specify multiple x variables, we create a separate pie chart for each x variable. </br>
+            Radius allows you to control the placement of the labels. A radius of 1 places the labels in the center of the pie, a radius of 1.6 places the labels outside the pie.</br>
+            The outer light grey circle represents the count or total. See text at the bottom of the pie chart for details.
             <br/>
             <b>Usage</b>
             <br/>

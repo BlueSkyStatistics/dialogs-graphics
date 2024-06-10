@@ -416,7 +416,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           bottom: [opts.el.content],
           nav: {
               name: "Scatterplot Matrix",
-              icon: "icon-scatter_plot",
+              icon: "icon-scatter-graph",
               modal: config.id
           }
       }

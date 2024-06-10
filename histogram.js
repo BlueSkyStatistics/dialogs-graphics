@@ -126,7 +126,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                     style: "ml-1",
                     max: 1,
                     step: 0.1,
-                    value: 1,
+                    value: 0.4,
                 }), r: ['alpha={{alpha|safe}},']
             },
             bins: {
