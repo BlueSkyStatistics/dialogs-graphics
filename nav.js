@@ -45,7 +45,13 @@ const nav =
                 "./pieChartNew"
             ]
         },
-        "./scatterPlot",
+        {
+            "name": "Scatter Plot",
+            "icon": "icon-scatter_plot",
+            "children": [
+                "./scatterPlot"
+            ]
+        },
         "./scatterPlotMatrix",
         "./stemAndLeaf",
         "./stripChart",
