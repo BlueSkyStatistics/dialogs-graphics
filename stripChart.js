@@ -104,7 +104,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new dstVariableList(config, {
                     label: localization.en.y,
                     no: "y",
-                    filter: "Numeric|Scale",
+                    filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
                     required: true,
                 }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}']
@@ -113,7 +113,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new dstVariable(config, {
                     label: localization.en.x,
                     no: "x",
-                    filter: "Numeric|Date|Logical|Ordinal|Nominal|Scale",
+                    filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
                     required: true,
                 }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
