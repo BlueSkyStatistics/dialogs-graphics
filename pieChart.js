@@ -1,7 +1,13 @@
 var localization = {
     en: {
         title: "Pie Chart",
+        suppressLabels: "Suppress all labels for counts and percentages",
+        optionsLabels: "Options for labels",
+        suppressThreshold: "Suppress labels for counts and percentage below the specified threshold percentage",
+        radius: "Specify a radius to display labels (increasing the radius moves labels outwards)",
+        radiusNote: "Note: Above option does not apply when the option to display concentric circles is selected.",
         navigation: "Pie Chart",
+        concentricCircles: "Display concentric circles (Applies only when X axis variable specified)",
         x: "X axis, specify factor variable(s)",
         y: "Y variable, specify a numeric variable",
         fill: "Fill, specify a factor variable",
@@ -24,7 +30,9 @@ var localization = {
             <b>Description</b></br>
             A pie chart (or a circle chart) is a circular statistical graphic, which is divided into slices to illustrate numerical proportion. In a pie chart, the arc length of each slice (and consequently its central angle and area), is proportional to the quantity it represents. The quantity can be represented as a count or percentage.
             Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-            When you specify multiple x variables, we create a separate pie chart for each x variable. 
+            When you specify multiple x variables, we create a separate pie chart for each x variable. </br>
+            Radius allows you to control the placement of the labels. A radius of 1 places the labels in the center of the pie, a radius of 1.6 places the labels outside the pie.</br>
+            The outer light grey circle represents the count or total. See text at the bottom of the pie chart for details.
             <br/>
             <b>Usage</b>
             <br/>
@@ -100,13 +108,154 @@ class pieChart extends baseModal {
 require(ggplot2);
 require(ggthemes);
 require(stringr);
-ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#else}}{{selected.x[0] | safe}}{{/if}}{{selected.y[0] | safe}}{{selected.color[0] | safe}} )) +
-    geom_bar( {{if (options.selected.rdgrp1=="TRUE")}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
-    coord_polar("y") +
-    labs({{selected.x[1] | safe}} {{selected.y[1] | safe}} title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
-    ylab("{{selected.x_label|safe}}") + 
-    xlab("{{if (options.selected.y_label == "")}}{{if (options.selected.rdgrp1=="TRUE")}}Proportion{{#else}}Count{{/if}}{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+#Only fill
+{{if (options.selected.yVar ==undefined && options.selected.xVar ==undefined && options.selected.color[5] !=undefined)}}
+BSkyTemp <- base::table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("ifany"))
+BSkyTemp <- as.data.frame(BSkyTemp)
+#names(counts_df) <- c("{{selected.pieVar | safe}}", "Count")
+names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" , sep="")
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
+ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+  geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x ={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
+  theme_void() +
+  labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+    ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+    xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+{{/if}}
+
+
+
+
+#Fill and x variable but no y variable
+{{if (options.selected.yVar ==undefined && options.selected.xVar !=undefined && options.selected.color[5] != undefined)}}
+{{if (options.selected.concentricCircles)}} 
+#Aggregating the dataset
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
+names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+#Creating a new factor variable
+BSkyTemp <- BSkyTemp  %>%
+  dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
+#Calculating percents
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
+ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+  geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x="", label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
+  theme_void() +
+    labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+    ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+    xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
+{{#else}}
+#No concentric circles
+#Aggregating the dataset
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
+names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+#Creating a new factor variable
+BSkyTemp <- BSkyTemp  %>%
+  dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
+#Calculating percents
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+  dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
+ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+  geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
+  coord_polar("y", start = 0) + {{if (options.selected.suppressLabels!="TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
+  theme_void() +
+  labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+  ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+  xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
+{{/if}}
+{{/if}}
+
+
+
+#Fill and y variable with and without or with x variable
+{{if (options.selected.yVar !=undefined && options.selected.color[5] != undefined)}}
+{{if (options.selected.concentricCircles)}} 
+#Aggregating the dataset
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
+names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+{{if(options.selected.xVar != undefined)}}
+#Creating a new factor variable if x variable is specified
+BSkyTemp <- BSkyTemp  %>%
+  dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
+{{/if}}
+#Calculating percents
+#BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp <- BSkyTemp %>%
+    dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
+ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+  geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
+  coord_polar("y", start = 0) +{{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x="",label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n", Percentage )), position = position_stack(vjust = 0.5)) +{{/if}}
+  theme_void() +
+  labs( title= "Chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+      xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+    {{selected.Facets | safe}} + {{selected.themes | safe}}
+{{#else}}
+#No concentric circles
+#Aggregating the dataset
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
+    names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+{{if(options.selected.xVar != undefined)}}
+#Creating a new factor variable if x variable is specified
+BSkyTemp <- BSkyTemp  %>%
+  dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
+{{/if}}
+   #Calculating percents
+   # BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+   BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+   BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+   BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+   BSkyTemp <- BSkyTemp %>%
+    dplyr::mutate(
+    PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+    {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+    )
+   ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+      geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
+      coord_polar("y", start = 0) +{{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n", PercentageAsString)), position = position_stack(vjust = 0.5)) +{{/if}}
+      theme_void() +
+      labs( title= "Pie chart with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
+      ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
+      xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
+      {{selected.Facets | safe}} + {{selected.themes | safe}}
+{{/if}}
+{{/if}}
+
+
+
+
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -115,18 +264,19 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             })
         }
         var objects = {
-            content_var: { el: new srcVariableList(config) },
+           
+            content_var: { el: new srcVariableList(config, { action: "move" }) },
             x: {
                 el: new dstVariableList(config, { label: localization.en.x, no: "x", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
-                r: ['x={{x|safe}},', 'x="{{x|safe}}",', '{{x|safe}}', '{{x|safe}}', ' X aesthetic: {{x|safe}}']
+                r: ['x={{x|safe}},', 'x="{{x|safe}}",', '{{x|safe}}', '{{x|safe}}', ' X aesthetic: {{x|safe}}', '{{x|safe}}']
             },
             y: {
                 el: new dstVariable(config, { label: localization.en.y, no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
-                r: ['y={{y|safe}},', 'y="{{y|safe}}",', 'y="{{y|safe}}",', '{{y|safe}}', ' Y aesthetic: {{y|safe}}']
+                r: ['y={{y|safe}},', 'y="{{y|safe}}",', 'y="{{y|safe}}",', '{{y|safe}}', ' Y aesthetic: {{y|safe}}', '{{y|safe}}']
             },
             color: {
-                el: new dstVariable(config, { label: localization.en.fill, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
-                r: ['fill={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', '{{color|safe}}', ' fill: {{color|safe}}']
+                el: new dstVariable(config, { label: localization.en.fill, no: "color", required:true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                r: ['fill={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', '{{color|safe}}', ' fill: {{color|safe}}','{{color|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
@@ -162,6 +312,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                 })
             },
             flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
+            concentricCircles: { el: new checkbox(config, { label: localization.en.concentricCircles, newline: true, no: "concentricCircles" }) },
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
@@ -236,14 +387,57 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     allow_spaces:true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
-            })},            
+            })},
+
+            label1: { el: new labelVar(config, { no: 'label1', style: "mt-2",label: localization.en.optionsLabels, h: 5 }) },
+
+            suppressLabels: {
+                el: new checkbox(config, {
+                    label: localization.en.suppressLabels,
+                    bs_type: "valuebox",
+                    extraction: "BooleanValue",
+                    newline: true,
+                    true_value: "TRUE",
+                    false_value: "FALSE",
+                    no: "suppressLabels"
+                })
+            },
+            suppressThreshold: {
+                el: new inputSpinner(config, {
+                  no: 'suppressThreshold',
+                  label: localization.en.suppressThreshold,
+                  min: 0,
+                  max: 100,
+                  step: 0.1,
+                  value: 0,
+                  extraction: "NoPrefix|UseComma"
+                })
+              },
+
+              radius: {
+                el: new inputSpinner(config, {
+                  no: 'radius',
+                  label: localization.en.radius,
+                  min: 0,
+                  max: 5,
+                  step: 0.1,
+                  value: 1,
+                  extraction: "NoPrefix|UseComma"
+                })
+              },
+              label2: { el: new labelVar(config, { no: 'label2', label: localization.en.radiusNote, h: 9 }) }            
         }
         var opts = new optionsVar(config, {
             no: "frequency_chart_options",
             content: [
                 objects.title.el,
                 objects.x_title.el,
-                objects.y_title.el
+                objects.y_title.el,
+                objects.label1.el,
+                objects.suppressLabels.el,
+                objects.suppressThreshold.el,
+                objects.radius.el,
+                objects.label2.el
             ]
         })
         var Facets = {
@@ -266,8 +460,8 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                 objects.x.el.content,
                 objects.alpha.el.content,
                 objects.width.el.content,
-                objects.rdgrp1.el.content,
                 objects.flipaxis.el.content,
+                objects.concentricCircles.el.content,
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
@@ -295,7 +489,15 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
                     width: instance.dialog.prepareSelected({ width: instance.objects.width.el.getVal() }, instance.objects.width.r),
                     color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
-                    rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                    pieVar: instance.objects.color.el.getVal()[0],
+                    colorVar: instance.objects.color.el.getVal()[0],
+                    concentricCircles: instance.objects.concentricCircles.el.getVal(),
+                    xVar: instance.objects.x.el.getVal()[0],
+                    yVar: instance.objects.y.el.getVal()[0],
+                    radius :instance.objects.radius.el.getVal(),
+                    suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
+                    //rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                    suppressLabels: instance.objects.suppressLabels.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
@@ -303,14 +505,52 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     Facetscale: instance.objects.Facetscale.el.getVal(),
                 }
             }
-            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
-            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+
+            code_vars.selected.stringForDatasetWithFreqPercents = ""
+            // Initialize an empty array to hold non-empty strings
+            let nonEmptyStrings = [];
+           
+            if (code_vars.selected.color[5] !== '') {
+                nonEmptyStrings.push(code_vars.selected.color[5]);
+            }
+
+            // Check if each input string is not empty, then add it to the array
+            if (code_vars.selected.x[5] !== '') {
+                nonEmptyStrings.push(code_vars.selected.x[5]);
+            }
+            let namesOfDataset = nonEmptyStrings.concat()
+
+            let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
+            
+            code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
+            code_vars.selected.generatedVarName = undefined
+            if (code_vars.selected.color[5] != "" && code_vars.selected.x[5] != ""){
+                code_vars.selected.generatedVarName = code_vars.selected.color[5] + "_" + code_vars.selected.x[5]
+                code_vars.selected.pieVar = code_vars.selected.generatedVarName
+            }
+            if (code_vars.selected.yVar == undefined)
+            {
+                code_vars.selected.newVariable = "Counts"+"_for_each_" + code_vars.selected.pieVar
+                namesOfDataset.push("Counts"+"_for_each_" + code_vars.selected.pieVar) 
+            } else
+            {
+                namesOfDataset.push("Sum_" + code_vars.selected.yVar + "_for_each_" + code_vars.selected.pieVar) 
+                code_vars.selected.newVariable = "Sum_" + code_vars.selected.yVar + "_for_each_" + code_vars.selected.pieVar
+            }
+
+            
+           
+            let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
+            code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
+            code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() 
+            //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+            code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
             cmd = removenewline(cmd);
             res.push({ cmd: cmd, cgid: newCommandGroup() })
-            // res.push({ cmd: instance.dialog.renderR(code_vars), cgid: newCommandGroup() })
+            
         }
         else {
             instance.objects.x.el.getVal().forEach(function (value) {
@@ -325,7 +565,15 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                         alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
                         width: instance.dialog.prepareSelected({ width: instance.objects.width.el.getVal() }, instance.objects.width.r),
                         color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
-                        rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                        pieVar: instance.objects.color.el.getVal()[0],
+                        colorVar: instance.objects.color.el.getVal()[0],
+                        concentricCircles: instance.objects.concentricCircles.el.getVal(),
+                        radius :instance.objects.radius.el.getVal(),
+                        xVar: value,
+                        yVar: instance.objects.y.el.getVal()[0],
+                        suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
+                        //   rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                        suppressLabels: instance.objects.suppressLabels.el.getVal(),
                         title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                         Facetrow: instance.objects.Facetrow.el.getVal(),
                         Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
@@ -333,8 +581,50 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                         Facetscale: instance.objects.Facetscale.el.getVal(),
                     }
                 }
-                code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
-                code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+
+                code_vars.selected.stringForDatasetWithFreqPercents = ""
+                // Initialize an empty array to hold non-empty strings
+                let nonEmptyStrings = [];
+           
+                if (code_vars.selected.color[5] !== '') {
+                    nonEmptyStrings.push(code_vars.selected.color[5]);
+                }
+
+                // Check if each input string is not empty, then add it to the array
+                if (code_vars.selected.x[5] !== '') {
+                    nonEmptyStrings.push(code_vars.selected.x[5]);
+                }
+                //Creates a , separated string with the contents of the array
+                //so if the 1st element of the array is val1 and the 2nd element is val2
+                //arr.concat() = val1,val2
+                let namesOfDataset = nonEmptyStrings.concat()
+
+                let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
+            
+            code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
+            code_vars.selected.generatedVarName = undefined
+            if (code_vars.selected.color[5] != "" && code_vars.selected.x[5] != ""){
+                code_vars.selected.generatedVarName = code_vars.selected.color[5] + "_" + code_vars.selected.x[5]
+                code_vars.selected.pieVar = code_vars.selected.generatedVarName
+            }
+            if (code_vars.selected.yVar == undefined)
+            {
+                code_vars.selected.newVariable = "Counts"+"_for_each_" + code_vars.selected.pieVar
+                namesOfDataset.push("Counts"+"_for_each_" + code_vars.selected.pieVar) 
+            } else
+            {
+                namesOfDataset.push("Sum_" + code_vars.selected.yVar + "_for_each_" + code_vars.selected.pieVar) 
+                code_vars.selected.newVariable = "Sum_" + code_vars.selected.yVar + "_for_each_" + code_vars.selected.pieVar
+            }
+
+            
+           
+            let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
+            code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
+           
+                code_vars.selected["x_label"] = instance.opts.config.content[1].getVal()
+                //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
+                code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
                 code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
                 code_vars.selected.themes = themeRsyntax;
                 let cmd = instance.dialog.renderR(code_vars)

@@ -2,6 +2,9 @@ var localization = {
     en: {
         title: "Bar Chart",
         navigation: "Bar Chart",
+        optionsLabels: "Options for labels",
+        suppressLabels: "Suppress all labels for counts and percentages",
+        suppressThreshold: "Suppress labels for counts and percentage below the specified threshold percentage",
         label1: "Click on the tab below to select count or mean. When count is selected, a Y variable is optional. When count is selected and a Y variable is NOT specified, counts of the X variable are displayed. When count is specified and a Y variable is specified, the values of the Y variable are summed up. When mean is selected, you need to select a Y and a X variable. Means are computed for the Y variable(s)",
         x: "X variable",
         y: "Y variable(s), specify a numeric variable(s)",
@@ -98,14 +101,14 @@ var localization = {
         `}
     }
 }
-class BarChartModal extends baseModal {
+class barChartModal extends baseModal {
     constructor() {
         var config = {
             id: "barChartModal",
             label: localization.en.title,
             modalType: "two",
             RCode: `
-            {{ if (options.selected.bar_type === "0") }}
+            
             ## [Bar Chart With Counts]
             detach(package:dplyr)  
             require(plyr)
@@ -114,20 +117,79 @@ class BarChartModal extends baseModal {
             require(ggplot2);
             require(ggthemes);
             require(stringr);
-            {{dataset.name}}  %>% {{if (options.selected.dropna )}}tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} ) %>%{{/if}}
-            ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}{{if( options.selected.y[0] !="")}}{{selected.y[0] | safe}}{{/if}}{{if(options.selected.relFreq == "TRUE")}}, y = ..count../sum(..count..){{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}}{{if( options.selected.y[0] !="")}},stat="identity"{{/if}}{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
+            {{ if (options.selected.bar_type === "0") }}
+            ## [Bar Chart With Counts]
+          
+            {{if (options.selected.dropna )}}
+            BSkyTemp = {{dataset.name}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},{{selected.Facetrow | safe}}{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},{{selected.Facetcolumn | safe}}{{/if}}{{if(options.selected.Facetwrap[0] !='')}},{{selected.Facetwrap | safe}}{{/if}} )
+            {{/if}}
+
+            {{if (options.selected.y[3] !="")}}
+
+            {{if(options.selected.fill[4] != "")}}
+            BSkyTemp <- {{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}} %>%\n dplyr::group_by({{selected.fill[4] | safe}}{{if (options.selected.x[3] != undefined)}}, {{selected.x[3] | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
+            names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+            {{#else}}
+            BSkyTemp <- {{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}} %>%\n dplyr::group_by({{selected.x[3] | safe}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.y[3] | safe}}, na.rm = TRUE), .groups ='drop')
+            names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
+            {{/if}}
+
+            {{if(options.selected.x[3] != undefined)}}
+            {{if(options.selected.fill[4] != "")}}
+            #Creating a new factor variable if x variable is specified
+            BSkyTemp <- BSkyTemp  %>%
+            dplyr::mutate({{selected.fill[4] | safe }}_{{selected.x[3] | safe }} = paste({{selected.fill[4] | safe }}, {{selected.x[3] | safe }}, sep = "_"))
+            {{#else}}
+            #Creating a new factor variable if x variable is specified
+            BSkyTemp <- BSkyTemp  %>%
+            dplyr::mutate({{selected.x[3] | safe }} = paste({{selected.x[3] | safe }}, sep = ""))
+            {{/if}}
+
+            {{/if}}
+            
+            
+            #Calculating percents
+            #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+            BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+            BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            {{#else}}
+            BSkyTemp <- base::table({{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("ifany"))
+            BSkyTemp <- as.data.frame(BSkyTemp)
+            names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
+            BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+            BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp <- BSkyTemp %>%
+            dplyr::mutate(
+                PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+                {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
+                )
+            {{/if}}
+            BSkyTemp %>% ggplot( aes({{ if (options.selected.x[0] =="")}}x=''{{#else}}{{selected.x[0] | safe}}{{/if}}, {{if(options.selected.relFreq == "TRUE")}} y = Percentage/100{{#else}}y = {{selected.newVariable | safe}}{{/if}}{{selected.fill[0] | safe}})) +\n\tgeom_bar(position="{{selected.radio}}",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) {{if (options.selected.suppressLabels != "TRUE" && options.selected.radio != "fill")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), {{if(options.selected.radio =="dodge")}}position = position_dodge(width = 0.8)){{#else}}position = position_stack(vjust = 0.5)){{/if}}{{/if}}+\n\tlabs({{ if ( options.selected.x[1] =="")}}x='Count'{{#else}}{{selected.x[1] | safe}}{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio != "fill"&& options.selected.relFreq !="TRUE")}},y='Count'{{/if}}{{if( options.selected.y[1] =="" && options.selected.radio == "fill")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},y="Proportion(0-1)"{{/if}}{{if( options.selected.y[1] !="" )}}{{selected.y[1] | safe}}{{/if}}{{selected.fill[1] | safe}},title= "Bar chart for {{if( options.selected.x[2] =="")}}{{#else}}{{selected.x[2] | safe}}{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio != "fill" && options.selected.relFreq !="TRUE")}},Y axis: Count{{/if}}{{if( options.selected.y[2] =="" && options.selected.radio == "fill" && options.selected.relFreq !="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[1] =="" && options.selected.relFreq =="TRUE")}},Y axis: Proportion(0-1){{/if}}{{if( options.selected.y[2] !="" )}}{{selected.y[2] | safe}}{{/if}}") +\n\txlab("{{selected.x_label|safe}}") +\n\tylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip | safe}} {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{ #else }}
             ## [Bar Chart (with means)]
             require(ggplot2);
             require(ggthemes);
             require(Rmisc);
             {{ if (options.selected.y[0] != "" && options.selected.x[0] != "") }}
-            temp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
-            \ntemp <-Rmisc::summarySE( {{dataset.name}}, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+            BSkyTemp <- {{dataset.name}} {{if (options.selected.dropna)}} %>% tidyr::drop_na({{if(options.selected.x[3] !="")}}{{selected.x[3] | safe}}{{/if}} {{if(options.selected.y[3] !="")}},{{selected.y[3] | safe}}{{/if}} {{if(options.selected.fill[3] !="")}},{{selected.fill[4] | safe}}{{/if}}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}} ) {{/if}}
+            \nBSkyTemp <-Rmisc::summarySE( BSkyTemp, measurevar = "{{selected.y[3] | safe }}", groupvars = c("{{ selected.x[3] | safe }}"{{ selected.fill[3] | safe }}{{if(options.selected.Facetrow[0] !='')}},"{{selected.Facetrow | safe}}"{{/if}}{{if(options.selected.Facetcolumn[0] !='')}},"{{selected.Facetcolumn | safe}}"{{/if}}{{if(options.selected.Facetwrap[0] !='')}},"{{selected.Facetwrap | safe}}"{{/if}}), {{ if (options.selected.errorBarRadioSelection =="4")}}conf.interval={{selected.cilevel | safe}},{{/if}} na.rm = TRUE, .drop = TRUE)
+   
+            BSkyTemp$Percentage <- with(BSkyTemp, base::round(N / sum(N) * 100), digits =BSkyGetDecimalDigitSetting())
+            BSkyTemp$NAsString = as.character(BSkyTemp$N)
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp <- BSkyTemp %>%
+            dplyr::mutate(
+                PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
+                {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", NAsString),
+                )
+            
             pd <- position_dodge(0.9)
             {{ if (!options.selected.showTopOfBars ) }}
-            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
-                geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}}
+            BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ selected.fill[0] | safe }})) +
+                geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) + {{ selected.radio | safe}} 
+                {{if (options.selected.suppressLabels != "TRUE")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_dodge(width = 0.8))+ {{/if}}
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
                 ylab("{{selected.y_label|safe}}") +
@@ -135,8 +197,9 @@ class BarChartModal extends baseModal {
                 {{selected.flip | safe}}
                 {{selected.Facets | safe}} + {{selected.themes | safe}}
             {{#else}}
-            temp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
-                {{ selected.radio | safe}}   geom_bar( position="dodge",alpha={{selected.opacity}},stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
+            BSkyTemp  %>% ggplot( aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{selected.fill[0] | safe}})) +
+                {{ selected.radio | safe}}   geom_bar( position="dodge", alpha={{selected.opacity}}, stat="identity"{{if (options.selected.fill[0] == "")}}, fill ="{{selected.fill1 | safe}}"{{/if}}) +
+                {{if (options.selected.suppressLabels != "TRUE")}}+\n\tgeom_text(aes(label = paste({{if (options.selected.y[3] ==undefined)}}{{selected.newVariable |safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_dodge(width = 0.8)) + {{/if}}
                 labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}{{selected.fill[1] | safe}},title= "Bar Chart (with means) for {{selected.x[2] | safe}}{{selected.y[2] | safe}}{{selected.fill[2] | safe}}") +
                 xlab("{{selected.x_label|safe}}") +
                 ylab("{{selected.y_label|safe}}") +
@@ -148,6 +211,8 @@ class BarChartModal extends baseModal {
             cat("Error: You must select a Y variable and a X variable/grouping variable to plot a Bar Chart with Means")
             {{/if}}
             {{/if}}
+
+
             `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -170,9 +235,10 @@ class BarChartModal extends baseModal {
                 el: new dstVariable(config, {
                     label: localization.en.x,
                     no: "x",
+                    required:true,
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
-                }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
+                }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}' ]
             },
             fill: {
                 el: new dstVariable(config, {
@@ -273,6 +339,7 @@ class BarChartModal extends baseModal {
                 el: new checkbox(config, { 
                     label: localization.en.dropna, 
                     no: "dropna", 
+                    style: "mt-3",
                     extraction: "Boolean" 
                 })},
                 relFreq : {
@@ -283,6 +350,36 @@ class BarChartModal extends baseModal {
                         
                     })
                 },
+
+                label1: { el: new labelVar(config, { no: 'label1', style: "mt-2",label: localization.en.optionsLabels, h: 5 }) },
+
+            suppressLabels: {
+                el: new checkbox(config, {
+                    label: localization.en.suppressLabels,
+                    bs_type: "valuebox",
+                    extraction: "BooleanValue",
+                    newline: true,
+                    true_value: "TRUE",
+                    false_value: "FALSE",
+                    no: "suppressLabels"
+                })
+            },
+            suppressThreshold: {
+                el: new inputSpinner(config, {
+                  no: 'suppressThreshold',
+                  label: localization.en.suppressThreshold,
+                  min: 0,
+                  max: 100,
+                  step: 0.1,
+                  value: 0,
+                  extraction: "NoPrefix|UseComma"
+                })
+              },
+
+
+
+
+
                         
         }
         const tab1 = {
@@ -333,7 +430,10 @@ class BarChartModal extends baseModal {
                 objects.x_title.el,
                 objects.y_title.el,
                 objects.fill1.el,
-                objects.dropna.el
+                objects.dropna.el,
+                objects.label1.el,
+                objects.suppressLabels.el,
+                objects.suppressThreshold.el
             ]
         })
         var Facets = {
@@ -385,6 +485,9 @@ class BarChartModal extends baseModal {
                     opacity: instance.objects.slider.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") +\n `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
+                    suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
+                    //rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                    suppressLabels: instance.objects.suppressLabels.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
                     Facetwrap: instance.objects.Facetwrap.el.getVal(),
                     Facetscale: instance.objects.Facetscale.el.getVal(),
@@ -393,6 +496,49 @@ class BarChartModal extends baseModal {
                     
                 }
             }
+
+            code_vars.selected.barVar = code_vars.selected.x[3]
+            if (code_vars.selected.y[0] != "" && code_vars.selected.relFreq == "TRUE" && instance.tabs.getActive('el-index')  != "1") {
+                dialog.showMessageBoxSync({ type: "error", buttons: ["OK"], title: "Invalid option", message: `You cannot specify Y variable(s) when relative frequencies is selected.` })
+                return res
+              }
+
+              code_vars.selected.stringForDatasetWithFreqPercents = ""
+              // Initialize an empty array to hold non-empty strings
+              let nonEmptyStrings = [];
+         
+              if (code_vars.selected.fill[4] !== '') {
+                  nonEmptyStrings.push(code_vars.selected.fill[4]);
+              }
+  
+              // Check if each input string is not empty, then add it to the array
+              if (code_vars.selected.x[3] !== '') {
+                  nonEmptyStrings.push(code_vars.selected.x[3]);
+              }
+              //Creates a , separated string with the contents of the array
+              //so if the 1st element of the array is val1 and the 2nd element is val2
+              //arr.concat() = val1,val2
+              let namesOfDataset = nonEmptyStrings.concat()
+  
+              let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
+          
+          code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
+          code_vars.selected.generatedVarName = undefined
+          if (code_vars.selected.fill[4] != "" && code_vars.selected.x[3] != ""){
+              code_vars.selected.generatedVarName = code_vars.selected.fill[4] + "_" + code_vars.selected.x[3]
+              code_vars.selected.barVar = code_vars.selected.generatedVarName
+          }
+          if (code_vars.selected.y[3] == "" || code_vars.selected.y[3] == undefined)
+          {
+              code_vars.selected.newVariable = "Counts"+"_for_each_" + code_vars.selected.barVar
+              namesOfDataset.push("Counts"+"_for_each_" + code_vars.selected.barVar) 
+          } else
+          {
+              namesOfDataset.push("Sum_" + code_vars.selected.y[3] + "_for_each_" + code_vars.selected.barVar) 
+              code_vars.selected.newVariable = "Sum_" + code_vars.selected.y[3] + "_for_each_" + code_vars.selected.barVar
+          }
+          let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
+          code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
             code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
            // code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? "Count" : instance.opts.config.content[2].getVal()
            code_vars.selected.y_label =instance.opts.config.content[2].getVal()
@@ -462,6 +608,9 @@ class BarChartModal extends baseModal {
                         flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                         bar_type: instance.tabs.getActive('el-index'),
                         opacity: instance.objects.slider.el.getVal(),
+                        suppressThreshold: instance.objects.suppressThreshold.el.getVal(),
+                        //rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                        suppressLabels: instance.objects.suppressLabels.el.getVal(),
                         title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") +\n`,
                         Facetrow: instance.objects.Facetrow.el.getVal(),
                         Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
@@ -471,11 +620,53 @@ class BarChartModal extends baseModal {
                         dropna: instance.opts.config.content[4].getVal(),
                     }
                 }
-
+                code_vars.selected.barVar = code_vars.selected.x[3]
                 if (code_vars.selected.y[0] != "" && code_vars.selected.relFreq == "TRUE" && instance.tabs.getActive('el-index')  != "1") {
                     dialog.showMessageBoxSync({ type: "error", buttons: ["OK"], title: "Invalid option", message: `You cannot specify Y variable(s) when relative frequencies is selected.` })
                     return res
                   }
+
+                  code_vars.selected.stringForDatasetWithFreqPercents = ""
+                  // Initialize an empty array to hold non-empty strings
+                  let nonEmptyStrings = [];
+             
+                  if (code_vars.selected.fill[4] !== '') {
+                      nonEmptyStrings.push(code_vars.selected.fill[4]);
+                  }
+      
+                  // Check if each input string is not empty, then add it to the array
+                  if (code_vars.selected.x[3] !== '') {
+                      nonEmptyStrings.push(code_vars.selected.x[3]);
+                  }
+                  //Creates a , separated string with the contents of the array
+                  //so if the 1st element of the array is val1 and the 2nd element is val2
+                  //arr.concat() = val1,val2
+                  let namesOfDataset = nonEmptyStrings.concat()
+      
+                  let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
+              
+              code_vars.selected.stringForDatasetWithFreqPercents = "c(" + vars4.join(",") + ")";
+              code_vars.selected.generatedVarName = undefined
+              if (code_vars.selected.fill[4] != "" && code_vars.selected.x[3] != ""){
+                  code_vars.selected.generatedVarName = code_vars.selected.fill[4] + "_" + code_vars.selected.x[3]
+                  code_vars.selected.barVar = code_vars.selected.generatedVarName
+              }
+              if (code_vars.selected.y[3] == "" || code_vars.selected.y[3] == undefined)
+              {
+                  code_vars.selected.newVariable = "Counts"+"_for_each_" + code_vars.selected.barVar
+                  namesOfDataset.push("Counts"+"_for_each_" + code_vars.selected.barVar) 
+              } else
+              {
+                  namesOfDataset.push("Sum_" + code_vars.selected.y[3] + "_for_each_" + code_vars.selected.barVar) 
+                  code_vars.selected.newVariable = "Sum_" + code_vars.selected.y[3] + "_for_each_" + code_vars.selected.barVar
+              }
+      
+              
+             
+              let vars5 = namesOfDataset.map(namesOfDataset => '\"' + namesOfDataset + "\"");
+              code_vars.selected.namesOfDataset = "c(" + vars5.join(",") + ")";
+      
+      
 
                 code_vars.selected["x_label"] = instance.opts.config.content[1].getVal() === "" ? code_vars.selected.x[3] : instance.opts.config.content[1].getVal()
                 code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
@@ -511,4 +702,4 @@ class BarChartModal extends baseModal {
         return res;
     }
 }
-module.exports.item = new BarChartModal().render()
+module.exports.item = new barChartModal().render()
