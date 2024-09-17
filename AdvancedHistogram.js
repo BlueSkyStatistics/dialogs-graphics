@@ -1,10 +1,10 @@
 var localization = {
     en: {
-        title: "Histogram",
-        navigation: "Histogram",
+        title: "Advanced Histogram with Overlay Normal Curves per Facet and Group",
+        navigation: "Advanced Histogram",
         x: "X axis, specify a numeric variable(s)",
         bins: "Specify the number of bins",
-        fill: "Group by (factor variable)",
+        fill: "Specify a grouping (Category) variable",
         binwidth: "Bin width",
         barcolor: "Optionally select a fill color (After color selection, click outside the control to apply)",
         alpha: "Opacity (0-1)",
@@ -18,9 +18,9 @@ var localization = {
         Facetscale: "Facet scale",
         normalCurveColor: "Optionally select a normal curve color (After color selection, click outside the control to apply)",
         rugPlot: "Display a rug plot (suitable for small datasets)",
-        normalCurve: "Display a normal curve (Missing values are removed for curve to display. Works only when no facets or grouping variables selected)",
+        normalCurve: "Display a normal curve (Missing values are removed for curve to display)",
         help: {
-            title: "Histogram",
+            title: "Advanced Histogram",
             r_help: "help(geom_histogram, package=ggplot2)",
             body: `
             <b>Description</b></br>
@@ -76,27 +76,94 @@ var localization = {
            `}
     }
 }
-class histogram extends baseModal {
+class AdvancedHistogram extends baseModal {
     constructor() {
         var config = {
-            id: "histogram",
+            id: "AdvancedHistogram",
             label: localization.en.title,
             modalType: "two",
-            RCode: `## [Histogram]
+            RCode:` ## [Histogram]
 require(ggplot2);
 require(ggthemes);
-{{if (options.selected.settingPalette !="")}}{{selected.settingPalette | safe}}{{/if}}
-ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected.fill[4] !="")}}{{selected.fill[0] | safe}}{{/if}})) +
+
+bsky_hist_plot = NULL
+
+bsky_hist_plot = ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected.fill[4] !="")}}, fill = {{selected.fill[4] | safe}}{{/if}})) +
     geom_histogram({{if (options.selected.binwidth != "")}} binwidth ={{selected.binwidth | safe}},{{/if}} {{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}}{{selected.alpha | safe}}{{if (options.selected.fill[4] =="")}}  fill ="{{selected.barcolor | safe}}" {{/if}} {{if( options.selected.normalCurve =="TRUE")}}, aes(y =after_stat(density)){{/if}}) +
-    {{if( options.selected.normalCurve =="TRUE")}}{{selected.normal | safe}}{{/if}}
-    {{selected.rugPlot | safe}}
     labs({{selected.x[1] | safe}}, title= "Histogram for variable {{selected.x[3] | safe}}") +
     xlab("{{selected.x_label|safe}}") + 
     ylab("{{selected.y_label|safe}}") + 
     {{selected.title|safe}}  
     {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+
+
+{{if( options.selected.normalCurve =="TRUE")}}
+	bsky_group_combo = c()
+	
+	{{if (options.selected.Facetwrap != "")}}
+	bsky_group_combo = c(bsky_group_combo, c('{{selected.Facetwrap | safe}}'))
+	{{#else}}
+		{{if (options.selected.Facetrow != "")}}
+		bsky_group_combo = c(bsky_group_combo, c('{{selected.Facetrow | safe}}'))
+		{{/if}}
+		{{if (options.selected.Facetcolumn != "")}}
+		bsky_group_combo = c(bsky_group_combo, c('{{selected.Facetcolumn | safe}}'))
+		{{/if}}
+	{{/if}}
+	{{if (options.selected.fill[4] != "")}}
+	bsky_group_combo = c(bsky_group_combo, c('{{selected.fill[4] | safe}}'))
+	{{/if}}
+	
+	
+	group_stats = {{dataset.name}} %>% 
+	{{ if (options.selected.fill[4] != "" || options.selected.Facetrow != "" || options.selected.Facetcolumn != "" || options.selected.Facetwrap != "") }}
+	  group_by(across(all_of(bsky_group_combo))) %>% 
+	{{/if}}
+	summarize(
+    mean = mean({{selected.x[3] | safe}}, na.rm = TRUE),
+    sd = sd({{selected.x[3] | safe}}, na.rm = TRUE),
+	 .groups = 'drop'
+	)
+	
+	
+	# Add normal distribution curve for each group
+	for(i in 1:nrow(group_stats)) {
+	  # Filter the data for the current group
+	  filtered_data <- {{dataset.name}} %>%
+		filter(
+			{{if (options.selected.fill[4] != "")}} {{selected.fill[4] | safe}} == group_stats\${{selected.fill[4] | safe}}[i], {{/if}}
+			{{if (options.selected.Facetwrap != "")}}
+			{{selected.Facetwrap | safe}} == group_stats\${{selected.Facetwrap | safe}}[i]
+			{{#else}}
+			{{if (options.selected.Facetrow != "")}} {{selected.Facetrow | safe}} == group_stats\${{selected.Facetrow | safe}}[i], {{/if}}
+			{{if (options.selected.Facetcolumn != "")}}{{selected.Facetcolumn | safe}} == group_stats\${{selected.Facetcolumn | safe}}[i] {{/if}}
+			{{/if}}
+		)
+
+	  # Append normal curve
+	  bsky_hist_plot <- bsky_hist_plot +
+		stat_function(
+		  fun = dnorm,
+		  args = list(mean = group_stats$mean[i], sd = group_stats$sd[i]),
+		  {{if (options.selected.fill[4] != "")}} aes(color = group_stats\${{selected.fill[4] | safe}}[i]), {{/if}}
+		  data = filtered_data
+		) +
+		 guides(color = "none")
+	}
+	
 {{/if}}
+
+bsky_hist_plot	
+
+{{if( options.selected.normalCurve =="TRUE")}}
+BSkyFormat(as.data.frame(group_stats), singleTableOutputHeader = "Normal Curve Statistics")
+{{/if}}
+
+{{ if (options.selected.fill[4] != "" || options.selected.Facetrow != "" || options.selected.Facetcolumn != "" || options.selected.Facetwrap != "") }}
+	#print(bsky_group_combo)
+{{/if}}
+
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -110,7 +177,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
-            fill: {
+			fill: {
                 el: new dstVariable(config, {
                     label: localization.en.fill,
                     no: "fill",
@@ -249,8 +316,8 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 objects.x_title.el,
                 objects.y_title.el,
                 objects.barcolor.el,
-                objects.normalCurveColor.el,
-                objects.rugPlot.el
+                //objects.normalCurveColor.el,
+                //objects.rugPlot.el
             ]
         })
         var Facets = {
@@ -278,7 +345,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: "Histogram",
+                name: "Advanced Histogram",
                 icon: "icon-histogram",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -360,4 +427,4 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         return res;
     }
 }
-module.exports.item = new histogram().render()
+module.exports.item = new AdvancedHistogram().render()

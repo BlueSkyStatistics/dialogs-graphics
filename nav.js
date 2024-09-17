@@ -11,6 +11,7 @@ const nav =
             "name": "Distribution",
             "icon": "icon-gaussian-function",
             "children": [
+				"./AdvancedHistogram",
                 "./density",
                 "./histogram",
                 "./ppPlots",
