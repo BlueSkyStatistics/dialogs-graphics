@@ -116,7 +116,7 @@ BSkyTemp <- as.data.frame(BSkyTemp)
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" , sep="")
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)" , sep="")
 BSkyTemp <- BSkyTemp %>%
   dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
@@ -148,7 +148,7 @@ BSkyTemp <- BSkyTemp  %>%
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
   dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
@@ -174,7 +174,7 @@ BSkyTemp <- BSkyTemp  %>%
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
   dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
@@ -208,7 +208,7 @@ BSkyTemp <- BSkyTemp  %>%
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
     dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
@@ -236,7 +236,7 @@ BSkyTemp <- BSkyTemp  %>%
    # BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
    BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
    BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-   BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+   BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
    BSkyTemp <- BSkyTemp %>%
     dplyr::mutate(
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
