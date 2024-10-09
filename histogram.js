@@ -281,6 +281,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 name: "Histogram",
                 icon: "icon-histogram",
                 onclick: `r_before_modal("${config.id}")`,
+				positionInNav: 1,
                 modal_id: config.id
             }
         }
