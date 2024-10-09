@@ -170,7 +170,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 Facetwrap: "returnFactorNamesOfFactorVars('{{dataset.name}}',cross=TRUE)",
             })
         }
-        objects;
+       
         var objects = {
             content_var: { el: new srcVariableList(config) },
             y: {

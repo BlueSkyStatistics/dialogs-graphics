@@ -152,14 +152,14 @@ class barChartModal extends baseModal {
             #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
             BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)" , sep="")
             {{#else}}
             BSkyTemp <- base::table({{if (options.selected.dropna )}}BSkyTemp{{#else}}{{dataset.name}}{{/if}}[,{{selected.stringForDatasetWithFreqPercents | safe}}], useNA = c("ifany"))
             BSkyTemp <- as.data.frame(BSkyTemp)
             names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
             BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
-            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)" , sep="")
             BSkyTemp <- BSkyTemp %>%
             dplyr::mutate(
                 PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
@@ -178,7 +178,7 @@ class barChartModal extends baseModal {
    
             BSkyTemp$Percentage <- with(BSkyTemp, base::round(N / sum(N) * 100), digits =BSkyGetDecimalDigitSetting())
             BSkyTemp$NAsString = as.character(BSkyTemp$N)
-            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, ")%" )
+            BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
             BSkyTemp <- BSkyTemp %>%
             dplyr::mutate(
                 PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
