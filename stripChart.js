@@ -1,82 +1,13 @@
 
-var localization = {
-    en: {
-        title: "Strip Chart",
-        navigation: "Strip Chart",
-        x: "X variable, specify a numeric variable",
-        y: "Y variable, specify a numeric variable(s)",
-        Fill: "Color, specify a factor variable",
-        size: "Make the size of the point proportional to",
-        shape: "Shape",
-        alpha: "Opacity (0-1)",
-        flipaxis: "Flip axis",
-        jitter: "Apply jitter effect",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "Strip Chart",
-            r_help: "help(geom_point, package=ggplot2)",
-            body: `
-            <b>Description</b></br>
-            A strip chart is the most basic type of plot available. It plots the data in order along a line with each data point represented as a box.  The shape of the point is dependent on the levels of the factor variable (x). Points can be optionally grouped by a factor variable (y). Facets can be optionally created by specifying a factor variable.</br>
-            You can also optionally specify themes, and specify a title and labels for the x and y axis</br>
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            ggplot(Dataset5,aes(x = origin,y = engine,color = cylinder,shape =origin)) + geom_jitter()  + xlab("") +theme_calc() +facet_grid(year~.)​
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            x: the  grouping variable. The shape of the point is dependent on the levels of the factor variable​
-            </li>
-            <li>
-            y: the variable for which points are plotted​
-            </li>
-            <li>
-            color: an optional factor variable to group points (by color)​
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles(This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)​
-            </li>
-            <li>
-            geom_jitter():The jitter geom is a convenient default for geom_point with position = 'jitter'. See position_jitter to see how to adjust amount of jittering.
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)​
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;</br>
-            <b>Help</b></br>
-            help(geom_point, package='ggplot2')</br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_jitter), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)
-    `}
-    }
-}
+
 class stripChart extends baseModal {
+    static dialogId = 'stripChart'
+    static t = baseModal.makeT(stripChart.dialogId)
+
     constructor() {
         var config = {
-            id: "stripChart",
-            label: localization.en.title,
+            id: stripChart.dialogId,
+            label: stripChart.t('title'),
             modalType: "two",
             RCode: `
 ## [Strip Chart]
@@ -102,7 +33,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: localization.en.y,
+                    label: stripChart.t('y'),
                     no: "y",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -111,7 +42,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             x: {
                 el: new dstVariable(config, {
-                    label: localization.en.x,
+                    label: stripChart.t('x'),
                     no: "x",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -120,7 +51,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: localization.en.Fill,
+                    label: stripChart.t('Fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -128,7 +59,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             size: {
                 el: new dstVariable(config, {
-                    label: localization.en.size,
+                    label: stripChart.t('size'),
                     no: "size",
                     filter: "Numeric|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -136,7 +67,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             shape: {
                 el: new dstVariable(config, {
-                    label: localization.en.shape,
+                    label: stripChart.t('shape'),
                     no: "shape",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal",
                     extraction: "NoPrefix|UseComma",
@@ -144,14 +75,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             checkbox: {
                 el: new checkbox(config, {
-                    label: localization.en.flipaxis,
+                    label: stripChart.t('flipaxis'),
                     no: "flipBox",
                     extraction: "Boolean",
                 }), r: 'coord_flip() +\n'
             },
             jitter: {
                 el: new checkbox(config, {
-                    label: localization.en.jitter,
+                    label: stripChart.t('jitter'),
                     no: "Jitter",
                     extraction: "Boolean",
                 }), r: 'geom_point( position=\"jitter\") +\n'
@@ -160,7 +91,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new advancedSlider(config, {
                     no: "opacity",
                     style: "ml-1",
-                    label: localization.en.alpha,
+                    label: stripChart.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
@@ -171,7 +102,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: stripChart.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -181,7 +112,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: stripChart.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -191,7 +122,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: stripChart.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -201,7 +132,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: stripChart.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -212,14 +143,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new input(config, {
                     no: 'specify_a_title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: stripChart.t('specify_a_title'),
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
             })},
             x_title: {
                 el: new input(config, {
                     no: 'x_title',
-                    label: localization.en.x_title,
+                    label: stripChart.t('x_title'),
                     allow_spaces:true,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
@@ -227,7 +158,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             y_title: {            
                 el: new input(config, {
                     no: 'y_title',
-                    label: localization.en.y_title,
+                    label: stripChart.t('y_title'),
                     allow_spaces:true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
@@ -258,7 +189,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.jitter.el.content, objects.checkbox.el.content],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: stripChart.t('navigation'),
                 icon: "icon-strip_chart",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -266,7 +197,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: stripChart.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: stripChart.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -302,4 +239,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new stripChart().render()
+
+module.exports = {
+    render: () => new stripChart().render()
+}

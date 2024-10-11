@@ -1,93 +1,12 @@
-var localization = {
-    en: {
-        title: "Density Plot",
-        navigation: "Density",
-        x: "Select a variable(s) to plot",
-        y: "Color, specify a factor variable",
-        fill: "Fill, specify a factor variable",
-        label1: "Select a position to control overlapping",
-        rd1: "Stack densities",
-        rd2: "Stack densities and standardize each stack to have unit height",
-        rd3: "Side by side (Dodge)",
-        alpha: "Opacity (0-1)",
-        flip: "Flip Axis",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "Density Plot",
-            r_help: "help(geom_density, package='ggplot2')",
-            body: `
-            <b>Description</b></br>
-            Plots the density counts (1d kernel density estimate).Allows you to separate densities by a factor variable. You can also optionally create facets, themes and specify a title and labels for the x and y axis.
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            ggplot(data=datasetname, aes(x=var1 )) +
-                geom_density(position = "dodge",alpha=0.5 ) +
-                labs(x="var1",title= "Density plot for variable var1") +
-                xlab("var1")  +     
-                theme_grey() + theme(text=element_text(family="sans",face="plain",color="#000000",size=12,hjust=0.5,vjust=0.5))
-            ggplot(data=datasetname, aes(x=var1, colour=var2)) +
-                geom_density(position = "stack	",alpha=0.5 ) +
-                labs(x="var1",title= "Density plot for variable var1, color by levels of var2") +
-                xlab("var1")  +     
-                theme_grey() + theme(text=element_text(family="sans",face="plain",color="#000000",size=12,hjust=0.5,vjust=0.5))
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset
-            </li>
-            <li>
-            aes():Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
-            </li>
-            <li>
-            x: the numeric variable to plot densities for
-            </li>
-            <li>
-            y: ..count specifies counts of the numeric variable
-            </li>
-            <li>
-            fill: the factor variable to group plot by
-            </li>
-            <li>
-            position: Position adjustment, either as a string, or the result of a call to a position adjustment function. Valid values are "stack","dodge","fill"
-            </li>
-            <li>
-            geom_density ():1d kernel density estimate, the position parameter allows you to specify the position adjustment to use for overlapping points on this layer.
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles(This is optional).
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)
-            </li>
-            <li>
-            theme_excel(): The excel theme(This is optional)
-            </li>
-            <li>
-            alpha: sets transparency
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes</br>
-            <b>Help</b></br>
-            help(geom_density)</br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(geom_density), help(labs), help(aes), help(facet_grid), help(theme_excel)
-    `}
-    }
-}
+
 class density extends baseModal {
+    static dialogId = 'density'
+    static t = baseModal.makeT(density.dialogId)
+
     constructor() {
         var config = {
-            id: "density",
-            label: localization.en.title,
+            id: density.dialogId,
+            label: density.t('title'),
             modalType: "two",
             RCode: `
 ## [Density Plot]
@@ -116,25 +35,25 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var objects = {
             content_var: { el: new srcVariableList(config) },
             x: {
-                el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariableList(config, { label: density.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
             y: {
-                el: new dstVariable(config, { label: localization.en.y, no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: density.t('y'), no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',colour={{y|safe}}', ',group={{y|safe}}', ',colour="{{y|safe}}"', ', color by levels of {{y|safe}}']
             },
             fill: {
-                el: new dstVariable(config, { label: localization.en.fill, no: "fill", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: density.t('fill'), no: "fill", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',fill={{fill|safe}}', ',fill={{fill|safe}}', ',fill="{{fill|safe}}"', ', fill by levels of {{fill|safe}}']
             },
-            label1: { el: new labelVar(config, { label: localization.en.label1, h: 5, style: "mt-2" }) },
-            rd1: { el: new radioButton(config, { label: localization.en.rd1, no: "position", increment: "rd1", value: "dodge", state: "checked", extraction: "ValueAsIs" }) },
-            rd2: { el: new radioButton(config, { label: localization.en.rd2, no: "position", increment: "rd2", value: "stack", state: "", extraction: "ValueAsIs" }) },
-            rd3: { el: new radioButton(config, { label: localization.en.rd3, no: "position", increment: "rd3", style: "mb-3", value: "fill", state: "", extraction: "ValueAsIs" }) },
+            label1: { el: new labelVar(config, { label: density.t('label1'), h: 5, style: "mt-2" }) },
+            rd1: { el: new radioButton(config, { label: density.t('rd1'), no: "position", increment: "rd1", value: "dodge", state: "checked", extraction: "ValueAsIs" }) },
+            rd2: { el: new radioButton(config, { label: density.t('rd2'), no: "position", increment: "rd2", value: "stack", state: "", extraction: "ValueAsIs" }) },
+            rd3: { el: new radioButton(config, { label: density.t('rd3'), no: "position", increment: "rd3", style: "mb-3", value: "fill", state: "", extraction: "ValueAsIs" }) },
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
-                    label: localization.en.alpha,
+                    label: density.t('alpha'),
                     min: 0,
                     style: "ml-2",
                     max: 1,
@@ -157,7 +76,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: density.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -167,7 +86,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: density.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -177,7 +96,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: density.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -187,7 +106,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: density.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -198,14 +117,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: density.t('specify_a_title'),
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
             })},
             x_title: {
                 el: new input(config, {
                     no: 'x_title',
-                    label: localization.en.x_title,
+                    label: density.t('x_title'),
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -213,7 +132,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: localization.en.x_title,
+                    label: density.t('x_title'),
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -255,7 +174,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: density.t('navigation'),
                 icon: "icon-chart",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -263,7 +182,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: density.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: density.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -298,4 +223,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new density().render()
+
+module.exports = {
+    render: () => new density().render()
+}

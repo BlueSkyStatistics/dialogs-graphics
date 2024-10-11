@@ -1,100 +1,12 @@
-var localization = {
-  en: {
-      title: "Scatterplot Matrix",
-      fill: "Specify a variable to group by color",
-      label3: "Options for lower diagonal",
-      lowerNa: "Option when all X data is NA and all Y data is NA in lower diagonal",
-      lowerDiscrete :"Option for categorical X and Y data in the lower diagonal",
-      lowerCombo: "Option for continuous X and categorical Y or categorical X and continuous Y in lower diagonal",
-      lowerContinuous: "Option for continuous X and continuous Y in lower diagonal",
-      label1: "Options for upper diagonal",
-      upperNa: "Option when all X data is NA and all Y data is NA in upper diagonal",
-      upperDiscrete :"Option for categorical X and Y data in the upper diagonal",
-      upperCombo: "Option for continuous X and categorical Y or categorical X and continuous Y in upper diagonal",
-      upperContinuous: "Option for continuous X and continuous Y in upper diagonal",
-      label2: "Options for diagonal",
-      diagNa: "Option when all X data is NA and all Y data is NA in the diagonal",
-      diagDiscrete: "Option for categorical X and Y data in the diagonal",
-      diagContinuous: "Option for continuous X and continuous Y in the diagonal",
-      navigation: "Scatterplot Matrix",
-      x: "Specify 2 or more variables",
-      bins: "Specify the number of bins",
-      binwidth: "Bin width",
-      barcolor: "Optionally select a fill color (After color selection, click outside the control to apply)",
-      alpha: "Opacity (0-1)",
-      flip: "Flip Axis",
-      specify_a_title: "Enter a title",
-      x_title: "X axis label",
-      y_title: "Y axis label",
-      Facetrow: "Facet row",
-      Facetcolumn: "Facet column",
-      Facetwrap: "Facet wrap",
-      Facetscale: "Facet scale",
-      normalCurveColor: "Optionally select a normal curve color (After color selection, click outside the control to apply)",
-      rugPlot: "Display a rug plot (suitable for small datasets)",
-      normalCurve: "Display a normal curve (Missing values are removed for curve to display)",
-      help: {
-          title: "Scatterplot matrix",
-          r_help: "help(ggpairs, package=GGally)",
-          body: `
-          <b>Description</b></br>
-          A scatterplot matrix is a grid of scatter plots that shows the relationships between multiple variables. Each scatter plot in the matrix represents the relationship between two variables. </br>
-          If there are all NAs in When either the X or Y variable, NA is displayed 
-          <br/>
-          <b>Usage</b>
-          <br/>
-          <code> 
-          ggpairs(data=dataset1, mapping = ggplot2::aes(color = var1),  columns = c("var2","var3","var4","var5"...), 
-          upper = list(continuous = "points", combo = "box_no_facet", discrete = "count", na = "na"),
-          lower = list(continuous = "points", combo = "facethist", discrete = "facetbar", na ="na"),
-          diag = list(continuous = "densityDiag", discrete = "barDiag", na = "naDiag")
-          )
-          </code> <br/>
-          <b>Arguments</b><br/>
-          <ul>
-          <li>
-          data: The default dataset​
-          </li>
-          <li>
-          mapping: Generate aesthetic mappings, this is user to group by color.​
-          </li>
-          <li>
-          x: Specify the columns to plot.​
-          </li>
-          <li>
-          upper: Specify what you want in the upper diagonal in the following scenarios<br/>
-          1. continuous: When you have both X and Y as continuous variables, for e.g. a scatter plot, density, smoothing line...<br/>
-          2. combo: When you have X as continuous and Y as factor and vice versa, for e.g. a bar chart, box plot...<br/>
-          3. discrete: When both X and Y are factors, for e.g. bar chart, counts...<br/>
-          4. What to display in the matrix when X or Y or both contain all NAs
-          </li>
-          <li>
-          lower: Specify what you want in the lower diagonal in the following scenarios<br/>
-          1. continuous: When you have both X and Y as continuous variables, for e.g. a scatter plot, density, smoothing line...<br/>
-          2. combo: When you have X as continuous and Y as factor and vice versa, for e.g. a bar chart, box plot...<br/>
-          3. discrete: When both X and Y are factors, for e.g. bar chart, counts...<br/>         
-          4. What to display in the matrix when X or Y or both contain all NAs
-          </li>
-          <li>
-          diag: Specfies what you want in the diagonals in the following scenarios<br/>    
-          1. continuous: When you have both X and Y as continuous variables, for e.g. density, bar chart or nothing<br/>
-          2. discrete: When both X and Y are factors, for e.g. bar chart, counts...<br/>         
-          3. What to display in the matrix when X or Y or both contain all NAs
-          </li>      
-          </ul>
-          <b>Package</b></br>
-          GGally;ggplot2;ggthemes</br>
-          <b>Help</b></br>
-          help(ggpairs, package=GGally)</br>
-          Click the R Help button to get detailed R help. You can also enter help(ggpairs), help(aes)​
-         `}
-  }
-}
+
 class scatterPlotMatrix extends baseModal {
+    static dialogId = 'scatterPlotMatrix'
+    static t = baseModal.makeT(scatterPlotMatrix.dialogId)
+
   constructor() {
       var config = {
-          id: "scatterPlotMatrix",
-          label: localization.en.title,
+            id: scatterPlotMatrix.dialogId,
+          label: scatterPlotMatrix.t('title'),
           modalType: "two",
           RCode: `## [Scatterplot matrix]
 require(ggplot2);
@@ -114,12 +26,12 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
       var objects = {
           content_var: { el: new srcVariableList(config, { action: "move" }) },
           x: {
-              el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+              el: new dstVariableList(config, { label: scatterPlotMatrix.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
               r: ['{{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
           },
           fill: {
             el: new dstVariable(config, {
-                label: localization.en.fill,
+                label: scatterPlotMatrix.t('fill'),
                 no: "fill",
                 filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                 extraction: "NoPrefix|UseComma",
@@ -131,7 +43,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           alpha: {
               el: new advancedSlider(config, {
                   no: "alpha",
-                  label: localization.en.alpha,
+                  label: scatterPlotMatrix.t('alpha'),
                   min: 0,
                   style: "ml-1",
                   max: 1,
@@ -146,7 +58,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               type: "numeric",
               width: "w-25",
               value: "9",
-              label: localization.en.bins,
+              label: scatterPlotMatrix.t('bins'),
               placeholder: "",
               extraction: "TextAsIs"
             }), r: ['{{bins|safe}}']
@@ -157,18 +69,18 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               allow_spaces: true,
               width: "w-25",
               type: "numeric",
-              label: localization.en.binwidth,
+              label: scatterPlotMatrix.t('binwidth'),
               placeholder: "",
               extraction: "TextAsIs"
             }), r: ['{{binwidth|safe}}']
           },
-          flipaxis: { el: new checkbox(config, { label: localization.en.flip, no: "flipaxis" }), r: ' coord_flip() +' },
-              normalCurve: { el: new checkbox(config, { label: localization.en.normalCurve, newline:true, no: "normalCurve" }), r: 'TRUE' },
-          rugPlot: { el: new checkbox(config, { label: localization.en.rugPlot, no: "rugPlot", style : "mt-2" }), r: 'geom_rug() +' },
+          flipaxis: { el: new checkbox(config, { label: scatterPlotMatrix.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+              normalCurve: { el: new checkbox(config, { label: scatterPlotMatrix.t('normalCurve'), newline:true, no: "normalCurve" }), r: 'TRUE' },
+          rugPlot: { el: new checkbox(config, { label: scatterPlotMatrix.t('rugPlot'), no: "rugPlot", style : "mt-2" }), r: 'geom_rug() +' },
           barcolor: {
               el: new colorInput(config, {
                   no: 'barcolor',
-                  label: localization.en.barcolor,
+                  label: scatterPlotMatrix.t('barcolor'),
                   placeholder: "#727272",
                   allow_spaces:true,
                   type: "character",
@@ -179,7 +91,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           normalCurveColor: {
               el: new colorInput(config, {
                   no: 'normalCurveColor',
-                  label: localization.en.normalCurveColor,
+                  label: scatterPlotMatrix.t('normalCurveColor'),
                   placeholder: "#727272",
                   allow_spaces:true,
                   type: "character",
@@ -190,7 +102,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           Facetrow: {
               el: new comboBox(config, {
                   no: 'Facetrow',
-                  label: localization.en.Facetrow,
+                  label: scatterPlotMatrix.t('Facetrow'),
                   multiple: false,
                   extraction: "NoPrefix|UseComma",
                   options: [],
@@ -200,7 +112,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           Facetcolumn: {
               el: new comboBox(config, {
                   no: 'Facetcolumn',
-                  label: localization.en.Facetcolumn,
+                  label: scatterPlotMatrix.t('Facetcolumn'),
                   multiple: false,
                   extraction: "NoPrefix|UseComma",
                   options: [],
@@ -210,7 +122,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           Facetwrap: {
               el: new comboBox(config, {
                   no: 'Facetwrap',
-                  label: localization.en.Facetwrap,
+                  label: scatterPlotMatrix.t('Facetwrap'),
                   multiple: false,
                   extraction: "NoPrefix|UseComma",
                   options: [],
@@ -220,7 +132,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           Facetscale: {
               el: new comboBox(config, {
                   no: 'Facetscale',
-                  label: localization.en.Facetscale,
+                  label: scatterPlotMatrix.t('Facetscale'),
                   multiple: false,
                   extraction: "NoPrefix|UseComma",
                   options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -231,7 +143,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               el: new input(config, {
                   no: 'title',
                   allow_spaces:true,
-                  label: localization.en.specify_a_title,
+                  label: scatterPlotMatrix.t('specify_a_title'),
                   value: "Scatterplot matrix",
                   extraction: "NoPrefix|UseComma"
           })},
@@ -239,7 +151,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               el: new input(config, {
                   no: 'x_title',
                   allow_spaces:true,
-                  label: localization.en.x_title,
+                  label: scatterPlotMatrix.t('x_title'),
                   placeholder: "X Axis",
                   extraction: "NoPrefix|UseComma"
           })},
@@ -247,7 +159,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               el: new input(config, {
                   no: 'y_title',
                   allow_spaces:true,
-                  label: localization.en.y_title,
+                  label: scatterPlotMatrix.t('y_title'),
                   placeholder: "Y Axis",
                   extraction: "NoPrefix|UseComma"
           })},  
@@ -255,7 +167,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           diagContinuous: {
               el: new comboBox(config, {
                 no: "diagContinuous",
-                label: localization.en.diagContinuous,
+                label: scatterPlotMatrix.t('diagContinuous'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["densityDiag", "barDiag", "blankDiag"],
@@ -266,7 +178,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             diagDiscrete: {
               el: new comboBox(config, {
                 no: "diagDiscrete",
-                label: localization.en.diagDiscrete,
+                label: scatterPlotMatrix.t('diagDiscrete'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["barDiag",  "blankDiag"],
@@ -277,7 +189,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             diagNa: {
               el: new comboBox(config, {
                 no: "diagNa",
-                label: localization.en.diagNa,
+                label: scatterPlotMatrix.t('diagNa'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["naDiag",  "blankDiag"],
@@ -285,16 +197,16 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
               })
             },
 
-            label1: { el: new labelVar(config, { no: 'label1', label: localization.en.label1, h: 5 }) },
+            label1: { el: new labelVar(config, { no: 'label1', label: scatterPlotMatrix.t('label1'), h: 5 }) },
 
-            label2: { el: new labelVar(config, { no: 'label2', label: localization.en.label2, h: 5 }) },
-            label3: { el: new labelVar(config, { no: 'label3', label: localization.en.label3, h: 5 }) },
+            label2: { el: new labelVar(config, { no: 'label2', label: scatterPlotMatrix.t('label2'), h: 5 }) },
+            label3: { el: new labelVar(config, { no: 'label3', label: scatterPlotMatrix.t('label3'), h: 5 }) },
             
 
             upperContinuous: {
               el: new comboBox(config, {
                 no: "upperContinuous",
-                label: localization.en.upperContinuous,
+                label: scatterPlotMatrix.t('upperContinuous'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["autopoint",  "barDiag", "blank", "box", "cor", "count", "density", "densityDiag", "dot", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -305,7 +217,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             upperCombo: {
               el: new comboBox(config, {
                 no: "upperCombo",
-                label: localization.en.upperCombo,
+                label: scatterPlotMatrix.t('upperCombo'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: [ "autopoint",  "barDiag", "blank", "box","box_no_facet", "cor", "count", "density", "densityDiag", "dot", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -316,7 +228,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             upperDiscrete: {
               el: new comboBox(config, {
                 no: "upperDiscrete",
-                label: localization.en.upperDiscrete,
+                label: scatterPlotMatrix.t('upperDiscrete'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["autopoint",  "barDiag", "blank", "box", "cor", "count", "density", "densityDiag", "dot", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -327,7 +239,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             upperNa: {
               el: new comboBox(config, {
                 no: "upperNa",
-                label: localization.en.upperNa,
+                label: scatterPlotMatrix.t('upperNa'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["na"],
@@ -338,7 +250,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             lowerContinuous: {
               el: new comboBox(config, {
                 no: "lowerContinuous",
-                label: localization.en.lowerContinuous,
+                label: scatterPlotMatrix.t('lowerContinuous'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["autopoint",  "barDiag", "blank", "box", "cor", "count", "density", "densityDiag", "dot", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -349,7 +261,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             lowerCombo: {
               el: new comboBox(config, {
                 no: "lowerCombo",
-                label: localization.en.lowerCombo,
+                label: scatterPlotMatrix.t('lowerCombo'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["autopoint",  "barDiag", "blank", "box", "cor", "count", "density", "densityDiag", "dot", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -360,7 +272,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             lowerDiscrete: {
               el: new comboBox(config, {
                 no: "lowerDiscrete",
-                label: localization.en.lowerDiscrete,
+                label: scatterPlotMatrix.t('lowerDiscrete'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["autopoint",  "barDiag", "blank", "box", "cor", "count", "density", "densityDiag", "dot","facetbar", "facethist", "facetDensity", "ggpairs", "hist", "histDiag", "nostic_box", "nostic_hat", "nostic_resid", "nostic_se_fit", "nostic_sigma", "nostic_sl", "pcor", "points", "prcomp", "ratio", "smooth", "smoothloess", "smooth_lm", "text", "xspline"],
@@ -371,7 +283,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
             lowerNa: {
               el: new comboBox(config, {
                 no: "lowerNa",
-                label: localization.en.lowerNa,
+                label: scatterPlotMatrix.t('lowerNa'),
                 multiple: false,
                 extraction: "NoPrefix|UseComma",
                 options: ["na"],
@@ -421,7 +333,13 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           }
       }
       super(config, objects, content);
-      this.help = localization.en.help
+      
+        this.help = {
+            title: scatterPlotMatrix.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: scatterPlotMatrix.t('help.body')
+        }
+
   }
   prepareExecution(instance) {
       var res = [];

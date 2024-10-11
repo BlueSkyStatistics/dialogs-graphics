@@ -1,64 +1,12 @@
-var localization = {
-    en: {
-        title: "US County Map",
-        navigation: "US County Map",
-        region: "Variable with county names:",
-        value: "Variable with values to map:",
-        colors: "Enter number of colors",
-        zoomByStates: "Enter the states to zoom into, for e.g. california,oregon,washington",
-        specify_a_title: "Enter a title",
-        legend: "Legend:",
-        help: {
-            title: "US County Map",
-            r_help: "help(county_choropleth, package='choroplethr')",
-            body: `
-            <b>Description</b></br>
-            Draws a county map and allows you to optionally zoom into 1 or more states
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            county_choropleth(BSkyDfForMap, title="{{title}}", legend="{{legend}}",num_colors ={{colors}}, state_zoom={{zoomByStates}})
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            BSkyDfForMap: A data.frame with a column named "region" and a column named "value". Elements in the "region" column must exactly match how regions are named in the "region" column in county.map. To see the variables in county.map, run the R commands in the other section below.
-                </li>
-                <li>
-            Title: An optional title for the map.
-            </li>
-            <li>
-            Legend: An optional name for the legend.
-            </li>
-            <li>
-            num_colors: The number of colors on the map. A value of 1 will use a continuous scale. A value in [2, 9] will use that many colors.
-            </li>
-            <li>
-            ​state_zoom: An optional vector of states to zoom in on. Elements of this vector must exactly match the names of states as they appear in the "region" column of ?state.regions.
-            Accessing state.regions is similar to accessing county.map
-            </li>
-            </ul>
-            <b>Package</b></br>
-            choroplethr;choroplethrMaps;</br>
-            <b>Help</b></br>
-            help(county_choropleth, package='choroplethr')</br>
-            <b>Other</b></br>
-            <code> 
-            # Run the code below to access the county.map dataset</br>
-            library(choroplethr)</br>
-            library(choroplethrMaps)</br>
-            data(county.map)</br>
-            county.map </br>
-            </code> <br/>
-    `}
-    }
-}
+
 class usCountyMap extends baseModal {
+    static dialogId = 'usCountyMap'
+    static t = baseModal.makeT(usCountyMap.dialogId)
+
     constructor() {
         var config = {
-            id: "usCountyMap",
-            label: localization.en.title,
+            id: usCountyMap.dialogId,
+            label: usCountyMap.t('title'),
             modalType: "two",
             RCode: `
 ## [US County map]
@@ -72,7 +20,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
             content_var: { el: new srcVariableList(config) },
             region: {
                 el: new dstVariable(config, {
-                    label: localization.en.region,
+                    label: usCountyMap.t('region'),
                     required: true,
                     no: "region",
                     filter: "String|Numeric|Ordinal|Nominal|Scale",
@@ -81,7 +29,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
             },
             value: {
                 el: new dstVariable(config, {
-                    label: localization.en.value,
+                    label: usCountyMap.t('value'),
                     required: true,
                     no: "value",
                     filter: "Numeric|Scale",
@@ -91,7 +39,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
             colors: {
                 el: new advancedSlider(config, {
                     no: "colors",
-                    label: localization.en.colors,
+                    label: usCountyMap.t('colors'),
                     style:"ml-1",
                     min: 1,
                     max: 9,
@@ -103,7 +51,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
             zoomByStates: {
                 el: new input(config, {
                     no: 'zoomByStates',
-                    label: localization.en.zoomByStates,
+                    label: usCountyMap.t('zoomByStates'),
                     allow_spaces:true,
                     placeholder: "",
                     type: "character",
@@ -115,7 +63,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
                 el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: usCountyMap.t('specify_a_title'),
                     placeholder: "",
                     type: "character",
                     extraction: "TextAsIs",
@@ -126,7 +74,7 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
                 el: new input(config, {
                     no: 'legend',
                     allow_spaces:true,
-                    label: localization.en.legend,
+                    label: usCountyMap.t('legend'),
                     placeholder: "",
                     type: "character",
                     extraction: "TextAsIs",
@@ -138,13 +86,22 @@ print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend=
             left: [objects.content_var.el.content],
             right: [objects.region.el.content, objects.value.el.content, objects.colors.el.content, objects.zoomByStates.el.content, objects.title.el.content, objects.legend.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: usCountyMap.t('navigation'),
                 icon: "icon-place",
                 modal: config.id
             }
         }
         super(config, objects, content);
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: usCountyMap.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: usCountyMap.t('help.body')
+        }
+;
     }
 }
-module.exports.item = new usCountyMap().render()
+
+module.exports = {
+    render: () => new usCountyMap().render()
+}

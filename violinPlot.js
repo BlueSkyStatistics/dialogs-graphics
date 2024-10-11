@@ -1,78 +1,12 @@
-var localization = {
-    en: {
-        title: "Violin Plot",
-        navigation: "Violin",
-        x: "X axis, specify a factor variable",
-        y: "Y axis, specify a numeric variable(s)",
-        fill: "Fill, specify a factor variable",
-        alpha: "Opacity (0-1)",
-        flip: "Flip axis",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "Violin Plot",
-            r_help: "help(geom_violin, package='ggplot2')",
-            body: `
-            <b>Description</b></br>
-            A violin plot is a compact display of a continuous distribution. It is a blend of geom_boxplot() and geom_density(): a violin plot is a mirrored density plot displayed in the same way as a boxplot.
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            ggplot(data=Dataset,aes(x =as.factor(var1),y =var2)) +
-            geom_violin( stat = "ydensity",position = "dodge",trim=TRUE,scale="area",aes (fill = var3),alpha=0.5) +
-            labs(x ="var1",y ="var2",title= "Violin chart for ...")
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            x: A factor variable​ that divides the y variable below into groups.
-            </li>
-            <li>
-            y: A numeric variable for which the violin plot is generated
-            </li>
-            <li>
-            fill: An optional factor/categorical variable to further group the existing groups. Each sub group will be shown in a distinct color.​
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            geom_violin():Creates the violin plot. 
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles (This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)​
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)​
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;</br>
-            <b>Help</b></br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(geom_violin), help(labs), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)
-    `}
-    }
-}
+
 class violinPlot extends baseModal {
+    static dialogId = 'violinPlot'
+    static t = baseModal.makeT(violinPlot.dialogId)
+
     constructor() {
         var config = {
-            id: "violinPlot",
-            label: localization.en.title,
+            id: violinPlot.dialogId,
+            label: violinPlot.t('title'),
             modalType: "two",
             RCode: `## [Line chart (line drawn in order of variables on X axis)]
 require(ggplot2);
@@ -95,21 +29,21 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var objects = {
             content_var: { el: new srcVariableList(config) },
             y: {
-                el: new dstVariableList(config, { label: localization.en.y, no: "y", required: true, filter: "Numeric|Scale" }),
+                el: new dstVariableList(config, { label: violinPlot.t('y'), no: "y", required: true, filter: "Numeric|Scale" }),
                 r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}']
             },
             x: {
-                el: new dstVariable(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariable(config, { label: violinPlot.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
             GroupBy: {
-                el: new dstVariable(config, { label: localization.en.fill, no: "GroupBy", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: violinPlot.t('fill'), no: "GroupBy", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',fill = {{GroupBy|safe}}', ', filled by {{GroupBy|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
-                    label: localization.en.alpha,
+                    label: violinPlot.t('alpha'),
                     style: "ml-1",
                     min: 0,
                     max: 1,
@@ -117,11 +51,11 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     value: 1,
                 }), r: [',alpha={{alpha|safe}}']
             },
-            flipaxis: { el: new checkbox(config, { label: localization.en.flip, no: "flipaxis" }), r: ' coord_flip() +' },
+            flipaxis: { el: new checkbox(config, { label: violinPlot.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: violinPlot.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -131,7 +65,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: violinPlot.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -141,7 +75,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: violinPlot.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -151,7 +85,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: violinPlot.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -165,7 +99,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 new input(config, {
                     no: 'specify_a_title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: violinPlot.t('specify_a_title'),
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
                 }),
@@ -208,7 +142,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: violinPlot.t('navigation'),
                 icon: "icon-violin",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -216,7 +150,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: violinPlot.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: violinPlot.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -249,4 +189,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new violinPlot().render()
+
+module.exports = {
+    render: () => new violinPlot().render()
+}

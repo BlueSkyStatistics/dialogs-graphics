@@ -1,122 +1,12 @@
-var localization = {
-    en: {
-        title: "Stem and Leaf Plot",
-        navigation: "Stem and Leaf",
-        Destination: "Select variable to plot",
-        label1: "Leafs digit",
-        label2: "Parts per stem",
-        label3: "Style of divided stems",
-        label4: "Options",
-        Value: "Enter a value",
-        Automatic: "Automatic",
-        EnterValue: "Specify value",
-        StemAutomatic: "Automatic",
-        SpecifyStemValue: "Specify value",
-        StemValue: "Enter a value",
-        Tukey: "Tukey",
-        Repeated: "Repeated stem digits",
-        Trim: "Trim outliers",
-        Depths: "Show depths",
-        NegativeLeaves: "Reverse negative leaves",
-        help: {
-            title: "Stem and Leaf Plot",
-            r_help: "help(stem.leaf, package='aplpack')",
-            body: `
-            <b>Description</b></br>
-            stem and leaf display and back to back stem and leaf display
-            Creates a classical ("Tukey-style") stem and leaf display / back-to-back stem and leaf display.
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            stem.leaf(data, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", "Sturges"),
-                style = c("Tukey", "bare"), trim.outliers = TRUE, depths = TRUE,
-                reverse.negative.leaves = TRUE, na.rm = FALSE, printresult = TRUE)<br/><br/>
-            stem.leaf.backback(x,y, unit, m, Min, Max, rule.line = c("Dixon", "Velleman", 
-                "Sturges"), style = c("Tukey", "bare"), trim.outliers = TRUE, 
-                depths = TRUE, reverse.negative.leaves = TRUE, na.rm = FALSE,
-                printresult=TRUE, show.no.depths = FALSE, add.more.blanks = 0,
-                back.to.back = TRUE)
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: a numeric vector of data
-            </li>
-            <li>
-            x: first dataset for stem.leaf.backback
-            </li>
-            <li>
-            y: first dataset for stem.leaf.backback
-            </li>
-            <li>
-            unit: leaf unit, as a power of 10 (e.g., 100, .01); if unit is missing unit is choosen by stem.leaf.
-            </li>
-            <li>
-            m: number of parts (1, 2, or 5) into which each stem will be separated; if m is missing the number of parts/stem (m) is choosen by stem.leaf.
-            </li>
-            <li>
-            Min: smallest non-outlying value; omit for automatic choice.
-            </li>
-            <li>
-            Max: largest non-outlying value; omit for automatic choice.
-            </li>
-            <li>
-            rule.line: the rule to use for choosing the desired number of lines in the display; "Dixon" = 10*log10(n); "Velleman" = 2*sqrt(n); "Sturges" = 1 + log2(n); the default is "Dixon".
-            </li>
-            <li>
-            style: "Tukey" (the default) for "Tukey-style" divided stems; "bare" for divided stems that simply repeat the stem digits.
-            </li>
-            <li>
-            trim.outliers: if TRUE (the default), outliers are placed on LO and HI stems.
-            </li>
-            <li>
-            depths: if TRUE (the default), print a column of "depths" to the left of the stems; the depth of the stem containing the median is the stem-count enclosed in parentheses.
-            </li>
-            <li>
-            reverse.negative.leaves: if TRUE (the default), reverse direction the leaves on negative stems (so, e.g., the leaf 9 comes before the leaf 8, etc.).
-            </li>
-            <li>
-            na.rm: if TRUE "NA" values are removed otherwise the number of NAs are counted.
-            </li>
-            <li>
-            printresult: if TRUE output of the stem and leaf display by cat.
-            </li>
-            <li>
-            show.no.depths: if TRUE no depths are printed.
-            </li>
-            <li>
-            add.more.blanks: number of blanks that are added besides the leaves.
-            </li>
-            <li>
-            back.to.back: if FALSE two parallel stem and leaf displays are constructed.
-            </li>
-            </ul>
-            <b>Details</b></br>
-            Unlike the stem function in the base package, stem.leaf produces classic stem-and-leaf displays, as described in Tukey's Exploratory Data Analysis. The function stem.leaf.backback creates back-to-back stem and leaf displays.
-            <br/>
-            <b>Value</b></br>
-            The computed stem and leaf display is printed out. Invisibly stem.leaf returns the stem and leaf display as a list containing the elements info (legend), display (stem and leaf display as character vecter), lower (very small values), upper (very large values), depths (vector of depths), stem (stem information as a vector), and leaves (vector of leaves).</br>
-            <b>Examples</b></br>
-            stem.leaf(co2)
-            stem.leaf.backback(co2[1:120],co2[121:240])</br>
-            stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE)</br>
-            stem.leaf.backback(co2[1:120],co2[121:240], back.to.back = FALSE,
-                               add.more.blanks = 3, show.no.depths = TRUE)</br>
-            stem.leaf.backback(rivers[-(1:30)],rivers[1:30], back.to.back = FALSE, unit=10, m=5, 
-                               Min=200, Max=900, add.more.blanks = 20, show.no.depths = TRUE)</br>
-            <b>Package</b></br>
-            aplpack</br>
-            <b>Help</b></br>
-            help(stem.leaf, package=aplpack)</br>
-    `}
-    }
-}
+
 class stemAndLeaf extends baseModal {
+    static dialogId = 'stemAndLeaf'
+    static t = baseModal.makeT(stemAndLeaf.dialogId)
+
     constructor() {
         var config = {
-            id: "stemAndLeaf",
-            label: localization.en.title,
+            id: stemAndLeaf.dialogId,
+            label: stemAndLeaf.t('title'),
             modalType: "two",
             RCode: `
 ## [Stem and Leaf Plot]
@@ -128,16 +18,16 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             content_var: { el: new srcVariableList(config) },
             Destination: {
                 el: new dstVariable(config, {
-                    label: localization.en.Destination,
+                    label: stemAndLeaf.t('Destination'),
                     no: "Destination",
                     filter: "Numeric|Scale",
                     extraction: "Prefix|UseComma",
                 })
             },
-            label1: { el: new labelVar(config, { label: localization.en.label1, style:"mt-2", h: 6 }) },
+            label1: { el: new labelVar(config, { label: stemAndLeaf.t('label1'), style:"mt-2", h: 6 }) },
             Automatic: {
                 el: new radioButton(config, {
-                    label: localization.en.Automatic,
+                    label: stemAndLeaf.t('Automatic'),
                     no: "outliers",
                     increment: "Automatic",
                     value: "y",
@@ -147,7 +37,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             },
             EnterValue: {
                 el: new radioButton(config, {
-                    label: localization.en.EnterValue,
+                    label: stemAndLeaf.t('EnterValue'),
                     no: "outliers",
                     increment: "EnterValue",
                     value: "none",
@@ -160,7 +50,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
                 el: new input(config, {
                     no: 'Value',
                     type: "numeric",
-                    label: localization.en.Value,
+                    label: stemAndLeaf.t('Value'),
                     placeholder: "0",
                     ml: 4,
                     allow_spaces:true,
@@ -169,10 +59,10 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
                     dependant_objects: ["EnterValue"],
                 })
             },
-            label2: { el: new labelVar(config, { label: localization.en.label2, style:"mt-4", h: 6 }) },
+            label2: { el: new labelVar(config, { label: stemAndLeaf.t('label2'), style:"mt-4", h: 6 }) },
             StemAutomatic: {
                 el: new radioButton(config, {
-                    label: localization.en.StemAutomatic,
+                    label: stemAndLeaf.t('StemAutomatic'),
                     no: "ps",
                     increment: "StemAutomatic",
                     value: "TRUE",
@@ -182,7 +72,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             },
             SpecifyStemValue: {
                 el: new radioButton(config, {
-                    label: localization.en.SpecifyStemValue,
+                    label: stemAndLeaf.t('SpecifyStemValue'),
                     no: "ps",
                     increment: "SpecifyStemValue",
                     dependant_objects: ["StemValue"],
@@ -196,7 +86,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
                     no: 'StemValue',
                     type: "numeric",
                     ml: 4,
-                    label: localization.en.StemValue,
+                    label: stemAndLeaf.t('StemValue'),
                     placeholder: "0",
                     extraction: "TextAsIs",
                     allow_spaces:true,
@@ -204,10 +94,10 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
                     value: "",
                 })
             },
-            label3: { el: new labelVar(config, { label: localization.en.label3, style:"mt-4", h: 6 }) },
+            label3: { el: new labelVar(config, { label: stemAndLeaf.t('label3'), style:"mt-4", h: 6 }) },
             Tukey: {
                 el: new radioButton(config, {
-                    label: localization.en.Tukey,
+                    label: stemAndLeaf.t('Tukey'),
                     no: "Style",
                     increment: "Tukey",
                     value: "Tukey",
@@ -217,7 +107,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             },
             Repeated: {
                 el: new radioButton(config, {
-                    label: localization.en.Repeated,
+                    label: stemAndLeaf.t('Repeated'),
                     no: "Style",
                     increment: "Repeated",
                     value: "bare",
@@ -225,10 +115,10 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
                     extraction: "ValueAsIs"
                 })
             },
-            label4: { el: new labelVar(config, { label: localization.en.label4,style:"mt-4", h: 6 }) },
+            label4: { el: new labelVar(config, { label: stemAndLeaf.t('label4'),style:"mt-4", h: 6 }) },
             Trim: {
                 el: new checkbox(config, {
-                    label: localization.en.Trim,
+                    label: stemAndLeaf.t('Trim'),
                     no: "Trim",
                     newline: true,
                     bs_type: "valuebox",
@@ -239,7 +129,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             },
             Depths: {
                 el: new checkbox(config, {
-                    label: localization.en.Depths,
+                    label: stemAndLeaf.t('Depths'),
                     no: "Depths",
                     newline: true,
                     bs_type: "valuebox",
@@ -250,7 +140,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             },
             NegativeLeaves: {
                 el: new checkbox(config, {
-                    label: localization.en.NegativeLeaves,
+                    label: stemAndLeaf.t('NegativeLeaves'),
                     no: "NegativeLeaves",
                     newline: true,
                     bs_type: "valuebox",
@@ -267,13 +157,22 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
             objects.SpecifyStemValue.el.content, objects.StemValue.el.content, objects.label3.el.content, objects.Tukey.el.content, objects.Repeated.el.content,
             objects.label4.el.content, objects.Trim.el.content, objects.Depths.el.content, objects.NegativeLeaves.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: stemAndLeaf.t('navigation'),
                 icon: "icon-plant",
                 modal: config.id
             }
         }
         super(config, objects, content);
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: stemAndLeaf.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: stemAndLeaf.t('help.body')
+        }
+;
     }
 }
-module.exports.item = new stemAndLeaf().render()
+
+module.exports = {
+    render: () => new stemAndLeaf().render()
+}

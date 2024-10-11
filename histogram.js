@@ -1,86 +1,12 @@
-var localization = {
-    en: {
-        title: "Histogram",
-        navigation: "Histogram",
-        x: "X axis, specify a numeric variable(s)",
-        bins: "Specify the number of bins",
-        fill: "Group by (factor variable)",
-        binwidth: "Bin width",
-        barcolor: "Optionally select a fill color (After color selection, click outside the control to apply)",
-        alpha: "Opacity (0-1)",
-        flip: "Flip Axis",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        normalCurveColor: "Optionally select a normal curve color (After color selection, click outside the control to apply)",
-        rugPlot: "Display a rug plot (suitable for small datasets)",
-        normalCurve: "Display a normal curve (Missing values are removed for curve to display. Works only when no facets or grouping variables selected)",
-        help: {
-            title: "Histogram",
-            r_help: "help(geom_histogram, package=ggplot2)",
-            body: `
-            <b>Description</b></br>
-            A histogram is a graphical representation of the distribution of numerical data. It is an estimate of the probability distribution of a continuous variable (quantitative variable). You can specify a bib width or use the default, see below. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-            When you have multiple variables selected for the X axis variable, we create a separate histogram for ach x axis variable. We optionally overlay a normal curve and a rug plot</br>
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            ggplot(data=Dataset2,aes(x=engine) )+  geom_histogram(binwidth=10) +labs(x="engine",y="Counts") +  xlab("")​
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            x: A numeric/scale variable to plot the histogram for .​
-            </li>
-            <li>
-            geom_histogram: Creates a histogram, by default, stat_bin uses 30 bins - this is not a good default, but the idea is to get you experimenting with different binwidths..
-            </li>
-            <li>
-            geom_rug: Creates a rug plot    
-            </li>
-            <li>
-            stat_function: Creates a normal curve (Note: Missing values need to be removed for curve to display)    
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles(This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)​
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)
-            </li>
-            <li>
-            alpha: Takes a value between 0-1, 1 means no opacity. The opacity applies to the fill color of the histogram
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;stringr</br>
-            <b>Help</b></br>
-            help(geom_histogram, package=ggplot2)</br>
-            Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_bar), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)​
-           `}
-    }
-}
+
 class histogram extends baseModal {
+    static dialogId = 'histogram'
+    static t = baseModal.makeT(histogram.dialogId)
+
     constructor() {
         var config = {
-            id: "histogram",
-            label: localization.en.title,
+            id: histogram.dialogId,
+            label: histogram.t('title'),
             modalType: "two",
             RCode: `## [Histogram]
 require(ggplot2);
@@ -107,12 +33,12 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         var objects = {
             content_var: { el: new srcVariableList(config) },
             x: {
-                el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariableList(config, { label: histogram.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: localization.en.fill,
+                    label: histogram.t('fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -121,7 +47,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
-                    label: localization.en.alpha,
+                    label: histogram.t('alpha'),
                     min: 0,
                     style: "ml-1",
                     max: 1,
@@ -136,7 +62,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 type: "numeric",
                 width: "w-25",
                 value: "9",
-                label: localization.en.bins,
+                label: histogram.t('bins'),
                 placeholder: "",
                 extraction: "TextAsIs"
               }), r: ['{{bins|safe}}']
@@ -147,18 +73,18 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 allow_spaces: true,
                 width: "w-25",
                 type: "numeric",
-                label: localization.en.binwidth,
+                label: histogram.t('binwidth'),
                 placeholder: "",
                 extraction: "TextAsIs"
               }), r: ['{{binwidth|safe}}']
             },
-            flipaxis: { el: new checkbox(config, { label: localization.en.flip, no: "flipaxis" }), r: ' coord_flip() +' },
-                normalCurve: { el: new checkbox(config, { label: localization.en.normalCurve, newline:true, no: "normalCurve" }), r: 'TRUE' },
-            rugPlot: { el: new checkbox(config, { label: localization.en.rugPlot, no: "rugPlot", style : "mt-2" }), r: 'geom_rug() +' },
+            flipaxis: { el: new checkbox(config, { label: histogram.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+                normalCurve: { el: new checkbox(config, { label: histogram.t('normalCurve'), newline:true, no: "normalCurve" }), r: 'TRUE' },
+            rugPlot: { el: new checkbox(config, { label: histogram.t('rugPlot'), no: "rugPlot", style : "mt-2" }), r: 'geom_rug() +' },
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
-                    label: localization.en.barcolor,
+                    label: histogram.t('barcolor'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -169,7 +95,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             normalCurveColor: {
                 el: new colorInput(config, {
                     no: 'normalCurveColor',
-                    label: localization.en.normalCurveColor,
+                    label: histogram.t('normalCurveColor'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -180,7 +106,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: histogram.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -190,7 +116,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: histogram.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -200,7 +126,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: histogram.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -210,7 +136,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: histogram.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -221,7 +147,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: histogram.t('specify_a_title'),
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
             })},
@@ -229,7 +155,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 el: new input(config, {
                     no: 'x_title',
                     allow_spaces:true,
-                    label: localization.en.x_title,
+                    label: histogram.t('x_title'),
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
             })},
@@ -237,7 +163,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
                 el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
-                    label: localization.en.y_title,
+                    label: histogram.t('y_title'),
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
             })},            
@@ -287,7 +213,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help
+        
+        this.help = {
+            title: histogram.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: histogram.t('help.body')
+        }
+
     }
     prepareExecution(instance) {
         var res = [];
@@ -361,4 +293,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         return res;
     }
 }
-module.exports.item = new histogram().render()
+
+module.exports = {
+    render: () => new histogram().render()
+}

@@ -1,108 +1,12 @@
-var localization = {
-    en: {
-        title: "Bar Chart",
-        navigation: "Bar Chart",
-        label1: "Click on the tab below to select count or mean. When count is selected, a Y variable is optional. When count is selected and a Y variable is NOT specified, counts of the X variable are displayed. When count is specified and a Y variable is specified, the values of the Y variable are summed up. When mean is selected, you need to select a Y and a X variable. Means are computed for the Y variable(s)",
-        x: "X variable",
-        y: "Y variable(s), specify a numeric variable(s)",
-        fill: "Specify a factor variable to fill bars by.",
-        dropna: "Drop missing values",
-        fill1: "Select a color for the bars. Note: This is ignored when a variable to fill bars by is specified",
-        barType: "Type of bar graph",
-        stackedBar: "Stacked bar graph",
-        sideBySide: "Show groups side by side",
-        fillPercent: "Fill bars",
-        errorBarOptions: "Error bars",
-        noErrBars: "No error bars",
-        stderr: "Standard errors",
-        stddev: "Standard deviation",
-        cilevel: "Specify confidence level:",
-        confidenceInterval: "Confidence level:",
-        alpha: "Opacity (0-1)",
-        flipBox: "Flip Axis",
-        specify_a_title: "Enter a title",
-        x_title: "X Axis Label",
-        y_title: "Y Axis Label",
-        hide: "Show only top of error bars (must set opacity to 1)",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        relFreq: "Relative frequencies",        
 
-        help: {
-            title: "Bar Chart Help",
-            r_help: "help(geom_bar, package=ggplot2)",
-            body: `A bar chart or bar graph is a chart that presents grouped data with rectangular bars with lengths proportional to the values that they represent. The bars can be plotted vertically or horizontally. The bars can be grouped by an optional factor variable. The groups can be stacked on a single bar or displayed side by side. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.
-        You can create a barplot for a single factor variable, the bars will represent the counts of each level of the factor level. Here the factor variable will be on the x axis, see example below. When the relative frequencies checkbox is selected, we show relative frequency instead of counts on the y axis.
-        <br />
-        <code> 
-         ggplot(data=Dataset2,aes(x =year)) +
-         geom_bar( position ="stack",alpha=1) +
-         labs(x ="year",y ="Count",title= "Bar plot for X axis: year,Y axis: Count")
-        </code>
-        <br />
-        You can create a barplot by placing a scale/numeric variable on the y axis,  and filling the bars by a factor variable. The bar will be filled by summing the values of the y variable for each  level of the factor variable, see example below
-        <br />
-        <code> 
-        ggplot(data=Dataset2,aes(x ='',y=weight,fill=origin)) +
-         geom_bar( position ="stack",alpha=1,stat="identity") +
-         labs(y ="weight",fill ="origin",title= "Bar plot for X axis:,Y axis: weight,Fill: origin")
-        </code>
-        <br />
-        You can specify a x variable, y variable and fill. The bar is filled by the sum of the values of the y variable for each level of the x variable, group by the level of the variable specified in the fill.
-        When you specify multiple x variables, we create a separate bar graph for each x variable. 
-        <br />
-        Usage:
-        ​<br />
-        <code> 
-        ggplot(data = Dataset5,aes(x = origin,fill = cylinder)) +geom_bar(position = "stack", alpha=1)   + labs(x = "origin",y = "Count",fill = "cylinder")  +theme_calc()+facet_grid(year~.)​
-        ​ggplot(data = Dataset5,aes(x = origin)) +geom_bar(position = "stack")​
-        </code>
-        <br />
-        <ul>
-        <li>
-        data: The default dataset​
-        </li>
-        <li>
-        aes():    Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-        </li>
-        <li>
-        x: A factor/categorical variable. The length of the bar corresponds to the counts of each level of the factor variable.​
-        </li>
-        <li>
-        fill: An optional factor/categorical variable to group the counts of the levels in x: (see above)​
-        </li>
-        <li>
-        geom_bar(): Creates the bar graph, position =”stack” stacks the groups on a single bar, position =”dodge” stacks the groups side by side, position ="fill" fills the bar with a percentage of each grouping level.​
-        </li>
-        <li>
-        Labs(): Change axis labels and legend titles(This is optional)​
-        </li>
-        <li>
-        facet_grid(): Lay out panels in a grid(This is optional)​
-        </li>
-        <li>
-        theme_calc(): Specifies the calculator theme(This is optional)​
-        </li>
-        <li>
-        coord_flip(): Flip axis(This is optional)​
-        </li>
-        <li>
-        alpha: Controls opacity, takes values between 0-1. 1 means no opacity.
-        </li>
-        </ul>
-        Package: ggplot2,ggthemes​
-        <br />
-        Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_bar), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)​
-        `}
-    }
-}
 class BarChartModal extends baseModal {
+    static dialogId = 'BarChartModal'
+    static t = baseModal.makeT(BarChartModal.dialogId)
+
     constructor() {
         var config = {
-            id: "barChartModal",
-            label: localization.en.title,
+            id: BarChartModal.dialogId,
+            label: BarChartModal.t('title'),
             modalType: "two",
             RCode: `
             {{ if (options.selected.bar_type === "0") }}
@@ -156,11 +60,11 @@ class BarChartModal extends baseModal {
             })
         }
         var objects = {
-            label1: { el: new labelVar(config, { label: localization.en.label1, h: 6 }) },
+            label1: { el: new labelVar(config, { label: BarChartModal.t('label1'), h: 6 }) },
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: localization.en.y,
+                    label: BarChartModal.t('y'),
                     no: "y",
                     filter: "Numeric|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -168,7 +72,7 @@ class BarChartModal extends baseModal {
             },
             x: {
                 el: new dstVariable(config, {
-                    label: localization.en.x,
+                    label: BarChartModal.t('x'),
                     no: "x",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -176,18 +80,18 @@ class BarChartModal extends baseModal {
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: localization.en.fill,
+                    label: BarChartModal.t('fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
                 }), r: [',fill={{fill|safe}}', ',fill="{{fill|safe}}"', ', Fill: {{fill|safe}}', ',"{{fill|safe}}"', '{{fill|safe}}']
             },
            
-            checkbox: { el: new checkbox(config, { label: localization.en.flipBox, no: "flipBox" }), r: '\n\tcoord_flip() +' },
+            checkbox: { el: new checkbox(config, { label: BarChartModal.t('flipBox'), no: "flipBox" }), r: '\n\tcoord_flip() +' },
             slider: {
                 el: new sliderVariable(config, {
                     no: "opacity",
-                    label: localization.en.alpha,
+                    label: BarChartModal.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
@@ -198,7 +102,7 @@ class BarChartModal extends baseModal {
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: BarChartModal.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -208,7 +112,7 @@ class BarChartModal extends baseModal {
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: BarChartModal.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -218,7 +122,7 @@ class BarChartModal extends baseModal {
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: BarChartModal.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -228,7 +132,7 @@ class BarChartModal extends baseModal {
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: BarChartModal.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -238,7 +142,7 @@ class BarChartModal extends baseModal {
             title: {
                 el: new input(config, {
                     no: "specify_a_title",
-                    label: localization.en.specify_a_title,
+                    label: BarChartModal.t('specify_a_title'),
                     placeholder: "Chart title",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -246,7 +150,7 @@ class BarChartModal extends baseModal {
             x_title: {            
                 el: new input(config, {
                     no: 'x_title',
-                    label: localization.en.x_title,
+                    label: BarChartModal.t('x_title'),
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -254,7 +158,7 @@ class BarChartModal extends baseModal {
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: localization.en.y_title,
+                    label: BarChartModal.t('y_title'),
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -262,7 +166,7 @@ class BarChartModal extends baseModal {
             fill1: {
                 el: new colorInput(config, {
                     no: 'fill1',
-                    label: localization.en.fill1,
+                    label: BarChartModal.t('fill1'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -271,13 +175,13 @@ class BarChartModal extends baseModal {
                 })},
             dropna: {
                 el: new checkbox(config, { 
-                    label: localization.en.dropna, 
+                    label: BarChartModal.t('dropna'), 
                     no: "dropna", 
                     extraction: "Boolean" 
                 })},
                 relFreq : {
                     el: new checkbox(config, {
-                        label: localization.en.relFreq,
+                        label: BarChartModal.t('relFreq'),
                         no: "relFreq",
                         extraction: "Boolean",
                         
@@ -291,11 +195,11 @@ class BarChartModal extends baseModal {
             label: "Count",
             content: [
                 objects.relFreq.el.content,
-               // new checkbox(config, { label: localization.en.relFreq, no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
-                new labelVar(config, { label: localization.en.barType, h: 6 }).content,
-                new radioButton(config, { label: localization.en.stackedBar, no: "count", increment: "stack", value: "stack", state: "checked", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.sideBySide, no: "count", increment: "dodge", value: "dodge", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.fillPercent, no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content,
+               // new checkbox(config, { label: BarChartModal.t('relFreq'), no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
+                new labelVar(config, { label: BarChartModal.t('barType'), h: 6 }).content,
+                new radioButton(config, { label: BarChartModal.t('stackedBar'), no: "count", increment: "stack", value: "stack", state: "checked", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('sideBySide'), no: "count", increment: "dodge", value: "dodge", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('fillPercent'), no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content,
                 
             ].join("")
         }
@@ -304,13 +208,13 @@ class BarChartModal extends baseModal {
             no: "mean",
             label: "Mean",
             content: [
-                new radioButton(config, { label: localization.en.noErrBars, no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.stderr, no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.stddev, no: "mean", increment: "stddev", value: "3", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: localization.en.confidenceInterval, no: "mean", increment: "ci", value: "4", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('noErrBars'), no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('stderr'), no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('stddev'), no: "mean", increment: "stddev", value: "3", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: BarChartModal.t('confidenceInterval'), no: "mean", increment: "ci", value: "4", state: "", extraction: "ValueAsIs" }).content,
                 new advancedSlider(config, {
                     no: "cilevel",
-                    label: localization.en.cilevel,
+                    label: BarChartModal.t('cilevel'),
                     min: 0,
                     max: 1,
                     step: 0.01,
@@ -319,7 +223,7 @@ class BarChartModal extends baseModal {
                     extraction: "NoPrefix|UseComma"
                 }).content,
                 new checkbox(config, {
-                    label: localization.en.hide,
+                    label: BarChartModal.t('hide'),
                     no: "hide",
                     extraction: "Boolean",
                 }).content
@@ -354,7 +258,7 @@ class BarChartModal extends baseModal {
             right: [ objects.x.el.content, objects.y.el.content, objects.fill.el.content, objects.slider.el.content, objects.checkbox.el.content],
             bottom: [new labelVar(config, { label: "Select Bar Chart ", h: 5 }).content, tabs.content, opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: BarChartModal.t('navigation'),
                 icon: "icon-chart-bar-regular",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -363,7 +267,13 @@ class BarChartModal extends baseModal {
         super(config, objects, content);
         this.tabs = tabs
         this.opts = opts
-        this.help = localization.en.help
+        
+        this.help = {
+            title: BarChartModal.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: BarChartModal.t('help.body')
+        }
+
     }
     prepareExecution(instance) {
         var res = [];

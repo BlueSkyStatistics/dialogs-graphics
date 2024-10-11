@@ -1,84 +1,12 @@
-var localization = {
-    en: {
-        title: "P-P Plots",
-        navigation: "P-P",
-        alpha: "Opacity (0-1)",
-        x: "X axis, specify a numeric variable(s)",
-        y: "Shape, specify a factor variable",
-        color: "Color, specify a factor variable",
-        referenceline: "Reference line",
-        band: "Show bands",
-        detrend: "Detrend",
-        flip: "Flip Axis",
-        distribution: "Select a distribution",
-        x_title: "X Axis Label",
-        y_title: "Y Axis Label",
-        label1: "Distibution parameters, for e.g. for a normal distribution, the distribution parameters could be  mean=2, sd=2 so enter mean=2, sd=2 . For an exponential distribution the parameters could be rate =2, so enter rate=2.",
-        dparams: "Optionally enter distribution parameters",
-        specify_a_title: "Enter a title",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "P-P Plots",
-            r_help: "help(stat_pp_point,package='qqplotr')",
-            body: `
-            <b>Description</b></br>
-            A P–P plot (probability–probability plot or percent–percent plot or P value plot) is a probability plot for assessing how closely two data sets agree, which plots the two cumulative distribution functions against each other.  By default we compare the cumulative distribution of selected variable against the normal distribution, however you can compare against several other distributions including beta, cauchy, chisq, exp, f, gamma... You can also specify the distribution parameters associated with the distribution being compared against.  Click options button on the main dialog to select a distribution and specify distribution parameters. You can select a factor variable to group the selected variable. In this case a separate P-P plot is drawn for each group.
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            ggplot(data = datasetname,mapping= aes(sample = var1 ,shape = var2 ))  +stat_pp_band() + stat_pp_line() + stat_pp_point()  +labs(x = "Probability Points",y = "Cumulative Probability",title =paste("PP Plot for variable ",var1,sep=''))+facet_grid(var3 ~.)
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            sample: the  numeric  variable to plot the P-P plot for
-            </li>
-            <li>
-            stat_pp_point: Plots cumulative probabilities versus probability points. The cumulative probability function is constructed with the sample data, and then evaluated at each probability point.
-            </li>
-            <li>
-            stat_pp_line:Draws a reference identity line (x=y).
-            </li>
-            <li>
-            stat_pp_band:Draws confidence bands. For now, only the bootstrap version ("boot") is available.
-            </li>
-            <li>
-            shape: An optional factor variable that groups the values assigned to sample. A separate P-P plot is created for each group as determined by levels of the factor variable​. Each group is indicated by a different shape
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles(This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​. See help(facet_grid) for more details.
-            </li>
-            <li>  ​
-            coord_flip(): Flip axis(This is optional)​
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;qqplotr;</br>
-            <b>Help</b></br>
-            help(stat_pp_point, package='qqplotr')</br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(stat_pp_point), help(aes), help(facet_grid), help(coord_flip)</br>​
-            https://cran.r-project.org/web/packages/qqplotr/vignettes/introduction.html
-        `}
-    }
-}
+
 class ppPlots extends baseModal {
+    static dialogId = 'ppPlots'
+    static t = baseModal.makeT(ppPlots.dialogId)
+
     constructor() {
         var config = {
-            id: "ppPlots",
-            label: localization.en.title,
+            id: ppPlots.dialogId,
+            label: ppPlots.t('title'),
             modalType: "two",
             RCode: `## [P-P Plot]
 require(ggplot2);
@@ -104,21 +32,21 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var objects = {
             content_var: { el: new srcVariableList(config) },
             x: {
-                el: new dstVariableList(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariableList(config, { label: ppPlots.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['sample={{x|safe}}', 'sample="{{x|safe}}"', '{{x|safe}}', '{{x|safe}}']
             },
             y: {
-                el: new dstVariable(config, { label: localization.en.y, no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: ppPlots.t('y'), no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',shape={{y|safe}}', ',group={{y|safe}}', ',shape="{{y|safe}}"', ', shapes defined by levels of {{y|safe}}']
             },
             color: {
-                el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: ppPlots.t('color'), no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',color={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', ', color defined by levels of variable {{color|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
-                    label: localization.en.alpha,
+                    label: ppPlots.t('alpha'),
                     min: 0,
                     max: 1,
                     style: "ml-1",
@@ -128,7 +56,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             referenceline: {
                 el: new checkbox(config, {
-                    label: localization.en.referenceline,
+                    label: ppPlots.t('referenceline'),
                     newline: true,
                     true_value: "TRUE",
                     false_value: "FALSE",
@@ -137,7 +65,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             band: {
                 el: new checkbox(config, {
-                    label: localization.en.band,
+                    label: ppPlots.t('band'),
                     true_value: "TRUE",
                     false_value: "FALSE",
                     newline: true, no: "band"
@@ -145,27 +73,27 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             detrend: {
                 el: new checkbox(config, {
-                    label: localization.en.detrend,
+                    label: ppPlots.t('detrend'),
                     true_value: "TRUE",
                     false_value: "FALSE",
                     newline: true, no: "detrend"
                 })
             },
-            flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
+            flipaxis: { el: new checkbox(config, { label: ppPlots.t('flip'), newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
             distribution: {
                 el: new comboBox(config, {
                     no: 'distribution',
-                    label: localization.en.distribution,
+                    label: ppPlots.t('distribution'),
                     multiple: false,
                     options: ["norm", "beta", "cauchy", "chisq", "exp", "f", "gamma"],
                     default: "norm"
                 })
             },
-            label1: { el: new labelVar(config, { no: 'label1', label: localization.en.label1, h: 9 }) },
+            label1: { el: new labelVar(config, { no: 'label1', label: ppPlots.t('label1'), h: 9 }) },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: ppPlots.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -175,7 +103,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: ppPlots.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -185,7 +113,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: ppPlots.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -195,7 +123,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: ppPlots.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -206,7 +134,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
-                    label: localization.en.title,
+                    label: ppPlots.t('title'),
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
             })},
@@ -214,7 +142,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new input(config, {
                     no: 'x_title',
                     allow_spaces:true,
-                    label: localization.en.x_title,
+                    label: ppPlots.t('x_title'),
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
             })},
@@ -222,14 +150,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new input(config, {
                     no: 'y_title',
                     allow_spaces:true,
-                    label: localization.en.y_title,
+                    label: ppPlots.t('y_title'),
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
             })},   
             dparams: {
                 el: new input(config, {
                     no: 'dparams',
-                    label: localization.en.dparams,
+                    label: ppPlots.t('dparams'),
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
                 })},                
@@ -272,7 +200,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: ppPlots.t('navigation'),
                 icon: "icon-qq",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -280,7 +208,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: ppPlots.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: ppPlots.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -318,4 +252,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new ppPlots().render()
+
+module.exports = {
+    render: () => new ppPlots().render()
+}

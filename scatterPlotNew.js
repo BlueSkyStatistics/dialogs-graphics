@@ -1,114 +1,12 @@
-var localization = {
-    en: {
-        title: "Scatter Plot TEST",
-        navigation: "Scatter Plot TEST",
-        x: "X variable, specify a numeric variable",
-        y: "Y variable, specify a numeric variable(s)",
-        Fill: "Color, specify a factor variable",
-        size: "Make the size of the point proportional to",
-        shape: "Shape",
-        alpha: "Opacity (0-1)",
-        flipaxis: "Flip axis",
-        jitter: "Apply jitter effect",
-        sm: "Smoothing model",
-        lineColor: "Color of the smoothing line (After color selection, click outside the control to apply)",
-        se: "Plot standard errors",
-        bins: "Number of bins",
-        squaredbins: "Number of bins",
-        tab1: "Points",
-        tab2: "Binned Hex",
-        tab3: "Binned Square",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        label1: "Horizontal lines",
-        yIntercept: "Enter comma separated Y intercept value(s) for the horizontal lines, e.g. 100, 200, 300",
-        hLineColor: "Select a color (After color selection, click outside the control to apply)",
-        lineType: "Select the type of line",
-        horizontalLinelabel: "Specify a label for the horizontal line(s)",
-        verticalJustification: "Control the vertical justification of the label",
-        label2: "Note: Greater values move the text lower, smaller values move the text higher",
-        addHoriRefLines: "Add reference lines",
-        label3: "Vertical lines",
-        xIntercept: "Enter comma separated X intercept value(s) for vertical line(s), e.g. 100, 200, 300",
-        vLineColor: "Select a color (After color selection, click outside the control to apply)",
-        vlineType: "Select the type of line",
-        verticalLinelabel: "Specify a label for the vertical line(s)",
-        horizontalJustification: "Control the horizontal justification of the label",
-        label4: "Note: greater values place the text to the left, smaller values move the text to the right ",
-        xyLimits: "X and Y axis limits",
-        label5: "Specify a range for X and Y values",
-        rangeXValues: "Specify the X axis range, for e.g. 0,100",
-        rangeYValues: "Specify the Y axis range, for e.g. 0,100",
-        help: {
-            title: "Scatter Plot",
-            r_help: "help(geom_point, package='ggplot2')",
-            body: `
-          <b>Description</b></br>
-          Creates a scatter plot, allows you to optionally group points by a factor variable, optionally make the size of the points proportional to a numeric variable, optionally add a smoothing line, optionally make the opacity of a point proportional to a numeric variable. You can also optionally create facets, themes and specify a title and labels for the x and y axis.
-          When multiple y variables are specified, a separate graph is drawn for every Y variable against the X variable.​
-          <br/>
-          <b>Usage</b>
-          <br/>
-          <code> 
-          ggplot(data=Dataset,aes(x =var1,y=var2,color=var3,size=var4,alpha=var5,shape=var6)) +
-           geom_point( position="jitter") +
-           labs(x ="var1",y ="var2",color ="var3",title= "Scatter plot for ...") +
-           geom_smooth(method ="lm",color="red",se=TRUE)
-          </code> <br/>
-          <b>Arguments</b><br/>
-          <ul>
-          <li>
-          data: The default dataset​
-          </li>
-          <li>
-          aes():Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
-          </li>
-          <li>
-          x: the numeric variable plotted on the x axis​
-          </li>
-          <li>
-          y: the numeric variable plotted on the y axis​
-          </li>
-          <li>
-          color: A factor variable to group points by. Each group is shown in a different color.​
-          </li>
-          <li>
-          size: a numeric variable that the size of the point is proportional to​
-          </li>
-          <li>
-          alpha: A numeric variable that the transparency of a point is proportional to​
-          </li>
-          <li>
-          geom_point():The point geom is used to create scatterplots.​
-          </li>
-          <li>
-          Labs(): Change axis labels and legend titles(This is optional)​
-          </li>
-          <li>
-          geom_smooth() : Adds a smoothed conditional mean(This is optional)​
-          </li>
-          <li>
-          facet_grid(): Lay out panels in a grid(This is optional)​
-          </li>
-          </ul>
-          <b>Package</b></br>
-          ggplot2;ggthemes;</br>
-          <b>Help</b></br>
-          help(geom_point, package=ggplot2)</br>
-          Other: Click the R Help button to get detailed R help. You can also enter help(geom_point), help(labs), help(geom_smooth), help(aes), help(facet_grid), help(theme_excel)​
-  `}
-    }
-}
+
 class scatterPlotNew2 extends baseModal {
+    static dialogId = 'scatterPlotNew2'
+    static t = baseModal.makeT(scatterPlotNew2.dialogId)
+
     constructor() {
         var config = {
-            id: "scatterPlotNew2",
-            label: localization.en.title,
+            id: scatterPlotNew2.dialogId,
+            label: scatterPlotNew2.t('title'),
             modalType: "two",
             RCode: `
 require(ggplot2);
@@ -175,7 +73,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: localization.en.y,
+                    label: scatterPlotNew2.t('y'),
                     no: "y",
                     filter: "Numeric|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -184,7 +82,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             x: {
                 el: new dstVariable(config, {
-                    label: localization.en.x,
+                    label: scatterPlotNew2.t('x'),
                     no: "x",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -193,7 +91,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: localization.en.Fill,
+                    label: scatterPlotNew2.t('Fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -201,7 +99,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             size: {
                 el: new dstVariable(config, {
-                    label: localization.en.size,
+                    label: scatterPlotNew2.t('size'),
                     no: "size",
                     filter: "Numeric|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -209,7 +107,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             shape: {
                 el: new dstVariable(config, {
-                    label: localization.en.shape,
+                    label: scatterPlotNew2.t('shape'),
                     no: "shape",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal",
                     extraction: "NoPrefix|UseComma",
@@ -217,14 +115,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             checkbox: {
                 el: new checkbox(config, {
-                    label: localization.en.flipaxis,
+                    label: scatterPlotNew2.t('flipaxis'),
                     no: "flipBox",
                     extraction: "Boolean",
                 }), r: 'coord_flip() + '
             },
             jitter: {
                 el: new checkbox(config, {
-                    label: localization.en.jitter,
+                    label: scatterPlotNew2.t('jitter'),
                     no: "Jitter",
                     newline: true,
                     extraction: "Boolean",
@@ -233,7 +131,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             sm: {
                 el: new comboBox(config, {
                     no: 'sm',
-                    label: localization.en.sm,
+                    label: scatterPlotNew2.t('sm'),
                     multiple: false,
                     newline: true,
                     options: ["lm", "glm", "gam", "loess", "rlm", ""],
@@ -243,7 +141,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             lineColor: {
                 el: new colorInput(config, {
                     no: 'lineColor',
-                    label: localization.en.lineColor,
+                    label: scatterPlotNew2.t('lineColor'),
                     placeholder: "#727272",
                     allow_spaces: true,
                     type: "character",
@@ -253,7 +151,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             se: {
                 el: new checkbox(config, {
-                    label: localization.en.se,
+                    label: scatterPlotNew2.t('se'),
                     no: "se",
                     extraction: "Boolean",
                 }), r: 'TRUE'
@@ -262,7 +160,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new advancedSlider(config, {
                     no: "bins",
                     style: "ml-1",
-                    label: localization.en.bins,
+                    label: scatterPlotNew2.t('bins'),
                     min: 0,
                     max: 100,
                     step: 10,
@@ -274,7 +172,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new advancedSlider(config, {
                     no: "squaredBins",
                     style: "ml-1",
-                    label: localization.en.squaredbins,
+                    label: scatterPlotNew2.t('squaredbins'),
                     min: 0,
                     max: 100,
                     step: 10,
@@ -286,7 +184,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 el: new advancedSlider(config, {
                     no: "opacity",
                     style: "ml-1",
-                    label: localization.en.alpha,
+                    label: scatterPlotNew2.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
@@ -297,7 +195,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: scatterPlotNew2.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -307,7 +205,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: scatterPlotNew2.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -317,7 +215,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: scatterPlotNew2.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -327,7 +225,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: scatterPlotNew2.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -337,7 +235,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             title: {
                 el: new input(config, {
                     no: "title",
-                    label: localization.en.specify_a_title,
+                    label: scatterPlotNew2.t('specify_a_title'),
                     allow_spaces: true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
@@ -346,7 +244,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             x_title: {
                 el: new input(config, {
                     no: 'x_title',
-                    label: localization.en.x_title,
+                    label: scatterPlotNew2.t('x_title'),
                     allow_spaces: true,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
@@ -355,7 +253,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: localization.en.y_title,
+                    label: scatterPlotNew2.t('y_title'),
                     allow_spaces: true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
@@ -363,7 +261,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             label1: {
                 el: new labelVar(config, {
-                    label: localization.en.label1,
+                    label: scatterPlotNew2.t('label1'),
                     style: "mt-3",
                     h: 5
                 })
@@ -371,7 +269,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             yIntercept: {
                 el: new input(config, {
                     no: 'yIntercept',
-                    label: localization.en.yIntercept,
+                    label: scatterPlotNew2.t('yIntercept'),
                     placeholder: "",
                     type: "character",
                     enforceRobjectRules: false,
@@ -383,7 +281,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             hLineColor: {
                 el: new colorInput(config, {
                     no: 'hLineColor',
-                    label: localization.en.hLineColor,
+                    label: scatterPlotNew2.t('hLineColor'),
                     placeholder: "#e22c2c   ",
                     allow_spaces: true,
                     type: "character",
@@ -394,7 +292,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             lineType: {
                 el: new comboBox(config, {
                     no: 'lineType',
-                    label: localization.en.lineType,
+                    label: scatterPlotNew2.t('lineType'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["solid", "dashed", "dotted", "dotdash", "longdash", "twodash"],
@@ -404,7 +302,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             horizontalLinelabel: {
                 el: new input(config, {
                     no: 'horizontalLinelabel',
-                    label: localization.en.horizontalLinelabel,
+                    label: scatterPlotNew2.t('horizontalLinelabel'),
                     placeholder: "",
                     type: "character",
                     extraction: "TextAsIs",
@@ -414,7 +312,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             verticalJustification: {
                 el: new inputSpinner(config, {
                     no: 'verticalJustification',
-                    label: localization.en.verticalJustification,
+                    label: scatterPlotNew2.t('verticalJustification'),
                     min: -100000,
                     max: 100000,
                     step: 0.01,
@@ -424,14 +322,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             label2: {
                 el: new labelVar(config, {
-                    label: localization.en.label2,
+                    label: scatterPlotNew2.t('label2'),
                     style: "mt-3",
                     h: 9
                 })
             },
             label3: {
                 el: new labelVar(config, {
-                    label: localization.en.label3,
+                    label: scatterPlotNew2.t('label3'),
                     style: "mt-3",
                     h: 5
                 })
@@ -439,7 +337,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             xIntercept: {
                 el: new input(config, {
                     no: 'xIntercept',
-                    label: localization.en.xIntercept,
+                    label: scatterPlotNew2.t('xIntercept'),
                     placeholder: "",
                     type: "character",
                     enforceRobjectRules: false,
@@ -451,7 +349,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             vLineColor: {
                 el: new colorInput(config, {
                     no: 'vLineColor',
-                    label: localization.en.vLineColor,
+                    label: scatterPlotNew2.t('vLineColor'),
                     placeholder: "#e22c2c",
                     allow_spaces: true,
                     type: "character",
@@ -462,7 +360,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             vlineType: {
                 el: new comboBox(config, {
                     no: 'vlineType',
-                    label: localization.en.vlineType,
+                    label: scatterPlotNew2.t('vlineType'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["solid", "dashed", "dotted", "dotdash", "longdash", "twodash"],
@@ -472,7 +370,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             verticalLinelabel: {
                 el: new input(config, {
                     no: 'verticalLinelabel',
-                    label: localization.en.verticalLinelabel,
+                    label: scatterPlotNew2.t('verticalLinelabel'),
                     placeholder: "",
                     type: "character",
                     width: "w-50",
@@ -483,7 +381,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             horizontalJustification: {
                 el: new inputSpinner(config, {
                     no: 'horizontalJustification',
-                    label: localization.en.horizontalJustification,
+                    label: scatterPlotNew2.t('horizontalJustification'),
                     min: -100000,
                     max: 100000,
                     step: 0.01,
@@ -493,14 +391,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             label4: {
                 el: new labelVar(config, {
-                    label: localization.en.label4,
+                    label: scatterPlotNew2.t('label4'),
                     style: "mt-3",
                     h: 9
                 })
             },
             label5: {
                 el: new labelVar(config, {
-                    label: localization.en.label5,
+                    label: scatterPlotNew2.t('label5'),
                     style: "mt-3",
                     h: 9
                 })
@@ -508,7 +406,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             rangeXValues: {
                 el: new input(config, {
                     no: 'rangeXValues',
-                    label: localization.en.rangeXValues,
+                    label: scatterPlotNew2.t('rangeXValues'),
                     placeholder: "",
                     type: "character",
                     enforceRobjectRules: false,
@@ -520,7 +418,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             rangeYValues: {
                 el: new input(config, {
                     no: 'rangeYValues',
-                    label: localization.en.rangeYValues,
+                    label: scatterPlotNew2.t('rangeYValues'),
                     placeholder: "",
                     type: "character",
                     enforceRobjectRules: false,
@@ -533,19 +431,19 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const tab1 = {
             state: "active",
             no: "Points",
-            label: localization.en.tab1,
+            label: scatterPlotNew2.t('tab1'),
             content: [objects.jitter.el.content, objects.sm.el.content, objects.lineColor.el.content, objects.se.el.content].join("")
         }
         const tab2 = {
             state: "",
             no: "binHex",
-            label: localization.en.tab2,
+            label: scatterPlotNew2.t('tab2'),
             content: [objects.bins.el.content].join("")
         }
         const tab3 = {
             state: "",
             no: "binSq",
-            label: localization.en.tab3,
+            label: scatterPlotNew2.t('tab3'),
             content: [objects.squaredBins.el.content].join("")
         }
         // objects.tabs = {el : new tabsView(config, { no: "bar_type", tabs: [tab1, tab2, tab3], extraction: "NoPrefix" })}
@@ -561,7 +459,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var addRefLines = {
             el: new optionsVar(config, {
                 no: "addRefLines",
-                name: localization.en.addHoriRefLines,
+                name: scatterPlotNew2.t('addHoriRefLines'),
                 content: [
                     objects.label1.el,
                     objects.yIntercept.el,
@@ -595,7 +493,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var xyLimits = {
             el: new optionsVar(config, {
                 no: "xyLimits",
-                name: localization.en.xyLimits,
+                name: scatterPlotNew2.t('xyLimits'),
                 content: [
                     objects.label5.el,
                     objects.rangeXValues.el,
@@ -608,7 +506,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.checkbox.el.content],
             bottom: [new labelVar(config, { label: "Select the type of Scatterplot", h: 5 }).content, tabs.content, opts.content, Facets.el.content, addRefLines.el.content, xyLimits.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: scatterPlotNew2.t('navigation'),
                 icon: "icon-scatter_plot",
                 onclick: `r_before_modal("${config.id}")`,
                 positionInNav: 10,
@@ -618,7 +516,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         super(config, objects, content);
         this.tabs = tabs
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: scatterPlotNew2.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: scatterPlotNew2.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -721,4 +625,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new scatterPlotNew2().render()
+
+module.exports = {
+    render: () => new scatterPlotNew2().render()
+}

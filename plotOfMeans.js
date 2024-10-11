@@ -1,95 +1,13 @@
-var localization = {
-    en: {
-        title: "Plot of Means",
-        navigation: "Plot of Means",
-        x: "X axis, specify a factor variable",
-        y: "Y axis, mean is calculated for this variable(s)",
-        fill: "Group by, specify a factor variable",
-        label1: "Error bars",
-        radiobuttonNo: "No error bars",
-        radioButtonSe: "Standard errors",
-        radiobuttonSd: "Standard deviations",
-        radiobuttonCi: "Confidence intervals",
-        confidenceInterval: "Specify Interval e.g. 0.95",
-        alpha: "Opacity (0-1)",
-        flip: "Flip axis",
-        specify_a_title: "Enter a title",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "Plot of Means",
-            r_help: "",
-            body: `
-            <b>Description</b></br>
-            Plot of Means are used to see if the mean varies between different groups of the data. The grouping is variable is defined by the analyst. There is an optional level of grouping that allows you to divide each group into sub-groups for which the mean is calculated. Along with the means you can optionally display the standard errors, standard deviations and confidence intervals.  Facets can be optionally created by specifying a factor variable.</br>
-            You can also optionally specify themes, and specify a title and labels for the x and y axis</br>
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            #We first create a dataset for the summaries. The plot of means is run on the dataset of summaries</br>
-            #After the plot is run the dataset of summaries can be deleted.</br>
-            #test contains the datasetof summaries</br>
-            test <- summarySE(Dataset2,measurevar="mpg",groupvars=c("origin","cylinder"),na.rm=TRUE)</br>
-            #If errorbars overlap,position_dodge to move them horizontally,.03 to the left and right</br>
-            pd <- position_dodge(0.3)
-            ggplot(test,aes(x=origin,y=mpg,colour=cylinder,group=cylinder)) + geom_errorbar(aes(ymin=mpg-sd,ymax=mpg+sd),width=.1,position=pd) +geom_line(position=pd) +geom_point(position=pd) + labs(x = "origin",y = "mpg")</br>
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.
-            </li>
-            <li>
-            x: A factor/categorical variable used to group data in the y variable. The mean is plotted for each group.
-            </li>
-            <li>
-            y: A numeric variable
-            </li>
-            <li>
-            colour: An optional factor variable used to split the groups created by the x: variable (see above) into sub-groups. If specified, the mean is plotted for each sub-group. Each sub-group is shown in a distinct color.
-            </li>
-            <li>
-            group: Optional factor variable that plots a line through the means of all the sub group.
-            </li>
-            <li>
-            geom_line(): draws a line
-            </li>
-            <li>
-            geom_errorbar(): plots error bars
-            </li>
-            <li>
-            labs(): Change axis labels and legend titles(This is optional)
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;</br>
-            <b>Help</b></br>
-            help(geom_line, package='ggplot2')</br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_errorbar),help(geom_line), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)
-    `}
-    }
-}
+
 
 class plotOfMeans extends baseModal {
+    static dialogId = 'plotOfMeans'
+    static t = baseModal.makeT(plotOfMeans.dialogId)
+
     constructor() {
         var config = {
-            id: "plotOfMeans",
-            label: localization.en.title,
+            id: plotOfMeans.dialogId,
+            label: plotOfMeans.t('title'),
             modalType: "two",
             RCode: `
 ## [Plot of Means]
@@ -130,7 +48,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: localization.en.y,
+                    label: plotOfMeans.t('y'),
                     no: "y",
                     filter: "Numeric|Scale",
                     required: true,
@@ -139,7 +57,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             },
             x: {
                 el: new dstVariable(config, {
-                    label: localization.en.x,
+                    label: plotOfMeans.t('x'),
                     no: "x",
                     required: true,
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
@@ -148,7 +66,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: localization.en.fill,
+                    label: plotOfMeans.t('fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -156,7 +74,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             },
             checkbox: {
                 el: new checkbox(config, {
-                    label: localization.en.flip,
+                    label: plotOfMeans.t('flip'),
                     no: "flipBox",
                     extraction: "Boolean",
                 }), r: 'coord_flip() + '
@@ -164,7 +82,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             alpha: {
                 el: new advancedSlider(config, {
                     no: "aplha",
-                    label: localization.en.alpha,
+                    label: plotOfMeans.t('alpha'),
                     min: 0,
                     max: 1,
                     style: "ml-1",
@@ -172,16 +90,16 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
                     value: 1,
                 }), r: ['alpha={{alpha|safe}},']
             },
-            label1: { el: new labelVar(config, { label: localization.en.label1, h: 6 }) },
+            label1: { el: new labelVar(config, { label: plotOfMeans.t('label1'), h: 6 }) },
             radiobuttonNo: {
                 el: new radioButton(config, {
-                    label: localization.en.radiobuttonNo, no: "Eb",
+                    label: plotOfMeans.t('radiobuttonNo'), no: "Eb",
                     increment: "No", value: " ", state: "checked", extraction: "ValueAsIs"
                 })
             },
             radiobuttonSe: {
                 el: new radioButton(config, {
-                    label: localization.en.radioButtonSe,
+                    label: plotOfMeans.t('radioButtonSe'),
                     no: "Eb",
                     increment: "stderr",
                     value: 'geom_errorbar( aes(ymin = {{ y | safe }}-se,ymax = {{ y | safe }}+se ),width = .1,position = pd) + ',
@@ -190,7 +108,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             },
             radiobuttonSd: {
                 el: new radioButton(config, {
-                    label: localization.en.radiobuttonSd,
+                    label: plotOfMeans.t('radiobuttonSd'),
                     no: "Eb",
                     increment: "stddev",
                     value: "geom_errorbar( aes(ymin = {{ y | safe }}-sd,ymax = {{ y | safe }}+sd ),width = .1,position = pd) + ",
@@ -199,7 +117,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             },
             radiobuttonCi: {
                 el: new radioButton(config, {
-                    label: localization.en.radiobuttonCi,
+                    label: plotOfMeans.t('radiobuttonCi'),
                     no: "Eb",
                     increment: "ci",
                     value: "geom_errorbar( aes(ymin = {{ y | safe }}-ci,ymax = {{ y | safe }}+ci ),width = .1,position = pd) + ",
@@ -209,7 +127,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             confidenceInterval: {
                 el: new advancedSlider(config, {
                     no: "confidenceInterval",
-                    label: localization.en.confidenceInterval,
+                    label: plotOfMeans.t('confidenceInterval'),
                     style: "ml-1",
                     min: 0,
                     max: 1,
@@ -220,7 +138,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: plotOfMeans.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -230,7 +148,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: plotOfMeans.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -240,7 +158,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: plotOfMeans.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -250,7 +168,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: plotOfMeans.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["", "fixed", "none", "free_x", "free_y", "free_x_and_y"],
@@ -307,7 +225,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.checkbox.el.content, objects.alpha.el.content, objects.label1.el.content, objects.radiobuttonNo.el.content, objects.radiobuttonSe.el.content, objects.radiobuttonSd.el.content, objects.radiobuttonCi.el.content, objects.confidenceInterval.el.content,],
             bottom: [opts.el.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: plotOfMeans.t('navigation'),
                 icon: "icon-line-dot-chart",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -315,7 +233,13 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: plotOfMeans.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: plotOfMeans.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -361,4 +285,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
         return res;
     }
 }
-module.exports.item = new plotOfMeans().render()
+
+module.exports = {
+    render: () => new plotOfMeans().render()
+}

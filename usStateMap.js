@@ -1,63 +1,12 @@
-var localization = {
-    en: {
-        title: "US State Map",
-        navigation: "US State Map",
-        region: "Variable with US State names:",
-        value: "Variable with values to map:",
-        colors: "Enter number of colors",
-        zoomByStates: "Enter the states to zoom into, for e.g. california,oregon,washington",
-        specify_a_title: "Enter a title",
-        legend: "Legend:",
-        help: {
-            title: "US State Map",
-            r_help: "help(state_choropleth, package='choroplethr')",
-            body: `
-            <b>Description</b></br>
-            Draws a state map and allows you to optionally zoom into 1 or more states
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            state_choropleth(BSkyDfForMap, title="", legend="", num_colors =1,zoom=NULL)
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            BSkyDfForMap: A data.frame with a column named "region" and a column named "value". Elements in the "region" column must exactly match how regions are named in the "region" column in state.map. Run the commands under the other section below to access the state.map dataset
-            </li>
-            <li>
-            Title: An optional title for the map.
-            </li>
-            <li>
-            Legend: An optional name for the legend.
-            </li>
-            <li>
-            num_colors: The number of colors on the map. A value of 1 will use a continuous scale. A value in [2, 9] will use that many colors.
-            </li>
-            <li>
-            zoom: An optional vector of states to zoom in on. Elements of this vector must exactly match the names of states as they appear in the "region" column of ?state.regions.
-            </li>
-            </ul>
-            <b>Package</b></br>
-            choroplethr;choroplethrMaps;</br>
-            <b>Help</b></br>
-            help(state_choropleth, package='choroplethr')</br>
-            <b>Other</b></br>
-            <code> 
-            # Run the code below to access the state.map dataset<br/>
-            library(choroplethr)<br/>
-            library(choroplethrMaps)<br/>
-            data(state.map)<br/>
-            state.map <br/>
-            </code> <br/>
-    `}
-    }
-}
+
 class usStateMap extends baseModal {
+    static dialogId = 'usStateMap'
+    static t = baseModal.makeT(usStateMap.dialogId)
+
     constructor() {
         var config = {
-            id: "usStateMap",
-            label: localization.en.title,
+            id: usStateMap.dialogId,
+            label: usStateMap.t('title'),
             modalType: "two",
             RCode: `
 ## [US State Map]
@@ -71,7 +20,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
             content_var: { el: new srcVariableList(config) },
             region: {
                 el: new dstVariable(config, {
-                    label: localization.en.region,
+                    label: usStateMap.t('region'),
                     required: true,
                     no: "region",
                     filter: "String|Numeric|Ordinal|Nominal|Scale",
@@ -80,7 +29,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
             },
             value: {
                 el: new dstVariable(config, {
-                    label: localization.en.value,
+                    label: usStateMap.t('value'),
                     required: true,
                     no: "value",
                     filter: "Numeric|Scale",
@@ -90,7 +39,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
             colors: {
                 el: new advancedSlider(config, {
                     no: "colors",
-                    label: localization.en.colors,
+                    label: usStateMap.t('colors'),
                     style:"ml-1",
                     min: 1,
                     max: 9,
@@ -103,7 +52,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
                 el: new input(config, {
                     no: 'zoomByStates',
                     allow_spaces:true,
-                    label: localization.en.zoomByStates,
+                    label: usStateMap.t('zoomByStates'),
                     placeholder: "",
                     type: "character",
                     extraction: "CreateArray",
@@ -114,7 +63,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
                 el: new input(config, {
                     no: 'title',
                     allow_spaces:true,
-                    label: localization.en.specify_a_title,
+                    label: usStateMap.t('specify_a_title'),
                     placeholder: "",
                     type: "character",
                     extraction: "TextAsIs",
@@ -125,7 +74,7 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
                 el: new input(config, {
                     no: 'legend',
                     allow_spaces:true,
-                    label: localization.en.legend,
+                    label: usStateMap.t('legend'),
                     placeholder: "",
                     type: "character",
                     extraction: "TextAsIs",
@@ -137,14 +86,23 @@ print(state_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="
             left: [objects.content_var.el.content],
             right: [objects.region.el.content, objects.value.el.content, objects.colors.el.content, objects.zoomByStates.el.content, objects.title.el.content, objects.legend.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: usStateMap.t('navigation'),
                // icon: "icon-usa",
                icon: "icon-usa",
                 modal: config.id
             }
         }
         super(config, objects, content);
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: usStateMap.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: usStateMap.t('help.body')
+        }
+;
     }
 }
-module.exports.item = new usStateMap().render()
+
+module.exports = {
+    render: () => new usStateMap().render()
+}

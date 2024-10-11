@@ -1,100 +1,12 @@
-var localization = {
-    en: {
-        title: "Pie Chart",
-        navigation: "Pie Chart",
-        x: "X axis, specify factor variable(s)",
-        y: "Y variable, specify a numeric variable",
-        fill: "Fill, specify a factor variable",
-        alpha: "Opacity (0-1)",
-        width: "Width",
-        rdgrp1: "Fill proportions",
-        flip: "Flip axis",
-        barcolor: "Bar color (After color selection, click outside the control to apply)",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        help: {
-            title: "Pie Chart",
-            r_help: "help(coord_polar, package='ggplot2')",
-            body: `
-            <b>Description</b></br>
-            A pie chart (or a circle chart) is a circular statistical graphic, which is divided into slices to illustrate numerical proportion. In a pie chart, the arc length of each slice (and consequently its central angle and area), is proportional to the quantity it represents. The quantity can be represented as a count or percentage.
-            Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis.</br>
-            When you specify multiple x variables, we create a separate pie chart for each x variable. 
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code>
-            #You can create a pie chart for a single factor variable, the pies will represent the counts of each level of the factor level. Here the factor variable will correspond to the fill<br/>
-            ggplot(data=penguins, aes(x='', fill=species )) +
-	geom_bar( alpha=1,width=1,) +
-	coord_polar("y") +
-	labs(  title= "Pie chart with fill: species") +
-	ylab("") + 
-	xlab("Count")</br></br>
-            #You can create a pie chart  by specifying a scale/numeric variable as the y variable,  and filling the slices of the pie by a factor variable. The pies are filled by summing the values of the y variable for each  level of the factor variable, see example below<br/>
-            ggplot(data = penguins, aes(x = "", y = bill_length_mm, fill = species)) + geom_bar(alpha = 1,
-                width = 0.9, stat = "identity") + coord_polar("y") </br></br>
-    #You can specify a x variable, y variable and fill. The slices are created for every level of the x variable and filled by the sum of the values of the y variable for each level of the variable specified in the fill.<br/>
-    ggplot(data = penguins, aes(x = island, y = bill_length_mm, fill = species)) + geom_bar(alpha = 1,
-        width = 0.9, stat = "identity")<br/><br/>
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            aes():    Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            x: (Optional) A factor/categorical variable. The length of the bar corresponds to the counts of each level of the factor variable.​
-            </li>
-            <li>
-            Y: (Optional) a numeric variable
-            </li>
-            <li>
-            fill: (Optional)An optional factor/categorical variable to group the counts of the levels in x: (see above)​
-            </li>
-            <li>
-            geom_bar(): Creates the bar graph, position ="fill" fills the bar with a percentage of each grouping level.​
-            </li>
-            <li>
-            Coor_polar(): The polar coordinate system is most commonly used for pie charts, which are a stacked bar chart in polar coordinates.
-            </li>
-            <li>
-            Labs(): Change axis labels and legend titles(This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)​
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)​
-            </li>
-            <li>
-            alpha: Controls opacity, takes values between 0-1. 1 means no opacity.
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;</br>
-            <b>Help</b></br>
-            help(coord_polar, package=ggplot2)</br>
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_bar),help(cord_polar), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)​            
-    `}
-    }
-}
+
 class pieChart extends baseModal {
+    static dialogId = 'pieChart'
+    static t = baseModal.makeT(pieChart.dialogId)
+
     constructor() {
         var config = {
-            id: "pieChart",
-            label: localization.en.title,
+            id: pieChart.dialogId,
+            label: pieChart.t('title'),
             modalType: "two",
             RCode: `## [Pie Chart]
 require(ggplot2);
@@ -117,22 +29,22 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         var objects = {
             content_var: { el: new srcVariableList(config) },
             x: {
-                el: new dstVariableList(config, { label: localization.en.x, no: "x", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariableList(config, { label: pieChart.t('x'), no: "x", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}},', 'x="{{x|safe}}",', '{{x|safe}}', '{{x|safe}}', ' X aesthetic: {{x|safe}}']
             },
             y: {
-                el: new dstVariable(config, { label: localization.en.y, no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariable(config, { label: pieChart.t('y'), no: "y", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['y={{y|safe}},', 'y="{{y|safe}}",', 'y="{{y|safe}}",', '{{y|safe}}', ' Y aesthetic: {{y|safe}}']
             },
             color: {
-                el: new dstVariable(config, { label: localization.en.fill, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: pieChart.t('fill'), no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: ['fill={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', '{{color|safe}}', ' fill: {{color|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
                     style: "ml-1",
-                    label: localization.en.alpha,
+                    label: pieChart.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
@@ -142,7 +54,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             width: {
                 el: new advancedSlider(config, {
                     no: "width",
-                    label: localization.en.width,
+                    label: pieChart.t('width'),
                     style: "ml-1",
                     min: 0,
                     max: 1,
@@ -152,7 +64,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             },
             rdgrp1: {
                 el: new checkbox(config, {
-                    label: localization.en.rdgrp1,
+                    label: pieChart.t('rdgrp1'),
                     bs_type: "valuebox",
                     extraction: "BooleanValue",
                     newline: true,
@@ -161,11 +73,11 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     no: "rdgrp1"
                 })
             },
-            flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
+            flipaxis: { el: new checkbox(config, { label: pieChart.t('flip'), newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
-                    label: localization.en.barcolor,
+                    label: pieChart.t('barcolor'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -176,7 +88,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: pieChart.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -186,7 +98,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: pieChart.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -196,7 +108,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: pieChart.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -206,7 +118,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: pieChart.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -216,7 +128,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             title: {
                 el: new input(config, {
                     no: "specify_a_title",
-                    label: localization.en.specify_a_title,
+                    label: pieChart.t('specify_a_title'),
                     allow_spaces:true,
                     placeholder: "Chart title",
                     extraction: "NoPrefix|UseComma"
@@ -224,7 +136,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             x_title: {
                 el: new input(config, {
                     no: 'x_title',
-                    label: localization.en.x_title,
+                    label: pieChart.t('x_title'),
                     allow_spaces:true,
                     placeholder: "X Axis",
                     extraction: "NoPrefix|UseComma"
@@ -232,7 +144,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: localization.en.y_title,
+                    label: pieChart.t('y_title'),
                     allow_spaces:true,
                     placeholder: "Y Axis",
                     extraction: "NoPrefix|UseComma"
@@ -271,7 +183,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: pieChart.t('navigation'),
                 icon: "icon-chart-pie-solid",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -279,7 +191,13 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         }
         super(config, objects, content);
         this.opts = opts
-        this.help = localization.en.help;
+        
+        this.help = {
+            title: pieChart.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: pieChart.t('help.body')
+        }
+;
     }
     prepareExecution(instance) {
         var res = [];
@@ -346,4 +264,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         return res;
     }
 }
-module.exports.item = new pieChart().render()
+
+module.exports = {
+    render: () => new pieChart().render()
+}

@@ -1,105 +1,12 @@
-var localization = {
-    en: {
-        title: "Line Chart",
-        navigation: "Points",
-        label1: "Click on the tab below corresponding to the type of line chart you want. The default is connected by order.",
-        x: "X axis",
-        y: "Y axis, specify a numeric variable(s)",
-        color: "Group/Color, specify a factor variable",
-        line: "By Order",
-        linetype: "A separate line type will be used for each level of the factor variable",
-        stair: "Stair Steps",
-        path: "By occurrence",
-        lineChartType: "Click on the type of Line Chart below",
-        alpha: "Opacity (0-1)",
-        flipBox: "Flip Axis",
-        specify_a_title: "Enter a title",
-        x_title: "X axis label",
-        y_title: "Y axis label",
-        Facetrow: "Facet row",
-        Facetcolumn: "Facet column",
-        Facetwrap: "Facet wrap",
-        Facetscale: "Facet scale",
-        sizePoint: "Size of the points",
-        sizeLine:"Width of the line",
-        help: {
-            title: "Line Chart",
-            r_help: "help(geom_line, package=ggplot2)",
-            body: `
-            <b>Description</b></br>
-            The option to use a different line type for each level of the factor variable specified is provided to support publications that don't support color. 
-            Creates a line chart (connected by order) or stair step plot or orders the line chart by occurrence of the points in the dataset. Click on the tab corresponding to the type of line chart you want.</br>
-            Line chart (connected by order): A line chart plots a line through points defined by the x and y coordinates and connects them in the order of variables on the x axis. When a group/color is set to a factor variable, the points are grouped by color and a separate line is generated for each group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​</br>
-            Stair step plot: A line chart plots a line through points defined by the x and y coordinates and creates a stair step plot, highlighting exactly when changes occur. When a color is set to a factor variable, the points are grouped by color and a separate line is generated for each color group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​</br>
-            Ordered by occurrence: A line chart plots a line through points defined by the x and y coordinates and connects them in the order of in which variables occur in the dataset. When a color is set to a factor variable, the points are grouped by color and a separate line is generated for each color group. Facets can be optionally created by specifying a factor variable. You can also optionally specify themes, and specify a title and labels for the x and y axis​.</br>
-            <br/>
-            <b>Usage</b>
-            <br/>
-            <code> 
-            #Line chart<br/>
-            ggplot(data=Dataset2,aes(x =var1,y =var2)) +
-             geom_line( stat = "identity",position = "identity",aes (color = var3),alpha=0.5) +
-             labs(x ="var1",y ="var2", title= "Line chart for ...")<br/>
-            #Stair step plot<br/>
-            ggplot(data=Dataset2,aes(x =var1,y =var2)) +
-             geom_step( stat = "identity",position = "identity",aes (color = var3),alpha=0.5) +
-             labs(x ="var1",y ="var2",title= "Line chart for ...")<br/>
-            #Ordered by occurrence<br/>
-            ggplot(data=Dataset2,aes(x =var1,y =var2)) +
-             geom_path( stat = "identity",position = "identity",aes (color = var3),alpha=0.5) +
-             labs(x ="var1",y ="var2",title= "Line chart for ...")
-            </code> <br/>
-            <b>Arguments</b><br/>
-            <ul>
-            <li>
-            data: The default dataset​
-            </li>
-            <li>
-            aes(): Generate aesthetic mappings that describe how variables in the data are mapped to visual properties (aesthetics) of geoms.​
-            </li>
-            <li>
-            x: A numeric or factor variable
-            </li>
-            <li>
-            y: the numeric/scale  variable for which points are plotted on the y axis​
-            </li>
-            <li>
-            color: an optional factor variable to group points (by color)​
-            </li>
-            <li>
-            labs(): Change axis labels and legend titles(This is optional)​
-            </li>
-            <li>
-            facet_grid(): Lay out panels in a grid(This is optional)​
-            </li>
-            <li>
-            theme_calc(): Specifies the calculator theme(This is optional)​
-            </li>
-            <li>
-            geom_line(): Connect observations ordered by x value, see x:​
-            </li>
-            <li>
-            coord_flip(): Flip axis(This is optional)​
-            </li>
-            </ul>
-            <b>Package</b></br>
-            ggplot2;ggthemes;</br>
-            <b>Help</b></br>
-            #Line chart
-            help(geom_line, package='ggplot2')
-            #Line chart stair step
-            help(geom_step, package=ggplot2)
-            #Variable order
-            help(geom_path, package='ggplot2')
-            Other: Click the R Help button to get detailed R help. You can also enter help(labs), help(geom_line), help(aes), help(facet_grid), help(theme_calc), help(coord_flip)​            
-    `}
-    }
-}
+
 class lineChartModal extends baseModal {
+    static dialogId = 'lineChartModal'
+    static t = baseModal.makeT(lineChartModal.dialogId)
+
     constructor() {
         const config = {
             id: "lineChartModal",
-            label: localization.en.title,
+            label: lineChartModal.t('title'),
             modalType: "two",
             RCode: `## [Line chart (line drawn in order of variables on X axis)]
 require(ggplot2);
@@ -118,20 +25,20 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             })
         }
         var objects = {
-            label1: { el: new labelVar(config, { label: localization.en.label1, h: 6 }) },
+            label1: { el: new labelVar(config, { label: lineChartModal.t('label1'), h: 6 }) },
             content_var: { el: new srcVariableList(config) },
-            y: { el: new dstVariableList(config, { label: localization.en.y, no: "y", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
-            x: { el: new dstVariable(config, { label: localization.en.x, no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
-            color: { el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', color = {{color|safe}}, group = {{color|safe}}, shape ={{color|safe}}', 'grouped in colors by: {{color|safe}}'] },
+            y: { el: new dstVariableList(config, { label: lineChartModal.t('y'), no: "y", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
+            x: { el: new dstVariable(config, { label: lineChartModal.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
+            color: { el: new dstVariable(config, { label: lineChartModal.t('color'), no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', color = {{color|safe}}, group = {{color|safe}}, shape ={{color|safe}}', 'grouped in colors by: {{color|safe}}'] },
 
-            linetype: { el: new dstVariable(config, { label: localization.en.linetype, no: "linetype", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', aes (group = {{linetype |safe}}, linetype = {{linetype |safe}})', 'grouped in colors by: {{color|safe}}'] },
+            linetype: { el: new dstVariable(config, { label: lineChartModal.t('linetype'), no: "linetype", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', aes (group = {{linetype |safe}}, linetype = {{linetype |safe}})', 'grouped in colors by: {{color|safe}}'] },
 
 
-            checkbox: { el: new checkbox(config, { label: localization.en.flipBox, style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
+            checkbox: { el: new checkbox(config, { label: lineChartModal.t('flipBox'), style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: localization.en.Facetrow,
+                    label: lineChartModal.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -141,7 +48,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: localization.en.Facetcolumn,
+                    label: lineChartModal.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -151,7 +58,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: localization.en.Facetwrap,
+                    label: lineChartModal.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -161,7 +68,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: localization.en.Facetscale,
+                    label: lineChartModal.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -171,7 +78,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             title: {
                 el: new input(config, {
                                 no: 'title',
-                                label: localization.en.specify_a_title,
+                                label: lineChartModal.t('specify_a_title'),
                                 allow_spaces:true,
                                 placeholder: "Chart title",
                                 extraction: "NoPrefix|UseComma"
@@ -180,7 +87,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                  x_title: {
                 el:	new input(config, {
                                 no: 'x_title',
-                                label: localization.en.x_title,
+                                label: lineChartModal.t('x_title'),
                                 allow_spaces:true,
                                 placeholder: "X Axis",
                                 extraction: "NoPrefix|UseComma"
@@ -190,14 +97,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                            el: new input(config, {
                                 no: 'y_title',
                                 allow_spaces:true,
-                                label: localization.en.y_title,
+                                label: lineChartModal.t('y_title'),
                                 placeholder: "Y Axis",
                                 extraction: "NoPrefix|UseComma"
                             })},
                 sizePoint: {
                     el: new inputSpinner(config, {
                         no: 'sizePoint',
-                        label: localization.en.sizePoint,
+                        label: lineChartModal.t('sizePoint'),
                         min: 0,
                         max: 20,
                         step: 0.1,
@@ -208,7 +115,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 sizeLine: {
                         el: new inputSpinner(config, {
                             no: 'sizeLine',
-                            label: localization.en.sizeLine,
+                            label: lineChartModal.t('sizeLine'),
                             min: 0,
                             max: 20,
                             step: 0.1,
@@ -221,21 +128,21 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const tab1 = {
             state: "active",
             no: "line",
-            label: localization.en.line,
+            label: lineChartModal.t('line'),
             r_value: "geom_line",
             content: "Observations connected by order of values on x axis"
         }
         const tab2 = {
             state: "",
             no: "stair",
-            label: localization.en.stair,
+            label: lineChartModal.t('stair'),
             r_value: "geom_step",
             content: "Stair Steps"
         }
         const tab3 = {
             state: "",
             no: "path",
-            label: localization.en.path,
+            label: lineChartModal.t('path'),
             r_value: "geom_path",
             content: "Ordered by occurrence of variable values in data"
         }
@@ -270,12 +177,12 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.x.el.content,
                 objects.color.el.content,
                 objects.linetype.el.content,
-                new labelVar(config, { label: localization.en.lineChartType, h: 7 }).content,
+                new labelVar(config, { label: lineChartModal.t('lineChartType'), h: 7 }).content,
                 navs.content,
                 objects.checkbox.el.content],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: localization.en.navigation,
+                name: lineChartModal.t('navigation'),
                 icon: "icon-chart-line-solid",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -284,7 +191,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         super(config, objects, content);
         this.navs = navs
         this.opts = opts
-        this.help = localization.en.help
+        
+        this.help = {
+            title: lineChartModal.t('help.title'),
+            r_help: "help(data,package='utils')",
+            body: lineChartModal.t('help.body')
+        }
+
     }
     prepareExecution(instance) {
         var res = [];
@@ -321,4 +234,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new lineChartModal().render()
+
+module.exports = {
+    render: () => new lineChartModal().render()
+}
