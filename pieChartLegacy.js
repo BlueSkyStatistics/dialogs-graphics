@@ -1,12 +1,12 @@
 
-class pieChart extends baseModal {
+class pieChartLegacy extends baseModal {
     static dialogId = 'pieChart'
-    static t = baseModal.makeT(pieChart.dialogId)
+    static t = baseModal.makeT(pieChartLegacy.dialogId)
 
     constructor() {
         var config = {
-            id: pieChart.dialogId,
-            label: pieChart.t('title'),
+            id: pieChartLegacy.dialogId,
+            label: pieChartLegacy.t('title'),
             modalType: "two",
             RCode: `## [Pie Chart]
 require(ggplot2);
@@ -201,6 +201,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
     }
     prepareExecution(instance) {
         var res = [];
+        let count = 0;
         if (instance.objects.x.el.getVal() == "") {
             var code_vars = {
                 dataset: {
@@ -227,7 +228,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
             cmd = removenewline(cmd);
-            res.push({ cmd: cmd, cgid: newCommandGroup() })
+            res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
             // res.push({ cmd: instance.dialog.renderR(code_vars), cgid: newCommandGroup() })
         }
         else {
@@ -257,7 +258,13 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                 code_vars.selected.themes = themeRsyntax;
                 let cmd = instance.dialog.renderR(code_vars)
                 cmd = removenewline(cmd);
-                res.push({ cmd: cmd, cgid: newCommandGroup() })
+                if (count == 0) {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                else {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                count++
             }
             )
         }
@@ -266,5 +273,5 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
 }
 
 module.exports = {
-    render: () => new pieChart().render()
+    render: () => new pieChartLegacy().render()
 }

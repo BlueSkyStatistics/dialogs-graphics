@@ -200,6 +200,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         let colinfo = {};
         var res = [];
         let cmd ="";
+        let count = 0;
         instance.objects.x.el.getVal().forEach(function (value) {
             colinfo = allColAttr[value]      
             var code_vars = {
@@ -230,7 +231,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             if ( code_vars.selected.frequency_type ==1 && code_vars.selected.y[4] ==""  )
             {   
                 cmd = "cat(\"ERROR. As the x variable: " + value + " is a factor, you must specify a color/grouping variable\")"
-                res.push({ cmd: cmd, cgid: newCommandGroup() })
+                res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
             }
             else
             {
@@ -241,7 +242,13 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 code_vars.selected.themes = themeRsyntax;
                 cmd = instance.dialog.renderR(code_vars)
                 cmd = removenewline(cmd);
-                res.push({ cmd: cmd, cgid: newCommandGroup() })
+                if (count == 0) {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                else {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                count++ 
             }
         })
         return res;
