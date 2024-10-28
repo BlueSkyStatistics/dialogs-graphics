@@ -387,6 +387,7 @@ BSkyTemp <- BSkyTemp  %>%
     }
     prepareExecution(instance) {
         var res = [];
+        let count = 0;
         if (instance.objects.x.el.getVal() == "") {
             var code_vars = {
                 dataset: {
@@ -459,7 +460,7 @@ BSkyTemp <- BSkyTemp  %>%
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
             cmd = removenewline(cmd);
-            res.push({ cmd: cmd, cgid: newCommandGroup() })
+            res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
             
         }
         else {
@@ -539,7 +540,13 @@ BSkyTemp <- BSkyTemp  %>%
                 code_vars.selected.themes = themeRsyntax;
                 let cmd = instance.dialog.renderR(code_vars)
                 cmd = removenewline(cmd);
-                res.push({ cmd: cmd, cgid: newCommandGroup() })
+                if (count == 0) {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                else {
+                    res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
+                }
+                count++
             }
             )
         }
