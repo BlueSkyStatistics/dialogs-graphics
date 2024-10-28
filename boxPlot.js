@@ -1,12 +1,12 @@
 
-class boxPlotModal extends baseModal {
-    static dialogId = 'boxPlotModal'
-    static t = baseModal.makeT(boxPlotModal.dialogId)
+class boxPlot extends baseModal {
+    static dialogId = 'boxPlot'
+    static t = baseModal.makeT(boxPlot.dialogId)
 
     constructor() {
         var config = {
-            id: boxPlotModal.dialogId,
-            label: boxPlotModal.t('title'),
+            id: boxPlot.dialogId,
+            label: boxPlot.t('title'),
             modalType: "two",
             RCode: `## [Box Plot]
 require(ggplot2);
@@ -28,34 +28,34 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         var objects = {
             content_var: { el: new srcVariableList(config) },
             y: {
-                el: new dstVariableList(config, { label: boxPlotModal.t('y'), no: "y", required: true, filter: "Numeric|Scale" }),
+                el: new dstVariableList(config, { label: boxPlot.t('y'), no: "y", required: true, filter: "Numeric|Scale" }),
                 r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}']
             },
             x: {
-                el: new dstVariable(config, { label: boxPlotModal.t('x'), no: "x", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
+                el: new dstVariable(config, { label: boxPlot.t('x'), no: "x", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }),
                 r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
             GroupBy: {
-                el: new dstVariable(config, { label: boxPlotModal.t('fill'), no: "GroupBy", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
+                el: new dstVariable(config, { label: boxPlot.t('fill'), no: "GroupBy", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
                 r: [',fill = {{GroupBy|safe}}', ', filled by: {{GroupBy|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
                     no: "alpha",
-                    label: boxPlotModal.t('alpha'),
+                    label: boxPlot.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
                     value: 1,
                 }), r: ['alpha={{alpha|safe}},']
             },
-            flipaxis: { el: new checkbox(config, { label: boxPlotModal.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
-            notch: { el: new checkbox(config, { label: boxPlotModal.t('notch'), no: "notch" }), r: ' notch = TRUE' },
-            outliers: { el: new checkbox(config, { label: boxPlotModal.t('outliers'), no: "outliers" }), r: 'outlier.colour= "red ",outlier.shape=8,outlier.size = 2,' },
+            flipaxis: { el: new checkbox(config, { label: boxPlot.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+            notch: { el: new checkbox(config, { label: boxPlot.t('notch'), no: "notch" }), r: ' notch = TRUE' },
+            outliers: { el: new checkbox(config, { label: boxPlot.t('outliers'), no: "outliers" }), r: 'outlier.colour= "red ",outlier.shape=8,outlier.size = 2,' },
             dataPoints: {
                 el: new comboBox(config, {
                     no: 'dataPoints',
-                    label: boxPlotModal.t('dataPoints'),
+                    label: boxPlot.t('dataPoints'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "Stacked", "Jitter"],
@@ -65,7 +65,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             specify_a_title: {
                 el: new input(config, {
                     no: "specify_a_title",
-                    label: boxPlotModal.t('specify_a_title'),
+                    label: boxPlot.t('specify_a_title'),
                     placeholder: "Chart title",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -74,7 +74,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             x_title: {
                 el: new input(config, {
                     no: 'x_title',
-                    label: boxPlotModal.t('x_title'),
+                    label: boxPlot.t('x_title'),
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -83,7 +83,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: boxPlotModal.t('y_title'),
+                    label: boxPlot.t('y_title'),
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -92,7 +92,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
-                    label: boxPlotModal.t('barcolor'),
+                    label: boxPlot.t('barcolor'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -102,14 +102,14 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             },
 
             dropna: {
-                el:new checkbox(config, { label: boxPlotModal.t('dropna'), no: "dropna", extraction: "Boolean" 
+                el:new checkbox(config, { label: boxPlot.t('dropna'), no: "dropna", extraction: "Boolean" 
             }
             )},
 
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: boxPlotModal.t('Facetrow'),
+                    label: boxPlot.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -119,7 +119,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: boxPlotModal.t('Facetcolumn'),
+                    label: boxPlot.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -129,7 +129,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: boxPlotModal.t('Facetwrap'),
+                    label: boxPlot.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -139,7 +139,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: boxPlotModal.t('Facetscale'),
+                    label: boxPlot.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -184,7 +184,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: boxPlotModal.t('navigation'),
+                name: boxPlot.t('navigation'),
                 icon: "icon-box_plot",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -194,9 +194,9 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         this.opts = opts;
         
         this.help = {
-            title: boxPlotModal.t('help.title'),
+            title: boxPlot.t('help.title'),
             r_help: "help(data,package='utils')",
-            body: boxPlotModal.t('help.body')
+            body: boxPlot.t('help.body')
         }
 
     }
@@ -257,5 +257,5 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
 }
 
 module.exports = {
-    render: () => new boxPlotModal().render()
+    render: () => new boxPlot().render()
 }
