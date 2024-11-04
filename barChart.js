@@ -252,7 +252,7 @@ class barChart extends baseModal {
                     })
                 },
 
-                label1: { el: new labelVar(config, { no: 'label1', style: "mt-2",label: barChart.t('optionsLabels'), h: 5 }) },
+                optionsLabels: { el: new labelVar(config, { no: 'optionsLabels', style: "mt-2",label: barChart.t('optionsLabels'), h: 5 }) },
 
             suppressLabels: {
                 el: new checkbox(config, {
@@ -332,7 +332,7 @@ class barChart extends baseModal {
                 objects.y_title.el,
                 objects.fill1.el,
                 objects.dropna.el,
-                objects.label1.el,
+                objects.optionsLabels.el,
                 objects.suppressLabels.el,
                 objects.suppressThreshold.el
             ]
