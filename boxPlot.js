@@ -82,7 +82,7 @@ var localization = {
         `}
     }
 }
-class boxPlotModal extends baseModal {
+class boxPlot extends baseModal {
     constructor() {
         var config = {
             id: "boxPlot",
@@ -322,4 +322,4 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         return res;
     }
 }
-module.exports.item = new boxPlotModal().render()
+module.exports.item = new boxPlot().render()
