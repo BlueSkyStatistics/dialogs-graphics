@@ -3,7 +3,7 @@ const nav =
     "name": "Graphics",
     "tab": "graphics",
     "buttons": [
-        "./barChart",
+        "./barChartModal",
         "./boxPlot",
         "./contourPlot",
         "./twoDContourplot",
@@ -23,7 +23,7 @@ const nav =
             "icon": "icon-chart-line-solid",
             "children": [
                 "./frequencyFactor",
-                "./lineChart",
+                "./lineChartModal",
                 "./plotOfMeans",
                 "./threeAxisLineChart"
             ]
