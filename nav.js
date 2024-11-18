@@ -5,7 +5,7 @@ const nav =
     "buttons": [
         "./barChartModal",
         "./boxPlot",
-        "./contourPlot",
+        "./Contour",
         "./twoDContourplot",
         {
             "name": "Distribution",
@@ -25,7 +25,7 @@ const nav =
                 "./frequencyFactor",
                 "./lineChartModal",
                 "./plotOfMeans",
-                "./threeAxisLineChart"
+                "./threeAxisLineChartModal"
             ]
         },
         {
@@ -41,7 +41,7 @@ const nav =
             "name": "Pie Charts",
             "icon": "icon-chart-pie-solid",
             "children": [
-                "./coxComb",
+                "./Coxcomb",
                 "./pieChart"
             ]
         },
