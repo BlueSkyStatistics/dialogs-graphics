@@ -65,7 +65,7 @@ var localization = {
     `}
     }
 }
-class contourPlot extends baseModal {
+class Contour extends baseModal {
     constructor() {
         var config = {
             id: "Contour",
@@ -264,4 +264,4 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         return res;
     }
 }
-module.exports.item = new contourPlot().render()
+module.exports.item = new Contour().render()
