@@ -248,7 +248,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 else {
                     res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
                 }
-                count++ 
+                count++
             }
         })
         return res;

@@ -250,7 +250,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             else {
                 res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
             }
-            count++            
+            count++  
         })
         return res;
     }
