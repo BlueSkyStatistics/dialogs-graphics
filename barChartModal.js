@@ -1,12 +1,12 @@
 
-class barChart extends baseModal {
-    static dialogId = 'barChart'
-    static t = baseModal.makeT(barChart.dialogId)
+class barChartModal extends baseModal {
+    static dialogId = 'barChartModal'
+    static t = baseModal.makeT(barChartModal.dialogId)
 
     constructor() {
         var config = {
-            id: barChart.dialogId,
-            label: barChart.t('title'),
+            id: barChartModal.dialogId,
+            label: barChartModal.t('title'),
             modalType: "two",
             RCode: `
             
@@ -122,11 +122,11 @@ class barChart extends baseModal {
             })
         }
         var objects = {
-            label1: { el: new labelVar(config, { label: barChart.t('label1'), h: 6 }) },
+            label1: { el: new labelVar(config, { label: barChartModal.t('label1'), h: 6 }) },
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: barChart.t('y'),
+                    label: barChartModal.t('y'),
                     no: "y",
                     filter: "Numeric|Scale",
                     extraction: "NoPrefix|UseComma",
@@ -134,7 +134,7 @@ class barChart extends baseModal {
             },
             x: {
                 el: new dstVariable(config, {
-                    label: barChart.t('x'),
+                    label: barChartModal.t('x'),
                     no: "x",
                     required:true,
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
@@ -143,18 +143,18 @@ class barChart extends baseModal {
             },
             fill: {
                 el: new dstVariable(config, {
-                    label: barChart.t('fill'),
+                    label: barChartModal.t('fill'),
                     no: "fill",
                     filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale",
                     extraction: "NoPrefix|UseComma",
                 }), r: [',fill={{fill|safe}}', ',fill="{{fill|safe}}"', ', Fill: {{fill|safe}}', ',"{{fill|safe}}"', '{{fill|safe}}']
             },
            
-            checkbox: { el: new checkbox(config, { label: barChart.t('flipBox'), no: "flipBox" }), r: '\n\tcoord_flip() +' },
+            checkbox: { el: new checkbox(config, { label: barChartModal.t('flipBox'), no: "flipBox" }), r: '\n\tcoord_flip() +' },
             slider: {
                 el: new sliderVariable(config, {
                     no: "opacity",
-                    label: barChart.t('alpha'),
+                    label: barChartModal.t('alpha'),
                     min: 0,
                     max: 1,
                     step: 0.1,
@@ -165,7 +165,7 @@ class barChart extends baseModal {
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: barChart.t('Facetrow'),
+                    label: barChartModal.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -175,7 +175,7 @@ class barChart extends baseModal {
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: barChart.t('Facetcolumn'),
+                    label: barChartModal.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -185,7 +185,7 @@ class barChart extends baseModal {
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: barChart.t('Facetwrap'),
+                    label: barChartModal.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -195,7 +195,7 @@ class barChart extends baseModal {
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: barChart.t('Facetscale'),
+                    label: barChartModal.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -205,7 +205,7 @@ class barChart extends baseModal {
             title: {
                 el: new input(config, {
                     no: "specify_a_title",
-                    label: barChart.t('specify_a_title'),
+                    label: barChartModal.t('specify_a_title'),
                     placeholder: "Chart title",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -213,7 +213,7 @@ class barChart extends baseModal {
             x_title: {            
                 el: new input(config, {
                     no: 'x_title',
-                    label: barChart.t('x_title'),
+                    label: barChartModal.t('x_title'),
                     placeholder: "X Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -221,7 +221,7 @@ class barChart extends baseModal {
             y_title: {
                 el: new input(config, {
                     no: 'y_title',
-                    label: barChart.t('y_title'),
+                    label: barChartModal.t('y_title'),
                     placeholder: "Y Axis",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -229,7 +229,7 @@ class barChart extends baseModal {
             fill1: {
                 el: new colorInput(config, {
                     no: 'fill1',
-                    label: barChart.t('fill1'),
+                    label: barChartModal.t('fill1'),
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -238,25 +238,25 @@ class barChart extends baseModal {
                 })},
             dropna: {
                 el: new checkbox(config, { 
-                    label: barChart.t('dropna'), 
+                    label: barChartModal.t('dropna'), 
                     no: "dropna", 
                     style: "mt-3",
                     extraction: "Boolean" 
                 })},
                 relFreq : {
                     el: new checkbox(config, {
-                        label: barChart.t('relFreq'),
+                        label: barChartModal.t('relFreq'),
                         no: "relFreq",
                         extraction: "Boolean",
                         
                     })
                 },
 
-                optionsLabels: { el: new labelVar(config, { no: 'optionsLabels', style: "mt-2",label: barChart.t('optionsLabels'), h: 5 }) },
+                optionsLabels: { el: new labelVar(config, { no: 'optionsLabels', style: "mt-2",label: barChartModal.t('optionsLabels'), h: 5 }) },
 
             suppressLabels: {
                 el: new checkbox(config, {
-                    label: barChart.t('suppressLabels'),
+                    label: barChartModal.t('suppressLabels'),
                     bs_type: "valuebox",
                     extraction: "BooleanValue",
                     newline: true,
@@ -268,7 +268,7 @@ class barChart extends baseModal {
             suppressThreshold: {
                 el: new inputSpinner(config, {
                   no: 'suppressThreshold',
-                  label: barChart.t('suppressThreshold'),
+                  label: barChartModal.t('suppressThreshold'),
                   min: 0,
                   max: 100,
                   step: 0.1,
@@ -289,11 +289,11 @@ class barChart extends baseModal {
             label: "Count",
             content: [
                 objects.relFreq.el.content,
-               // new checkbox(config, { label: barChart.t('relFreq'), no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
-                new labelVar(config, { label: barChart.t('barType'), h: 6 }).content,
-                new radioButton(config, { label: barChart.t('stackedBar'), no: "count", increment: "stack", value: "stack", state: "checked", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: barChart.t('sideBySide'), no: "count", increment: "dodge", value: "dodge", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: barChart.t('fillPercent'), no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content,
+               // new checkbox(config, { label: barChartModal.t('relFreq'), no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
+                new labelVar(config, { label: barChartModal.t('barType'), h: 6 }).content,
+                new radioButton(config, { label: barChartModal.t('stackedBar'), no: "count", increment: "stack", value: "stack", state: "checked", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('sideBySide'), no: "count", increment: "dodge", value: "dodge", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('fillPercent'), no: "count", increment: "fill", value: "fill", state: "", extraction: "ValueAsIs" }).content,
                 
             ].join("")
         }
@@ -302,13 +302,13 @@ class barChart extends baseModal {
             no: "mean",
             label: "Mean",
             content: [
-                new radioButton(config, { label: barChart.t('noErrBars'), no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: barChart.t('stderr'), no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: barChart.t('stddev'), no: "mean", increment: "stddev", value: "3", state: "", extraction: "ValueAsIs" }).content,
-                new radioButton(config, { label: barChart.t('confidenceInterval'), no: "mean", increment: "ci", value: "4", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('noErrBars'), no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('stderr'), no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('stddev'), no: "mean", increment: "stddev", value: "3", state: "", extraction: "ValueAsIs" }).content,
+                new radioButton(config, { label: barChartModal.t('confidenceInterval'), no: "mean", increment: "ci", value: "4", state: "", extraction: "ValueAsIs" }).content,
                 new advancedSlider(config, {
                     no: "cilevel",
-                    label: barChart.t('cilevel'),
+                    label: barChartModal.t('cilevel'),
                     min: 0,
                     max: 1,
                     step: 0.01,
@@ -317,7 +317,7 @@ class barChart extends baseModal {
                     extraction: "NoPrefix|UseComma"
                 }).content,
                 new checkbox(config, {
-                    label: barChart.t('hide'),
+                    label: barChartModal.t('hide'),
                     no: "hide",
                     extraction: "Boolean",
                 }).content
@@ -355,7 +355,7 @@ class barChart extends baseModal {
             right: [ objects.x.el.content, objects.y.el.content, objects.fill.el.content, objects.slider.el.content, objects.checkbox.el.content],
             bottom: [new labelVar(config, { label: "Select Bar Chart ", h: 5 }).content, tabs.content, opts.content, Facets.el.content],
             nav: {
-                name: barChart.t('navigation'),
+                name: barChartModal.t('navigation'),
                 icon: "icon-chart-bar-regular",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -366,15 +366,15 @@ class barChart extends baseModal {
         this.opts = opts
         
         this.help = {
-            title: barChart.t('help.title'),
+            title: barChartModal.t('help.title'),
             r_help: "help(data,package='utils')",
-            body: barChart.t('help.body')
+            body: barChartModal.t('help.body')
         }
 
     }
     prepareExecution(instance) {
         var res = [];
-        let count = 0
+		let count = 0
         var errorBarOptions = "";
         if (instance.objects.y.el.getVal() == "") {
             var code_vars = {
@@ -610,10 +610,14 @@ class barChart extends baseModal {
                 else {
                     res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
                 }
-                count++  
+                count++ 
             })
         }
         return res;
     }
 }
-module.exports.item = new barChart().render()
+
+module.exports = {
+    render: () => new barChartModal().render()
+}
+
