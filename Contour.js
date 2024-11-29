@@ -1,12 +1,12 @@
 
-class contourPlot extends baseModal {
-    static dialogId = 'contourPlot'
-    static t = baseModal.makeT(contourPlot.dialogId)
+class Contour extends baseModal {
+    static dialogId = 'Contour'
+    static t = baseModal.makeT(Contour.dialogId)
 
     constructor() {
         var config = {
-            id: contourPlot.dialogId,
-            label: contourPlot.t('title'),
+            id: Contour.dialogId,
+            label: Contour.t('title'),
             modalType: "two",
             RCode: `## [Contour Plot]
 require(ggplot2);
@@ -31,7 +31,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             content_var: { el: new srcVariableList(config) },
             y: {
                 el: new dstVariableList(config, {
-                    label: contourPlot.t('y'),
+                    label: Contour.t('y'),
                     no: "y",
                     filter: "Numeric|Scale",
                     required: true,
@@ -40,7 +40,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             x: {
                 el: new dstVariable(config, {
-                    label: contourPlot.t('x'),
+                    label: Contour.t('x'),
                     no: "x",
                     required: true,
                     filter: "Numeric|Date|Scale",
@@ -51,7 +51,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: contourPlot.t('Facetrow'),
+                    label: Contour.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -61,7 +61,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: contourPlot.t('Facetcolumn'),
+                    label: Contour.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -71,7 +71,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: contourPlot.t('Facetwrap'),
+                    label: Contour.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -81,7 +81,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: contourPlot.t('Facetscale'),
+                    label: Contour.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -91,7 +91,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             title: {
                 el: new input(config, {
                     no: 'specify_a_title',
-                    label: contourPlot.t('specify_a_title'),
+                    label: Contour.t('specify_a_title'),
                     placeholder: "Chart title",
                     allow_spaces:true,
                     extraction: "NoPrefix|UseComma"
@@ -154,7 +154,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: contourPlot.t('navigation'),
+                name: Contour.t('navigation'),
                 icon: "icon-contour",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -164,9 +164,9 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         this.opts = opts;
         
         this.help = {
-            title: contourPlot.t('help.title'),
+            title: Contour.t('help.title'),
             r_help: "help(data,package='utils')",
-            body: contourPlot.t('help.body')
+            body: Contour.t('help.body')
         }
 ;
     }
@@ -209,5 +209,5 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
 }
 
 module.exports = {
-    render: () => new contourPlot().render()
+    render: () => new Contour().render()
 }
