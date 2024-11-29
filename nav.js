@@ -1,14 +1,14 @@
-const nav = 
-{
-    "name": "Graphics",
+let t = getT('menutoolbar')
+const nav = () => ({
+    "name": t('graphics_top_level_title'),// {ns: 'menutoolbar'}),
     "tab": "graphics",
     "buttons": [
-        "./barChart",
+        "./barChartModal",
         "./boxPlot",
-        "./contourPlot",
+        "./Contour",
         "./twoDContourplot",
         {
-            "name": "Distribution",
+            "name": t('graphics_Distribution'),// {ns: 'menutoolbar'}),
             "icon": "icon-gaussian-function",
             "children": [
                 "./density",
@@ -19,17 +19,17 @@ const nav =
         },
         "./heatMap",
         {
-            "name": "Line Charts",
+            "name": t('graphics_Line_Charts'),// {ns: 'menutoolbar'}),
             "icon": "icon-chart-line-solid",
             "children": [
                 "./frequencyFactor",
-                "./lineChart",
+                "./lineChartModal",
                 "./plotOfMeans",
-                "./threeAxisLineChart"
+                "./threeAxisLineChartModal"
             ]
         },
         {
-            "name": "Maps",
+            "name": t('graphics_Maps'),// {ns: 'menutoolbar'}),
             "icon": "icon-earth",
             "children": [
                 "./usCountyMap",
@@ -38,15 +38,15 @@ const nav =
             ]
         },
         {
-            "name": "Pie Charts",
+            "name": t('graphics_Pie_Charts'),// {ns: 'menutoolbar'}),
             "icon": "icon-chart-pie-solid",
             "children": [
-                "./coxComb",
+                "./Coxcomb",
                 "./pieChart"
             ]
         },
         {
-            "name": "Scatter Plot",
+            "name": t('graphics_Scatter_Plot'),// {ns: 'menutoolbar'}),
             "icon": "icon-scatter_plot",
             "children": [
                 "./scatterPlot",
@@ -58,6 +58,9 @@ const nav =
         "./stripChart",
         "./violinPlot"
     ]
-}
+})
 
-module.exports.nav = nav
+module.exports = {
+    nav: nav(),
+    render: () => nav()
+}
