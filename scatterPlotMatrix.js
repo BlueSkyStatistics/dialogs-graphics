@@ -380,4 +380,8 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
       return res;
   }
 }
-module.exports.item = new scatterPlotMatrix().render()
+
+module.exports = {
+    render: () => new scatterPlotMatrix().render()
+}
+
