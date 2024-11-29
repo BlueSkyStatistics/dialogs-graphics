@@ -1,12 +1,12 @@
 
-class lineChart extends baseModal {
-    static dialogId = 'lineChart'
-    static t = baseModal.makeT(lineChart.dialogId)
+class lineChartModal extends baseModal {
+    static dialogId = 'lineChartModal'
+    static t = baseModal.makeT(lineChartModal.dialogId)
 
     constructor() {
         const config = {
-            id: "lineChart",
-            label: lineChart.t('title'),
+            id: "lineChartModal",
+            label: lineChartModal.t('title'),
             modalType: "two",
             RCode: `## [Line chart (line drawn in order of variables on X axis)]
 require(ggplot2);
@@ -25,20 +25,20 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             })
         }
         var objects = {
-            label1: { el: new labelVar(config, { label: lineChart.t('label1'), h: 6 }) },
+            label1: { el: new labelVar(config, { label: lineChartModal.t('label1'), h: 6 }) },
             content_var: { el: new srcVariableList(config) },
-            y: { el: new dstVariableList(config, { label: lineChart.t('y'), no: "y", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
-            x: { el: new dstVariable(config, { label: lineChart.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
-            color: { el: new dstVariable(config, { label: lineChart.t('color'), no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', color = {{color|safe}}, group = {{color|safe}}, shape ={{color|safe}}', 'grouped in colors by: {{color|safe}}'] },
+            y: { el: new dstVariableList(config, { label: lineChartModal.t('y'), no: "y", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [',y={{y|safe}}', ',y="{{y|safe}}"', ',Y axis: {{y|safe}}', '{{y|safe}}'] },
+            x: { el: new dstVariable(config, { label: lineChartModal.t('x'), no: "x", required: true, filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}'] },
+            color: { el: new dstVariable(config, { label: lineChartModal.t('color'), no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', color = {{color|safe}}, group = {{color|safe}}, shape ={{color|safe}}', 'grouped in colors by: {{color|safe}}'] },
 
-            linetype: { el: new dstVariable(config, { label: lineChart.t('linetype'), no: "linetype", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', aes (group = {{linetype |safe}}, linetype = {{linetype |safe}})', 'grouped in colors by: {{color|safe}}'] },
+            linetype: { el: new dstVariable(config, { label: lineChartModal.t('linetype'), no: "linetype", filter: "String|Numeric|Date|Logical|Ordinal|Nominal|Scale" }), r: [', aes (group = {{linetype |safe}}, linetype = {{linetype |safe}})', 'grouped in colors by: {{color|safe}}'] },
 
 
-            checkbox: { el: new checkbox(config, { label: lineChart.t('flipBox'), style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
+            checkbox: { el: new checkbox(config, { label: lineChartModal.t('flipBox'), style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
-                    label: lineChart.t('Facetrow'),
+                    label: lineChartModal.t('Facetrow'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -48,7 +48,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetcolumn: {
                 el: new comboBox(config, {
                     no: 'Facetcolumn',
-                    label: lineChart.t('Facetcolumn'),
+                    label: lineChartModal.t('Facetcolumn'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -58,7 +58,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetwrap: {
                 el: new comboBox(config, {
                     no: 'Facetwrap',
-                    label: lineChart.t('Facetwrap'),
+                    label: lineChartModal.t('Facetwrap'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: [],
@@ -68,7 +68,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
-                    label: lineChart.t('Facetscale'),
+                    label: lineChartModal.t('Facetscale'),
                     multiple: false,
                     extraction: "NoPrefix|UseComma",
                     options: ["none", "free_x", "free_y", "free_x_and_y"],
@@ -78,7 +78,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             title: {
                 el: new input(config, {
                                 no: 'title',
-                                label: lineChart.t('specify_a_title'),
+                                label: lineChartModal.t('specify_a_title'),
                                 allow_spaces:true,
                                 placeholder: "Chart title",
                                 extraction: "NoPrefix|UseComma"
@@ -87,7 +87,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                  x_title: {
                 el:	new input(config, {
                                 no: 'x_title',
-                                label: lineChart.t('x_title'),
+                                label: lineChartModal.t('x_title'),
                                 allow_spaces:true,
                                 placeholder: "X Axis",
                                 extraction: "NoPrefix|UseComma"
@@ -97,14 +97,14 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                            el: new input(config, {
                                 no: 'y_title',
                                 allow_spaces:true,
-                                label: lineChart.t('y_title'),
+                                label: lineChartModal.t('y_title'),
                                 placeholder: "Y Axis",
                                 extraction: "NoPrefix|UseComma"
                             })},
                 sizePoint: {
                     el: new inputSpinner(config, {
                         no: 'sizePoint',
-                        label: lineChart.t('sizePoint'),
+                        label: lineChartModal.t('sizePoint'),
                         min: 0,
                         max: 20,
                         step: 0.1,
@@ -115,7 +115,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 sizeLine: {
                         el: new inputSpinner(config, {
                             no: 'sizeLine',
-                            label: lineChart.t('sizeLine'),
+                            label: lineChartModal.t('sizeLine'),
                             min: 0,
                             max: 20,
                             step: 0.1,
@@ -128,21 +128,21 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const tab1 = {
             state: "active",
             no: "line",
-            label: lineChart.t('line'),
+            label: lineChartModal.t('line'),
             r_value: "geom_line",
             content: "Observations connected by order of values on x axis"
         }
         const tab2 = {
             state: "",
             no: "stair",
-            label: lineChart.t('stair'),
+            label: lineChartModal.t('stair'),
             r_value: "geom_step",
             content: "Stair Steps"
         }
         const tab3 = {
             state: "",
             no: "path",
-            label: lineChart.t('path'),
+            label: lineChartModal.t('path'),
             r_value: "geom_path",
             content: "Ordered by occurrence of variable values in data"
         }
@@ -177,12 +177,12 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.x.el.content,
                 objects.color.el.content,
                 objects.linetype.el.content,
-                new labelVar(config, { label: lineChart.t('lineChartType'), h: 7 }).content,
+                new labelVar(config, { label: lineChartModal.t('lineChartType'), h: 7 }).content,
                 navs.content,
                 objects.checkbox.el.content],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: lineChart.t('navigation'),
+                name: lineChartModal.t('navigation'),
                 icon: "icon-chart-line-solid",
                 onclick: `r_before_modal("${config.id}")`,
                 modal_id: config.id
@@ -193,9 +193,9 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         this.opts = opts
         
         this.help = {
-            title: lineChart.t('help.title'),
+            title: lineChartModal.t('help.title'),
             r_help: "help(data,package='utils')",
-            body: lineChart.t('help.body')
+            body: lineChartModal.t('help.body')
         }
 
     }
@@ -229,19 +229,19 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
-            cmd = removenewline(cmd);            
+            cmd = removenewline(cmd);
             if (count == 0) {
                 res.push({ cmd: cmd, cgid: newCommandGroup(`${instance.config.id}`, `${instance.config.label}`), oriR: instance.config.RCode, code_vars: code_vars })
             }
             else {
                 res.push({ cmd: cmd, cgid: newCommandGroup(), oriR: instance.config.RCode, code_vars: code_vars })
             }
-            count++        
+            count++ 
         })
         return res;
     }
 }
 
 module.exports = {
-    render: () => new lineChart().render()
+    render: () => new lineChartModal().render()
 }
