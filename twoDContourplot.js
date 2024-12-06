@@ -45,12 +45,14 @@ geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
                     required: true
                 }), r: ['{{ var | safe}}']
             },
-            chk1: { el: new checkbox(config, { label: twoDContourplot.t('chk1'), no: "chk1", extraction: "Boolean" }) },
-            chk2: { el: new checkbox(config, { label: twoDContourplot.t('chk2'), newline: true, no: "chk2", extraction: "Boolean" }) }
+            // chk1: { el: new checkbox(config, { label: twoDContourplot.t('chk1'), no: "chk1", extraction: "Boolean" }) },
+            // chk2: { el: new checkbox(config, { label: twoDContourplot.t('chk2'), newline: true, no: "chk2", extraction: "Boolean" }) }
         }
         const content = {
             left: [objects.content_var.el.content],
-            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, objects.chk1.el.content, objects.chk2.el.content],
+            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, 
+                //objects.chk1.el.content, objects.chk2.el.content
+            ],
             nav: {
                 name: twoDContourplot.t('navigation'),
                 icon: "icon-anova_blocks",
