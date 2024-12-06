@@ -298,7 +298,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
      
       var opts = { el:new optionsVar(config, {
           no: "histogram_options",
-          name: "Options",
+          //name: "Options",
           content: [
             objects.label1.el,
             objects.upperContinuous.el,
@@ -327,7 +327,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
           ],
           bottom: [opts.el.content],
           nav: {
-              name: "Scatterplot Matrix",
+              name: scatterPlotMatrix.t('navigation'),
               icon: "icon-scatter-graph",
               modal: config.id
           }
