@@ -23,6 +23,8 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
+        facets_lbl : "Facets",
         help: {
             title: "Pie Chart",
             r_help: "help(coord_polar, package='ggplot2')",
@@ -443,7 +445,7 @@ BSkyTemp <- BSkyTemp  %>%
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

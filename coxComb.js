@@ -17,6 +17,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
         help: {
             title: "Coxcomb Plot",
             r_help: "help(coord_polar, package='ggplot2')",
@@ -267,7 +268,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

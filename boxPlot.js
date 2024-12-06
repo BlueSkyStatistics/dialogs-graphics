@@ -19,6 +19,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
         help: {
             title: "Box Plot",
             r_help: "help(geom_boxplot, package=ggplot2)",
@@ -241,7 +242,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

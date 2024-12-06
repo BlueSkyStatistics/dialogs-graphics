@@ -12,6 +12,8 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
+		colorHintLabel1 : "Select a color (After color selection, click outside the control to apply)",
         help: {
             title: "Contour Plot",
             r_help: "help(geom_density2d, package=ggplot2)",
@@ -110,7 +112,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     extraction: "NoPrefix|UseComma",
                 }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
-            flipaxis: { el: new checkbox(config, { label: "Flip Axes", no: "flipaxis" }), r: ' coord_flip() +' },
+            flipaxis: { el: new checkbox(config, { label: localization.en.flip, no: "flipaxis" }), r: ' coord_flip() +' },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
@@ -178,7 +180,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             color: {
                 el: new colorInput(config, {
                     no: 'color',
-                    label: "Select a color (After color selection, click outside the control to apply)",
+                    label: localization.en.colorHintLabel1,
                     placeholder: "#727272",
                     allow_spaces:true,
                     type: "character",
@@ -199,7 +201,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

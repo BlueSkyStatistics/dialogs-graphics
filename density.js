@@ -18,6 +18,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
         help: {
             title: "Density Plot",
             r_help: "help(geom_density, package='ggplot2')",
@@ -142,7 +143,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     value: 1,
                 }), r: ['alpha={{alpha|safe}}']
             },
-            flipaxis: { el: new checkbox(config, { label: "Flip Axes", no: "flipaxis" }), r: ' coord_flip() +' },
+            flipaxis: { el: new checkbox(config, { label: localization.en.flip, no: "flipaxis" }), r: ' coord_flip() +' },
             fillcolor: {
                 el: new colorInput(config, {
                     no: 'fillcolor',
@@ -231,7 +232,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

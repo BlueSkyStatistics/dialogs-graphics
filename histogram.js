@@ -16,6 +16,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
         normalCurveColor: "Optionally select a normal curve color (After color selection, click outside the control to apply)",
         rugPlot: "Display a rug plot (suitable for small datasets)",
         normalCurve: "Display a normal curve (Missing values are removed for curve to display. Works only when no facets or grouping variables selected)",
@@ -256,7 +257,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

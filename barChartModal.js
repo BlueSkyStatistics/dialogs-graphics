@@ -10,6 +10,9 @@ var localization = {
         y: "Y variable(s), specify a numeric variable(s)",
         fill: "Specify a factor variable to fill bars by.",
         dropna: "Drop missing values",
+		bottomlbl: "Select Bar Chart ",
+		meanlbl : "Mean",
+		countlbl: " Count",		
         fill1: "Select a color for the bars. Note: This is ignored when a variable to fill bars by is specified",
         barType: "Type of bar graph",
         stackedBar: "Stacked bar graph",
@@ -31,7 +34,8 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
-        relFreq: "Relative frequencies",        
+        relFreq: "Relative frequencies",     
+        facets_lbl : "Facets",   
 
         help: {
             title: "Bar Chart Help",
@@ -385,7 +389,7 @@ class barChartModal extends baseModal {
         const tab1 = {
             state: "active",
             no: "count",
-            label: "Count",
+            label: localization.en.countlbl,
             content: [
                 objects.relFreq.el.content,
                // new checkbox(config, { label: localization.en.relFreq, no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
@@ -399,7 +403,7 @@ class barChartModal extends baseModal {
         const tab2 = {
             state: "",
             no: "mean",
-            label: "Mean",
+            label: localization.en.meanlbl,
             content: [
                 new radioButton(config, { label: localization.en.noErrBars, no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
                 new radioButton(config, { label: localization.en.stderr, no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
@@ -439,7 +443,7 @@ class barChartModal extends baseModal {
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,
@@ -452,7 +456,7 @@ class barChartModal extends baseModal {
             head: [objects.label1.el.content],
             left: [objects.content_var.el.content],
             right: [ objects.x.el.content, objects.y.el.content, objects.fill.el.content, objects.slider.el.content, objects.checkbox.el.content],
-            bottom: [new labelVar(config, { label: "Select Bar Chart ", h: 5 }).content, tabs.content, opts.content, Facets.el.content],
+            bottom: [new labelVar(config, { label: localization.en.bottomlbl, h: 5 }).content, tabs.content, opts.content, Facets.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-chart-bar-regular",

@@ -6,6 +6,7 @@ var localization = {
         y: "Y variable, specify a numeric variable(s)",
         Fill: "Color, specify a factor variable",
         size: "Make the size of the point proportional to",
+		selplot : "Select the type of Scatterplot",
         shape: "Shape",
         alpha: "Opacity (0-1)",
         flipaxis: "Flip axis",
@@ -25,6 +26,7 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+        facets_lbl : "Facets",
         label1: "Horizontal lines",
         yIntercept: "Enter comma separated Y intercept value(s) for the horizontal lines, e.g. 100, 200, 300",
         hLineColor: "Select a color (After color selection, click outside the control to apply)",
@@ -636,7 +638,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,
@@ -659,7 +661,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const content = {
             left: [objects.content_var.el.content],
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.checkbox.el.content],
-            bottom: [new labelVar(config, { label: "Select the type of Scatterplot", h: 5 }).content, tabs.content, opts.content, Facets.el.content, addRefLines.el.content, xyLimits.el.content],
+            bottom: [new labelVar(config, { label: localization.en.selplot, h: 5 }).content, tabs.content, opts.content, Facets.el.content, addRefLines.el.content, xyLimits.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-scatter_plot",

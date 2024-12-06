@@ -22,6 +22,7 @@ var localization = {
         Facetscale: "Facet scale",
         sizePoint: "Size of the points",
         sizeLine:"Width of the line",
+        facets_lbl : "Facets",
         help: {
             title: "Line Chart",
             r_help: "help(geom_line, package=ggplot2)",
@@ -252,7 +253,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: localization.en.facets_lbl,
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,
