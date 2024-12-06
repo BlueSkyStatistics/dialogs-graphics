@@ -160,7 +160,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: Coxcomb.t('facets_lbl'),
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

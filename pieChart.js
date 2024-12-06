@@ -347,7 +347,7 @@ BSkyTemp <- BSkyTemp  %>%
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: pieChart.t('facets_lbl'),
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

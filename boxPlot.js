@@ -161,7 +161,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: boxPlot.t('facets_lbl'),
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

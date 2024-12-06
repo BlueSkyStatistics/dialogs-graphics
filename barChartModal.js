@@ -286,7 +286,7 @@ class barChartModal extends baseModal {
         const tab1 = {
             state: "active",
             no: "count",
-            label: "Count",
+            label: barChartModal.t('countlbl'),
             content: [
                 objects.relFreq.el.content,
                // new checkbox(config, { label: barChartModal.t('relFreq'), no: "relFreq", value: "relFreq", bs_type: "checkbox", state: "", extraction: "Boolean" }).content,
@@ -300,7 +300,7 @@ class barChartModal extends baseModal {
         const tab2 = {
             state: "",
             no: "mean",
-            label: "Mean",
+            label: barChartModal.t('meanlbl'),
             content: [
                 new radioButton(config, { label: barChartModal.t('noErrBars'), no: "mean", increment: "stack", value: "1", state: "checked", extraction: "ValueAsIs" }).content,
                 new radioButton(config, { label: barChartModal.t('stderr'), no: "mean", increment: "stderr", value: "2", state: "", extraction: "ValueAsIs" }).content,
@@ -340,7 +340,7 @@ class barChartModal extends baseModal {
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: barChartModal.t('facets_lbl'),
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,
@@ -353,7 +353,7 @@ class barChartModal extends baseModal {
             head: [objects.label1.el.content],
             left: [objects.content_var.el.content],
             right: [ objects.x.el.content, objects.y.el.content, objects.fill.el.content, objects.slider.el.content, objects.checkbox.el.content],
-            bottom: [new labelVar(config, { label: "Select Bar Chart ", h: 5 }).content, tabs.content, opts.content, Facets.el.content],
+            bottom: [new labelVar(config, { label: barChartModal.t('bottomlbl'), h: 5 }).content, tabs.content, opts.content, Facets.el.content],
             nav: {
                 name: barChartModal.t('navigation'),
                 icon: "icon-chart-bar-regular",

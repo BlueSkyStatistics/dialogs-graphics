@@ -174,7 +174,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         var Facets = {
             el: new optionsVar(config, {
                 no: "Facets",
-                name: "Facets",
+                name: qqPlots.t('facets_lbl'),
                 content: [
                     objects.Facetrow.el,
                     objects.Facetcolumn.el,

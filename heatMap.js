@@ -130,7 +130,7 @@ BSkyHeatMap (rowVariable=c({{selected.rowVariables | safe}}), colVariables=c({{s
         var opts = {
             el: new optionsVar(config, {
                 no: "Heatmap_options",
-                name: "Advanced",
+                name: heatMap.t('advanced_lbl'),
                 content: [
                     objects.title.el,
                     objects.dendrogram.el,
