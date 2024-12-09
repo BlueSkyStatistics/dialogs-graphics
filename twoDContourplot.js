@@ -13,7 +13,7 @@ class twoDContourplot extends baseModal {
 require(ggplot2)
 require(ggthemes)
 ggplot({{dataset.name}}, aes(x={{selected.tvarbox1 | safe}}, y={{selected.tvarbox2 | safe}}, z={{selected.tvarbox3 | safe}})) +
-geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
+geom_contour_filled() + scale_fill_brewer(palette = "Spectral"){{if(options.selected.chk1 ==="TRUE")}}+ geom_point(){{/if}}
 `
         }
         var objects = {
@@ -45,14 +45,14 @@ geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
                     required: true
                 }), r: ['{{ var | safe}}']
             },
-            // chk1: { el: new checkbox(config, { label: twoDContourplot.t('chk1'), no: "chk1", extraction: "Boolean" }) },
-            // chk2: { el: new checkbox(config, { label: twoDContourplot.t('chk2'), newline: true, no: "chk2", extraction: "Boolean" }) }
+            chk1: { el: new checkbox(config, { label: twoDContourplot.t('chk1'), no: "chk1", extraction: "Boolean" }) },
+            //chk2: { el: new checkbox(config, { label: twoDContourplot.t('chk2'), newline: true, no: "chk2", extraction: "Boolean" }) }
         }
         const content = {
             left: [objects.content_var.el.content],
-            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, 
-                //objects.chk1.el.content, objects.chk2.el.content
-            ],
+            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, objects.chk1.el.content, 
+			       //objects.chk2.el.content
+				   ],
             nav: {
                 name: twoDContourplot.t('navigation'),
                 icon: "icon-anova_blocks",
