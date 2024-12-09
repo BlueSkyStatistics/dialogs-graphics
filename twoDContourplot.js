@@ -5,13 +5,32 @@ var localization = {
         tvarbox1: "X",
         tvarbox2: "Y",
         tvarbox3: "Z",
-        chk1: "Option1",
-        chk2: "Option2",
+        chk1: "Add raw data points (black dots) based on x and y onto the contour plot",
+        //chk2: "Option2",
         help: {
             title: "2D Contour Plot",
             r_help: "help(geom_contour_filled, package='ggplot2')",
             body: `
-
+			 <b>Description</b></br>
+			Filled contour regions
+			</br>
+			Contour lines separate regions where the z variable falls into different ranges.
+			</br>
+			The areas between contour lines are filled with colors, representing different z value ranges.
+			</br>
+			</br>
+			Color scale
+			</br>
+			The Spectral palette from ColorBrewer is applied to fill the contour regions.
+			</br>
+			The Spectral palette is a diverging color scheme, transitioning from cool to warm colors, ideal for showing gradients in data.
+			</br>
+			</br>
+			Optionally add raw data points to the plot
+			</br>
+			This layer plots individual points based on the x and y values in the dataset (points are black dots).
+			</br>
+			It provides a way to overlay the raw data points onto the contour plot, giving more context to the contour visualization.
     `}
     }
 }
@@ -26,7 +45,7 @@ class twoDContourplot extends baseModal {
 require(ggplot2)
 require(ggthemes)
 ggplot({{dataset.name}}, aes(x={{selected.tvarbox1 | safe}}, y={{selected.tvarbox2 | safe}}, z={{selected.tvarbox3 | safe}})) +
-geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
+geom_contour_filled() + scale_fill_brewer(palette = "Spectral"){{if(options.selected.chk1 ==="TRUE")}}+ geom_point(){{/if}}
 `
         }
         var objects = {
@@ -59,11 +78,13 @@ geom_contour_filled() + scale_fill_brewer(palette = "Spectral") + geom_point()
                 }), r: ['{{ var | safe}}']
             },
             chk1: { el: new checkbox(config, { label: localization.en.chk1, no: "chk1", extraction: "Boolean" }) },
-            chk2: { el: new checkbox(config, { label: localization.en.chk2, newline: true, no: "chk2", extraction: "Boolean" }) }
+            //chk2: { el: new checkbox(config, { label: localization.en.chk2, newline: true, no: "chk2", extraction: "Boolean" }) }
         }
         const content = {
             left: [objects.content_var.el.content],
-            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, objects.chk1.el.content, objects.chk2.el.content],
+            right: [objects.tvarbox1.el.content, objects.tvarbox2.el.content, objects.tvarbox3.el.content, objects.chk1.el.content, 
+			       //objects.chk2.el.content
+				   ],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-anova_blocks",
