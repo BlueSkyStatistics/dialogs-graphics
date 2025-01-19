@@ -204,7 +204,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
-                name: "Histogram",
+                name: histogram.t('navigation'),
                 icon: "icon-histogram",
                 onclick: `r_before_modal("${config.id}")`,
 				positionInNav: 1,
