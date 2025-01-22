@@ -12,7 +12,7 @@ class barChartModal extends baseModal {
             
             ## [Bar Chart With Counts]
             #detach(package:dplyr)  
-            require(plyr)
+            # require(plyr)
             require(dplyr)
             require(tidyr)
             require(ggplot2);
