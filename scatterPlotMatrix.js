@@ -386,7 +386,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
      
       var opts = { el:new optionsVar(config, {
           no: "histogram_options",
-          name: "Options",
+          //name: "Options",
           content: [
             objects.label1.el,
             objects.upperContinuous.el,
