@@ -661,7 +661,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         const content = {
             left: [objects.content_var.el.content],
             right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.checkbox.el.content],
-            bottom: [new labelVar(config, { label: localization.en.selplot, h: 5 }).content, tabs.content, opts.content, Facets.el.content, addRefLines.el.content, xyLimits.el.content],
+            bottom: [new labelVar(config, {no: "selplot", label: localization.en.selplot, h: 5 }).content, tabs.content, opts.content, Facets.el.content, addRefLines.el.content, xyLimits.el.content],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-scatter_plot",
