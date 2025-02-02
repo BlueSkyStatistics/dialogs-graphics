@@ -24,6 +24,7 @@ var localization = {
         valuesNo: "Yes",
         valuesYes: "No",
         noteColors: "Choose a color for cell values (After color selection, click outside the control to apply):",
+		advanced_lbl: "Advanced",
         help: {
             title: "HeatMap",
             r_help: "help(heatmap.2,package='gplots')",
@@ -221,7 +222,7 @@ BSkyHeatMap (rowVariable=c({{selected.rowVariables | safe}}), colVariables=c({{s
         var opts = {
             el: new optionsVar(config, {
                 no: "Heatmap_options",
-                name: "Advanced",
+                name: localization.en.advanced_lbl,
                 content: [
                     objects.title.el,
                     objects.dendrogram.el,
