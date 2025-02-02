@@ -46,7 +46,7 @@ ggplot(data={{dataset.name}}, aes(x={{selected.x | safe}})) +
         
         this.help = {
             title: threeAxisLineChartModal.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: threeAxisLineChartModal.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: threeAxisLineChartModal.t('help.body')
         }
 ;

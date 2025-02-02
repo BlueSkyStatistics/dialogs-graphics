@@ -208,7 +208,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         
         this.help = {
             title: qqPlots.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: qqPlots.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: qqPlots.t('help.body')
         }
 ;

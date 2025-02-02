@@ -236,7 +236,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
         
         this.help = {
             title: plotOfMeans.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: plotOfMeans.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: plotOfMeans.t('help.body')
         }
 ;

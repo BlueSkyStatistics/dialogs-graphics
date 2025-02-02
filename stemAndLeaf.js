@@ -166,7 +166,7 @@ stem.leaf({{selected.Destination | safe}},{{if (options.selected.Value != "") }}
         
         this.help = {
             title: stemAndLeaf.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: stemAndLeaf.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: stemAndLeaf.t('help.body')
         }
 ;

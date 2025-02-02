@@ -193,7 +193,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
         
         this.help = {
             title: Coxcomb.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: Coxcomb.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: Coxcomb.t('help.body')
         }
 ;

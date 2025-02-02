@@ -195,7 +195,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
         
         this.help = {
             title: boxPlot.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: boxPlot.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: boxPlot.t('help.body')
         }
 

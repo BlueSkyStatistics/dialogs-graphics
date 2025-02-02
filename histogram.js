@@ -216,7 +216,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{if (options.selected
         
         this.help = {
             title: histogram.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: histogram.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: histogram.t('help.body')
         }
 

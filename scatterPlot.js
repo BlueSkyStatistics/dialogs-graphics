@@ -568,7 +568,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         
         this.help = {
             title: scatterPlot.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: scatterPlot.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: scatterPlot.t('help.body')
         }
 ;

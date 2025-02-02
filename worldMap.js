@@ -113,7 +113,7 @@ if ("package:choroplethrMaps" %in% search()) {
         
         this.help = {
             title: worldMap.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: worldMap.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: worldMap.t('help.body')
         }
 ;

@@ -14,7 +14,7 @@ require(choroplethr);
 require(choroplethrMaps)
 BSkyDfForMap =data.frame(region={{dataset.name}}[,c("{{selected.region | safe}}")], value ={{dataset.name}}[,c("{{selected.value | safe}}")])
 print(county_choropleth(BSkyDfForMap, title="{{selected.title | safe}}", legend="{{selected.legend | safe}}",num_colors ={{selected.colors | safe}}{{if (options.selected.zoomByStates !="c('')")}},state_zoom={{selected.zoomByStates | safe}}{{/if}}))
-	
+
 #Cleanup the acs and XML libs conflict with base::apply() and tools::toHTML()
 if ("package:choroplethr" %in% search()) {
   suppressWarnings(detach("package:choroplethr", unload = TRUE))
@@ -113,7 +113,7 @@ if ("package:choroplethrMaps" %in% search()) {
         
         this.help = {
             title: usCountyMap.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: usCountyMap.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: usCountyMap.t('help.body')
         }
 ;

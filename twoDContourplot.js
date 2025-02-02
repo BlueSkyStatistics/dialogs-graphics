@@ -63,7 +63,7 @@ geom_contour_filled() + scale_fill_brewer(palette = "Spectral"){{if(options.sele
         
         this.help = {
             title: twoDContourplot.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: twoDContourplot.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: twoDContourplot.t('help.body')
         }
 ;

@@ -168,7 +168,7 @@ BSkyHeatMap (rowVariable=c({{selected.rowVariables | safe}}), colVariables=c({{s
         
         this.help = {
             title: heatMap.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: heatMap.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: heatMap.t('help.body')
         }
 ;

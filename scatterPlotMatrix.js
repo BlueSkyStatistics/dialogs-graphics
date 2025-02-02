@@ -336,7 +336,7 @@ ggpairs(data={{dataset.name}}, {{if(options.selected.fill != "")}}\nmapping = gg
       
         this.help = {
             title: scatterPlotMatrix.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: scatterPlotMatrix.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: scatterPlotMatrix.t('help.body')
         }
 

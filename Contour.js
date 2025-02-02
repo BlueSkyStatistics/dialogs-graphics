@@ -165,7 +165,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         
         this.help = {
             title: Contour.t('help.title'),
-            r_help: "help(data,package='utils')",
+            r_help: Contour.t('help.r_help'),  //r_help: "help(data,package='utils')",
             body: Contour.t('help.body')
         }
 ;
