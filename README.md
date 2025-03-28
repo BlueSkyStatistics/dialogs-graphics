@@ -1,2 +1,2 @@
 # graphicsDialogs
-BlueSky Statistics Charts and visiualization dialogs
+BioStat Prime Charts and visiualization dialogs

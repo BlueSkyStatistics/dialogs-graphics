@@ -1,11 +1,11 @@
 {
     "name": "@BlueSkyStatistics/dialogs/graphics",
     "productName": "Charts and visualization dialogs",
-    "description": "BlueSky Statistics Charts and visualization dialogs",
+    "description": "BioStat Prime Charts and visualization dialogs",
     "keywords": [],
     "main": "nav.js",
     "version": "1.1.8",
-    "author": "BlueSky Statistics",
+    "author": "BioStat Prime",
     "scripts": {},
     "dependencies": {
         "squirrelly": "7.9.2"
