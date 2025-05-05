@@ -233,7 +233,7 @@ ggplot(data=temp, aes({{ selected.x[0] | safe }}{{ selected.y[0] | safe }}{{ sel
             nav: {
                 name: plotOfMeans.t('navigation'),
                 icon: "icon-line-dot-chart",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 modal_id: config.id
             }
         }

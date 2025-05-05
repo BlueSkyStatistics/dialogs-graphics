@@ -190,7 +190,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
             nav: {
                 name: Coxcomb.t('navigation'),
                 icon: "icon-coxcomb",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 modal_id: config.id
             }
         }
