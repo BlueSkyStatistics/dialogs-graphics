@@ -10,11 +10,13 @@ var localization = {
         navigation: "P-P",
         alpha: "Opacity (0-1)",
         x: "X axis, specify a numeric variable(s)",
-        y: "Shape, specify a factor variable",
-        color: "Color, specify a factor variable",
+        y: "Shape, specify a category variable",
+        color: "Color, specify a grouping (category) variable",
         referenceline: "Reference line",
         band: "Show bands",
         detrend: "Detrend",
+		showStatsTable: "Show stats table for normality test",
+		normalityTestMethod: "Normality test method",
         flip: "Flip Axis",
         distribution: "Select a distribution",
         x_title: "X Axis Label",
@@ -91,6 +93,8 @@ class ppPlots extends baseModal {
 require(ggplot2);
 require(ggthemes);
 require(qqplotr);
+require(nortest);
+
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.color[0] | safe}} )) +
     stat_pp_point(distribution = "{{selected.distribution | safe}}"{{if (options.selected.dparams != "" )}}, dparams = list ({{selected.dparams | safe}}){{/if}}, detrend = {{selected.detrend | safe}}) +
     {{if (options.selected.referenceline == "TRUE")}} stat_pp_line(detrend = {{selected.detrend | safe}}) + {{/if}}
@@ -101,6 +105,61 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
     {{selected.title|safe}}
     {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+
+
+{{if(options.selected.showStatsTable == "TRUE")}} 
+	all_group_vars = c({{if(options.selected.color[4] !== "" )}}'{{selected.color[4] | safe}}'{{#else}} NA {{/if}}
+						{{if (options.selected.Facetwrap !="")}} ,'{{selected.Facetwrap | safe}}' 
+						{{#else}}
+						{{if (options.selected.Facetrow !="")}} ,'{{selected.Facetrow | safe}}' {{/if}}
+						{{if (options.selected.Facetcolumn !="")}} ,'{{selected.Facetcolumn | safe}}' {{/if}}
+						{{/if}})
+						
+	all_group_vars = unique(na.omit(all_group_vars))
+	
+	{{if(options.selected.color[4] !== "" || options.selected.Facetrow !="" || options.selected.Facetcolumn !="" || options.selected.Facetwrap !="")}}
+	{{dataset.name}} %>%
+		#group_by(.data[['{{selected.color[4] | safe}}']]) %>%
+		group_by(across(all_of(all_group_vars))) %>%
+		group_modify(~ {
+		val <- .x[['{{selected.x[3] | safe}}']]
+	{{#else}}
+	val = {{dataset.name}}[['{{selected.x[3] | safe}}']]
+	{{/if}}
+		data.frame(
+		n = sum(!is.na(val)),
+		mean = mean(val, na.rm = TRUE), 
+		sd = sd(val, na.rm = TRUE),
+		# Run the selected normality test
+		{{if(options.selected.normalityTestMethod === "Anderson-Darling")}}
+		  ad_stat = tryCatch(nortest::ad.test(val)$statistic,
+								error = function(e) { message("AD test error: ", e$message); NA }),
+		  p.value = tryCatch(nortest::ad.test(val)$p.value,
+								error = function(e) { message("AD p-value error: ", e$message); NA }),
+		{{#else}}
+			{{if(options.selected.normalityTestMethod === "Shapiro-Wilk")}}
+				shapiro_stat = tryCatch(shapiro.test(val)$statistic,
+								error = function(e) { message("Shapiro test error: ", e$message); NA }),
+				p.value = tryCatch(shapiro.test(val)$p.value,
+								error = function(e) { message("Shapiro p-value error: ", e$message); NA }),
+			{{#else}}
+				{{if(options.selected.normalityTestMethod === "Kolmogorov–Smirnov (KS)")}}
+					ks_stat = tryCatch(ks.test(val, "pnorm", mean(val, na.rm = TRUE), sd(val, na.rm = TRUE))$statistic,
+								error = function(e) { message("KS test error: ", e$message); NA }),
+					p.value = tryCatch(ks.test(val, "pnorm", mean(val, na.rm = TRUE), sd(val, na.rm = TRUE))$p.value,
+								error = function(e) { message("KS p-value error: ", e$message); NA }),
+				{{/if}}
+			{{/if}}
+		{{/if}}
+		row.names = NULL
+	{{if(options.selected.color[4] !== "" || options.selected.Facetrow !="" || options.selected.Facetcolumn !="" || options.selected.Facetwrap !="")}}
+		)}) %>%
+			ungroup() %>%
+			as.data.frame() %>% BSkyFormat(outputTableRenames = paste("Normality test ({{selected.normalityTestMethod | safe}}) for {{selected.x[3] | safe}}"))
+	{{#else}}
+			)%>% BSkyFormat(outputTableRenames = paste("Normality test ({{selected.normalityTestMethod | safe}}) for {{selected.x[3] | safe}}"))
+	{{/if}} 
+{{/if}}
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -120,7 +179,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             },
             color: {
                 el: new dstVariable(config, { label: localization.en.color, no: "color", filter: "String|Numeric|Date|Logical|Ordinal|Nominal" }),
-                r: [',color={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', ', color defined by levels of variable {{color|safe}}']
+                r: [',color={{color|safe}}', ',group={{color|safe}}', ',color="{{color|safe}}"', ', color defined by levels of variable {{color|safe}}', '{{color|safe}}']
             },
             alpha: {
                 el: new advancedSlider(config, {
@@ -158,6 +217,28 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     newline: true, no: "detrend"
                 })
             },
+			showStatsTable: {
+                el: new checkbox(config, {
+                    label: localization.en.showStatsTable,
+                    true_value: "TRUE",
+                    false_value: "FALSE",
+                    newline: true, no: "showStatsTable"
+                })
+            },
+			normalityTestMethod: {
+				el:	new selectVar(config, {
+                    label: localization.en.normalityTestMethod,
+					no: 'normalityTestMethod',
+                    multiple: false,
+					extraction: "NoPrefix",
+					required: false,
+                    //newline: true,
+                    options: ["Anderson-Darling", "Shapiro-Wilk", "Kolmogorov–Smirnov (KS)"], 
+                    default: "Anderson-Darling",
+					width: "w-50",
+					style: "ml-4",
+                })
+			},
             flipaxis: { el: new checkbox(config, { label: localization.en.flip, newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
             distribution: {
                 el: new comboBox(config, {
@@ -273,7 +354,9 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.color.el.content,
                 objects.referenceline.el.content,
                 objects.band.el.content,
-                objects.detrend.el.content,
+                objects.detrend.el.content, 
+				objects.showStatsTable.el.content,
+				objects.normalityTestMethod.el.content,
                 objects.flipaxis.el.content,
                 objects.alpha.el.content,
             ],
@@ -305,7 +388,9 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
                     referenceline: instance.objects.referenceline.el.getVal() ? "TRUE" : "FALSE",
                     band: instance.objects.band.el.getVal() ? "TRUE" : "FALSE",
-                    detrend: instance.objects.detrend.el.getVal() ? "TRUE" : "FALSE",
+                    detrend: instance.objects.detrend.el.getVal() ? "TRUE" : "FALSE", 
+					showStatsTable: instance.objects.showStatsTable.el.getVal() ? "TRUE" : "FALSE",
+					normalityTestMethod: instance.objects.normalityTestMethod.el.getVal(),
                     distribution: instance.objects.distribution.el.getVal(),
                     dparams: instance.opts.config.content[5].getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
