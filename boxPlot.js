@@ -273,7 +273,7 @@ ggplot( aes({{if (options.selected.x[0] != "")}}{{selected.x[0] | safe}}{{/if}}{
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-box_plot",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 modal_id: config.id
             }
         }

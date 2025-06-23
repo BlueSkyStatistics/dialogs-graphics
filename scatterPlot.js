@@ -671,7 +671,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-scatter_plot",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 positionInNav: 0,
                 modal_id: config.id
             }
