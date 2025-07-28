@@ -377,7 +377,7 @@ BSkyTemp <- BSkyTemp  %>%
             nav: {
                 name: pieChart.t('navigation'),
                 icon: "icon-chart-pie-solid",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 modal_id: config.id
             }
         }

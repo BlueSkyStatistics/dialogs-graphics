@@ -150,7 +150,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
             nav: {
                 name: violinPlot.t('navigation'),
                 icon: "icon-violin",
-                onclick: `r_before_modal("${config.id}")`,
+                onclick: `r_before_modal('${config.id}')`,
                 modal_id: config.id
             }
         }
