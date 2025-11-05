@@ -120,7 +120,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
 	{{if(options.selected.color[4] !== "" || options.selected.Facetrow !="" || options.selected.Facetcolumn !="" || options.selected.Facetwrap !="")}}
 	{{dataset.name}} %>%
 		#group_by(.data[['{{selected.color[4] | safe}}']]) %>%
-		group_by(across(all_of(all_group_vars))) %>%
+		dplyr::group_by(across(all_of(all_group_vars))) %>%
 		group_modify(~ {
 		val <- .x[['{{selected.x[3] | safe}}']]
 	{{#else}}
@@ -154,7 +154,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
 		row.names = NULL
 	{{if(options.selected.color[4] !== "" || options.selected.Facetrow !="" || options.selected.Facetcolumn !="" || options.selected.Facetwrap !="")}}
 		)}) %>%
-			ungroup() %>%
+			dplyr::ungroup() %>%
 			as.data.frame() %>% BSkyFormat(outputTableRenames = paste("Normality test ({{selected.normalityTestMethod | safe}}) for {{selected.x[3] | safe}}"))
 	{{#else}}
 			)%>% BSkyFormat(outputTableRenames = paste("Normality test ({{selected.normalityTestMethod | safe}}) for {{selected.x[3] | safe}}"))
