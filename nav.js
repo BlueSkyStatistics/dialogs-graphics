@@ -11,7 +11,14 @@ const nav = () => ({
     "tab": "graphics",
     "buttons": [
         "./barChartModal",
-        "./boxPlot",
+
+        {
+            "name": t('graphicspro_BoxPlots'),// {ns: 'menutoolbar'}),
+            "icon": "icon-scatter_plot",
+            "children": [
+                "./boxPlot",                
+            ]
+        },        
         "./Contour",
         "./twoDContourplot",
         {
