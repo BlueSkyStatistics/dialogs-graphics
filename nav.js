@@ -52,6 +52,7 @@ const nav = () => ({
             ]
         },
         "./MultiVariChart",
+        "./paretoChart",
         {
             "name": t('graphics_Pie_Charts'),// {ns: 'menutoolbar'}),
             "icon": "icon-chart-pie-solid",
