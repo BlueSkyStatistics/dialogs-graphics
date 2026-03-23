@@ -51,6 +51,7 @@ const nav = () => ({
                 "./worldMap"
             ]
         },
+        "./MultiVariChart",
         {
             "name": t('graphics_Pie_Charts'),// {ns: 'menutoolbar'}),
             "icon": "icon-chart-pie-solid",
