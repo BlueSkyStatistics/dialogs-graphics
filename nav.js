@@ -44,6 +44,7 @@ const nav =
             ]
         },
         "./MultiVariChart",
+		"./paretoChart",
         {
             "name": "Pie Charts",
             "icon": "icon-chart-pie-solid",
