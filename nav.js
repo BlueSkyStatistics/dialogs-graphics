@@ -43,6 +43,7 @@ const nav =
                 "./worldMap"
             ]
         },
+        "./MultiVariChart",
         {
             "name": "Pie Charts",
             "icon": "icon-chart-pie-solid",
