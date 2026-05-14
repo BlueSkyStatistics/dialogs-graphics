@@ -4,16 +4,13 @@
   * allowed without the prior written permission from BlueSky Statistics, LLC.
  */
 
-const {getT} = global.requireFromRoot("localization");
-let t = getT('menutoolbar')
-const nav = () => ({
-    "name": t('graphics_top_level_title'),// {ns: 'menutoolbar'}),
-    "tab": "graphics",
+const nav = {
+    "id": "menu-graphics",
     "buttons": [
         "./barChartModal",
 
         {
-            "name": t('graphicspro_BoxPlots'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-box-plots",
             "icon": "icon-scatter_plot",
             "children": [
                 "./boxPlot",                
@@ -22,7 +19,7 @@ const nav = () => ({
         "./Contour",
         "./twoDContourplot",
         {
-            "name": t('graphics_Distribution'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-distribution",
             "icon": "icon-gaussian-function",
             "children": [
                 "./density",
@@ -33,7 +30,7 @@ const nav = () => ({
         },
         "./heatMap",
         {
-            "name": t('graphics_Line_Charts'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-line-charts",
             "icon": "icon-chart-line-solid",
             "children": [
                 "./frequencyFactor",
@@ -43,7 +40,7 @@ const nav = () => ({
             ]
         },
         {
-            "name": t('graphics_Maps'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-maps",
             "icon": "icon-earth",
             "children": [
                 "./usCountyMap",
@@ -54,7 +51,7 @@ const nav = () => ({
         "./MultiVariChart",
         "./paretoChart",
         {
-            "name": t('graphics_Pie_Charts'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-pie-charts",
             "icon": "icon-chart-pie-solid",
             "children": [
                 "./Coxcomb",
@@ -62,7 +59,7 @@ const nav = () => ({
             ]
         },
         {
-            "name": t('graphics_Scatter_Plot'),// {ns: 'menutoolbar'}),
+            "id": "menu-graphics-scatter-plot",
             "icon": "icon-scatter_plot",
             "children": [
                 "./scatterPlot",
@@ -74,9 +71,9 @@ const nav = () => ({
         "./stripChart",
         "./violinPlot"
     ]
-})
+}
 
 module.exports = {
-    nav: nav(),
-    render: () => nav()
+    nav: nav,
+    render: () => nav
 }
