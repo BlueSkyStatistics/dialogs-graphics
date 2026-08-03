@@ -32,6 +32,7 @@ const nav = {
         {
             "id": "menu-graphics-line-charts",
             "icon": "icon-chart-line-solid",
+			"positionInNav":8,
             "children": [
                 "./frequencyFactor",
                 "./lineChartModal",
@@ -42,6 +43,7 @@ const nav = {
         {
             "id": "menu-graphics-maps",
             "icon": "icon-earth",
+			"positionInNav":9,
             "children": [
                 "./usCountyMap",
                 "./usStateMap",
