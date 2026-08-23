@@ -17,25 +17,35 @@ class frequencyFactor extends baseModal {
             RCode: `## [Frequency Plot]
 require(ggplot2);
 require(ggthemes);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric axis labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 {{ if (options.selected.frequency_type === "0") }}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.y[1] | safe}} )) +
     geom_freqpoly({{if (options.selected.bins != "")}}  bins ={{selected.bins | safe}},{{/if}} {{selected.alpha | safe}}{{if (options.selected.y[0] =="")}} {{if (options.selected.barcolor != "")}} , color ="{{selected.barcolor | safe}}" {{/if}}{{/if}}) +
     labs({{selected.x[1] | safe}},y ="Counts" {{selected.y[2] | safe}}, title= "Frequency chart for variable {{selected.x[3] | safe}}  {{selected.y[3] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + 
-    ylab("{{selected.y_label|safe}}") + 
+    xlab("{{selected.x_label|safe}}") +
+    ylab("{{selected.y_label|safe}}") +
     {{selected.title|safe}}
     {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + scale_y_continuous(labels = bsky_label_fmt){{/if}}
 {{/if}}
 {{ if (options.selected.frequency_type === "1") }}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.y[1] | safe}} )) +
     geom_freqpoly(stat = "Count",{{selected.alpha | safe}}) +
     labs({{selected.x[1] | safe}},y ="Counts" {{selected.y[2] | safe}}, title= "Frequency chart for variable {{selected.x[3] | safe}} {{selected.y[3] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + 
+    xlab("{{selected.x_label|safe}}") +
     ylab("{{selected.y_label|safe}}") +
     {{selected.title|safe}}
-    {{selected.flipaxis | safe}}  
+    {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + scale_y_continuous(labels = bsky_label_fmt){{/if}}
 {{/if}}
 `,
             pre_start_r: JSON.stringify({
@@ -77,6 +87,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 }), r: ['{{bins|safe}}']
             },
             flipaxis: { el: new checkbox(config, { label: frequencyFactor.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+            // Formats numeric X/Y axis tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: frequencyFactor.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
+            },
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
@@ -182,6 +202,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.flipaxis.el.content,
                 objects.bins.el.content,
                 objects.barcolor.el.content,
+                objects.formatLargeNumbers.el.content,
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
@@ -217,6 +238,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     y: instance.dialog.prepareSelected({ y: instance.objects.y.el.getVal()[0] }, instance.objects.y.r),
                     x: instance.dialog.prepareSelected({ x: value }, instance.objects.x.r),
                     flipaxis: instance.objects.flipaxis.el.getVal() ? instance.objects.flipaxis.r : "",
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
                     bins: instance.dialog.prepareSelected({ bins: instance.objects.bins.el.getVal() }, instance.objects.bins.r),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,

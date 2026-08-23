@@ -18,19 +18,29 @@ class density extends baseModal {
 ## [Density Plot]
 require(ggplot2);
 require(ggthemes);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric axis labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 {{ if (options.selected.position === "fill" &&  options.selected.y[0] =="" && options.selected.fill[0] =="")}}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}},y =..count.. )) +
     geom_density({{if (options.selected.fillcolor != "")}} color ="{{selected.fillcolor | safe}}" {{/if}}) +
     labs({{selected.x[1] | safe}},title= "Density plot for variable {{selected.x[3] | safe}}{{selected.y[3] | safe}}") +
-    xlab("{{selected.x_label|safe}}") {{if (options.selected.y_label != "")}} + ylab("{{selected.y_label | safe}}") {{/if}} + {{selected.title|safe}}  {{selected.flipaxis | safe}}  
+    xlab("{{selected.x_label|safe}}") {{if (options.selected.y_label != "")}} + ylab("{{selected.y_label | safe}}") {{/if}} + {{selected.title|safe}}  {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + scale_y_continuous(labels = bsky_label_fmt){{/if}}
 {{#else}}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.fill[0] | safe}} )) +
     geom_density(position = "{{selected.position | safe}}",{{selected.alpha | safe}} {{if (options.selected.fillcolor != "")}} , color ="{{selected.fillcolor | safe}}" {{/if}}) +
     labs({{selected.x[1] | safe}},title= "Density plot for variable {{selected.x[3] | safe}} {{selected.y[3] | safe}}{{selected.fill[3] | safe}}") +
-    xlab("{{selected.x_label|safe}}") {{if (options.selected.y_label != "")}} + ylab("{{selected.y_label | safe}}") {{/if}} + {{selected.title|safe}}  {{selected.flipaxis | safe}}  
+    xlab("{{selected.x_label|safe}}") {{if (options.selected.y_label != "")}} + ylab("{{selected.y_label | safe}}") {{/if}} + {{selected.title|safe}}  {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
-{{/if}}      
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + scale_y_continuous(labels = bsky_label_fmt){{/if}}
+{{/if}}
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -68,6 +78,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 }), r: ['alpha={{alpha|safe}}']
             },
             flipaxis: { el: new checkbox(config, { label: density.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+            // Formats numeric X/Y axis tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: density.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
+            },
             fillcolor: {
                 el: new colorInput(config, {
                     no: 'fillcolor',
@@ -177,6 +197,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.rd3.el.content,
                 objects.alpha.el.content,
                 objects.flipaxis.el.content,
+                objects.formatLargeNumbers.el.content,
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
@@ -209,6 +230,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     x: instance.dialog.prepareSelected({ x: value }, instance.objects.x.r),
                     fill: instance.dialog.prepareSelected({ fill: instance.objects.fill.el.getVal()[0] }, instance.objects.fill.r),
                     flipaxis: instance.objects.flipaxis.el.getVal() ? instance.objects.flipaxis.r : "",
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     alpha: instance.dialog.prepareSelected({ alpha: instance.objects.alpha.el.getVal() }, instance.objects.alpha.r),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     position: common.getCheckedRadio("density_position"),

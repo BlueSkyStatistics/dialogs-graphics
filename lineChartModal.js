@@ -17,12 +17,21 @@ class lineChartModal extends baseModal {
             RCode: `## [Line chart (line drawn in order of variables on X axis)]
 require(ggplot2);
 require(ggthemes);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric axis labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} {{selected.color[0]}})) +
     {{selected.chart}}(stat = "identity", position = "identity", alpha=0.5{{if (options.selected.sizeLine != "")}}, size = {{selected.sizeLine | safe }}{{/if}}{{selected.linetype[0] | safe}}) +
     geom_point({{if (options.selected.sizePoint != "")}}size = {{selected.sizePoint | safe }}{{/if}}) +
     labs({{selected.x[1] | safe}}{{selected.y[1] | safe}}, title= "Line chart ({{selected.label}})\nfor {{selected.x[2] | safe}} {{selected.y[2] | safe}} {{selected.color[1]}}") +
-    xlab("{{selected.x_label|safe}}") + ylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip}} 
+    xlab("{{selected.x_label|safe}}") + ylab("{{selected.y_label|safe}}") + {{selected.title|safe}}{{selected.flip}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + (if (is.numeric({{dataset.name}}\${{selected.y[3] | safe}})) scale_y_continuous(labels = bsky_label_fmt) else NULL){{/if}}
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -41,6 +50,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
 
 
             checkbox: { el: new checkbox(config, { label: lineChartModal.t('flipBox'), style: "mt-2", no: "flipBox" }), r: 'coord_flip() + ' },
+            // Formats numeric X/Y axis tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: lineChartModal.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
+            },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
@@ -185,7 +204,8 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.linetype.el.content,
                 new labelVar(config, { label: lineChartModal.t('lineChartType'), h: 7 }).content,
                 navs.content,
-                objects.checkbox.el.content],
+                objects.checkbox.el.content,
+                objects.formatLargeNumbers.el.content],
             bottom: [opts.content, Facets.el.content],
             nav: {
                 name: lineChartModal.t('navigation'),
@@ -219,6 +239,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
                     linetype: instance.dialog.prepareSelected({ linetype: instance.objects.linetype.el.getVal()[0] }, instance.objects.linetype.r),
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     chart: instance.navs.getActive('r-value'),
                     label: instance.navs.tabs[parseInt(instance.navs.getActive('el-index'))].content,
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,

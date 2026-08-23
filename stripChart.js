@@ -19,7 +19,15 @@ class stripChart extends baseModal {
 ## [Strip Chart]
 require(ggplot2);
 require(ggthemes);
-require(stringr);   
+require(stringr);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric axis labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}}{{selected.fill[0] | safe}}{{selected.size[0] | safe}}{{selected.shape[0] | safe}})) +
     {{selected.jitter | safe}}
     labs({{selected.x[1] | safe}}{{selected.y[1] | safe}}{{selected.fill[1] | safe}},title= "Strip chart for {{selected.x[2] | safe}} {{selected.y[2] | safe}} {{selected.fill[2] | safe}}") +
@@ -28,6 +36,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
     {{selected.title | safe}}
     {{selected.flip | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + (if (is.numeric({{dataset.name}}\${{selected.y[3] | safe}})) scale_y_continuous(labels = bsky_label_fmt) else NULL){{/if}}
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -92,6 +101,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     no: "Jitter",
                     extraction: "Boolean",
                 }), r: 'geom_point( position=\"jitter\") +\n'
+            },
+            // Formats numeric X/Y axis tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: stripChart.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
             },
             opacity: {
                 el: new advancedSlider(config, {
@@ -192,7 +211,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
         };
         const content = {
             left: [objects.content_var.el.content],
-            right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.jitter.el.content, objects.checkbox.el.content],
+            right: [objects.y.el.content, objects.x.el.content, objects.fill.el.content, objects.size.el.content, objects.shape.el.content, objects.opacity.el.content, objects.jitter.el.content, objects.checkbox.el.content, objects.formatLargeNumbers.el.content],
             bottom: [opts.content, Facets.el.content],
             nav: {
                 name: stripChart.t('navigation'),
@@ -225,6 +244,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     fill: instance.dialog.prepareSelected({ fill: instance.objects.fill.el.getVal()[0] }, instance.objects.fill.r),
                     flip: instance.objects.checkbox.el.getVal() ? instance.objects.checkbox.r : "",
                     jitter: instance.objects.jitter.el.getVal() ? instance.objects.jitter.r : "geom_point() +\n",
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     size: instance.dialog.prepareSelected({ size: instance.objects.size.el.getVal()[0] }, instance.objects.size.r),
                     shape: instance.dialog.prepareSelected({ shape: instance.objects.shape.el.getVal()[0] }, instance.objects.shape.r),
                     opacity: instance.objects.opacity.el.getVal(),

@@ -17,14 +17,23 @@ class Contour extends baseModal {
             RCode: `## [Contour Plot]
 require(ggplot2);
 require(ggthemes);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric axis labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe}} )) +
     geom_density2d(stat = "density2d",position = "identity"{{if (options.selected.color != "")}} , color ="{{selected.color | safe}}" {{/if}}) +
     labs({{selected.x[1] | safe}}{{ selected.y[1] | safe }}, title= "Contour plot  for X axis variable: {{selected.x[3] | safe}}, Y axis variable: {{selected.y[3] | safe}}") +
     xlab("{{selected.x_label|safe}}") +
     ylab("{{selected.y_label|safe}}") +
     {{selected.title|safe}}
-    {{selected.flipaxis | safe}}  
+    {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + (if (is.numeric({{dataset.name}}\${{selected.x[3] | safe}})) scale_x_continuous(labels = bsky_label_fmt) else NULL) + (if (is.numeric({{dataset.name}}\${{selected.y[3] | safe}})) scale_y_continuous(labels = bsky_label_fmt) else NULL){{/if}}
 {{/if}}
 `,
             pre_start_r: JSON.stringify({
@@ -54,6 +63,16 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 }), r: ['x={{x|safe}}', 'x="{{x|safe}}"', 'X axis: {{x|safe}}', '{{x|safe}}']
             },
             flipaxis: { el: new checkbox(config, { label: Contour.t('flip'), no: "flipaxis" }), r: ' coord_flip() +' },
+            // Formats numeric X/Y axis tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: Contour.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
+            },
             Facetrow: {
                 el: new comboBox(config, {
                     no: 'Facetrow',
@@ -157,6 +176,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                 objects.y.el.content,
                 objects.x.el.content,
                 objects.flipaxis.el.content,
+                objects.formatLargeNumbers.el.content,
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
@@ -188,6 +208,7 @@ ggplot(data={{dataset.name}}, aes({{selected.x[0] | safe}}{{selected.y[0] | safe
                     x: instance.dialog.prepareSelected({ x: instance.objects.x.el.getVal()[0] }, instance.objects.x.r),
                     y: instance.dialog.prepareSelected({ y: value }, instance.objects.y.r),
                     flipaxis: instance.objects.flipaxis.el.getVal() ? instance.objects.flipaxis.r : "",
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),

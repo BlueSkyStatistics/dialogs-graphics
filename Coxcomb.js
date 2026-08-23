@@ -18,12 +18,21 @@ class Coxcomb extends baseModal {
 require(ggplot2);
 require(ggthemes);
 require(stringr);
+require(scales);
+{{if(options.selected.formatLargeNumbers)}}
+# Format numeric Y axis (count/proportion) labels > 10^5 with the locale's thousands/decimal separators
+bsky_big_mark <- Sys.localeconv()[["mon_thousands_sep"]]
+if (nchar(bsky_big_mark) == 0) bsky_big_mark <- ","
+bsky_decimal_mark <- Sys.localeconv()[["mon_decimal_point"]]
+bsky_label_fmt <- scales::label_number(big.mark = bsky_big_mark, decimal.mark = bsky_decimal_mark)
+{{/if}}
 ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#else}}{{selected.x[0] | safe}}{{/if}}{{selected.y[0] | safe}}{{selected.color[0] | safe}} )) +
     geom_bar( {{if (options.selected.rdgrp1=="TRUE")}}position = "fill",{{/if}}{{selected.alpha | safe}}{{selected.width | safe}}{{if(options.selected.y[0] != "")}}stat = "identity"{{/if}}) +
     coord_polar("x") +
     labs({{selected.x[1] | safe}} {{selected.y[1] | safe}} title= "Coxcomb plot with{{selected.x[4] | safe}}{{selected.y[4] | safe}}{{selected.color[4] | safe}}") +
-    xlab("{{selected.x_label|safe}}") + ylab("{{if (options.selected.y_label == "")}}{{if (options.selected.rdgrp1=="TRUE")}}Proportion{{#else}}Count{{/if}}{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}}  {{selected.flipaxis | safe}}  
+    xlab("{{selected.x_label|safe}}") + ylab("{{if (options.selected.y_label == "")}}{{if (options.selected.rdgrp1=="TRUE")}}Proportion{{#else}}Count{{/if}}{{#else}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}}  {{selected.flipaxis | safe}}
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+    {{if(options.selected.formatLargeNumbers)}} + {{if (options.selected.y[0] == "")}}scale_y_continuous(labels = bsky_label_fmt){{#else}}(if (is.numeric({{dataset.name}}\${{selected.y[3] | safe}})) scale_y_continuous(labels = bsky_label_fmt) else NULL){{/if}}{{/if}}
 `,
             pre_start_r: JSON.stringify({
                 Facetrow: "returnFactorNamesOfFactorVars('{{dataset.name}}', cross=TRUE)",
@@ -79,6 +88,16 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                 })
             },
             flipaxis: { el: new checkbox(config, { label: Coxcomb.t('flip'), newline: true, no: "flipaxis" }), r: ' coord_flip() +' },
+            // Formats the numeric Y axis (count/proportion) tick labels > 10^5 with a thousands separator, checked by default
+            formatLargeNumbers: {
+                el: new checkbox(config, {
+                    label: Coxcomb.t('formatLargeNumbers'),
+                    no: "formatLargeNumbers",
+                    extraction: "Boolean",
+                    state: "checked",
+                    newline: true,
+                })
+            },
             barcolor: {
                 el: new colorInput(config, {
                     no: 'barcolor',
@@ -185,6 +204,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                 objects.width.el.content,
                 objects.rdgrp1.el.content,
                 objects.flipaxis.el.content,
+                objects.formatLargeNumbers.el.content,
             ],
             bottom: [opts.content, Facets.el.content],
             nav: {
@@ -220,6 +240,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                     width: instance.dialog.prepareSelected({ width: instance.objects.width.el.getVal() }, instance.objects.width.r),
                     color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
                     rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                     title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                     Facetrow: instance.objects.Facetrow.el.getVal(),
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
@@ -249,6 +270,7 @@ ggplot(data={{dataset.name}}, aes({{if (options.selected.x[0] == "")}}x='', {{#e
                         width: instance.dialog.prepareSelected({ width: instance.objects.width.el.getVal() }, instance.objects.width.r),
                         color: instance.dialog.prepareSelected({ color: instance.objects.color.el.getVal()[0] }, instance.objects.color.r),
                         rdgrp1: instance.objects.rdgrp1.el.getVal(),
+                    formatLargeNumbers: instance.objects.formatLargeNumbers.el.getVal(),
                         title: instance.opts.config.content[0].getVal() === "" ? "" : `ggtitle("${instance.opts.config.content[0].getVal()}") + `,
                         Facetrow: instance.objects.Facetrow.el.getVal(),
                         Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
