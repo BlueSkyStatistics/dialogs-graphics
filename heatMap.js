@@ -167,7 +167,7 @@ BSkyHeatMap (rowVariable=c({{selected.rowVariables | safe}}), colVariables=c({{s
             nav: {
                 name: heatMap.t('navigation'),
                 icon: "icon-heatmap",
-				positionInNav: 7,
+				// positionInNav: 7,
                 modal: config.id
             }
         }
