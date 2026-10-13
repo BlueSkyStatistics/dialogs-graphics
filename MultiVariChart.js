@@ -11,8 +11,7 @@ var localization = {
 		navigation: "Multi-Vari Chart",
 		
 		Y_variableRespSelcted: "Select the variable (numerical) for measurement/response (Y-axis)",
-		X_variableSelcted: "Select the categorical variable (X-axis)",
-		G_variableSelcted: "Select the grouping (categorical) variable ",
+		G_variableSelcted: "Select one or more grouping (categorical) variables. The first variable selected is used as the X-axis; any additional variables selected are combined into a single grouping factor (any number of variables may be selected)",
 		
 		plotNestedMultiVariChk: "Addionally, plot a nested Multi-Vari chart",
 		
@@ -23,6 +22,7 @@ var localization = {
 		
 		printStatChk: "Print stats in addition to charts",
 		angleXaxis_text: "Angle to slant x-axis text values (default 0 for no slanting)",
+		legends: "Show Legends and if so, position of Legends (default is right)",
 		
 		label1: "Horizontal reference lines",
 		yIntercept: "Enter comma separated Y intercept value(s) for the horizontal lines, e.g. 100, 200, 300 (i.e., count values). Lines will be drawn only if a Counts axis is present",
@@ -35,7 +35,12 @@ var localization = {
             //r_help: "help(lm, package = stats)",
 			body: `
 				<b>Description</b></br>
-				A multi-vari chart of one quantitative response variable depending on two categorical variables
+				A multi-vari chart of one quantitative response variable depending on one or more categorical (grouping) variables
+				<br/>
+				<br/>
+				Any number of grouping variables may be selected. The first grouping variable selected is used as the X-axis; any
+				remaining grouping variables selected are combined into a single grouping factor used for color/shape and for the
+				optional nested Multi-Vari chart.
 				<br/>
 				<br/>
 				Mean values of the response variable is also plotted on the chart 
@@ -66,7 +71,10 @@ require(ggplot2)
                                     showMeanValues  = TRUE,
 									digits = 2,
                                     ref_line_y      = NULL,
-                                    ref_line_labels = NULL) {
+                                    ref_line_labels = NULL,
+									x_label         = NULL,
+									y_label         = NULL,
+									group_label     = NULL) {
 
   # ── 1. Subset and rename ──────────────────────────────────────
   data <- data[, c(x, y, group)]
@@ -75,6 +83,12 @@ require(ggplot2)
                          "x"   = all_of(x),
                          "y"   = all_of(y),
                          "grp" = all_of(group))
+
+  # Ensure the grouping variable is a factor before executing any of the
+  # logic below - if it is not already a factor, convert it temporarily.
+  if (!is.factor(data$grp)) {
+    data$grp <- as.factor(data$grp)
+  }
 
   # ── 2. Compute group means ────────────────────────────────────
   means <- data %>%
@@ -155,6 +169,15 @@ require(ggplot2)
       size = 4
     ) +
 
+    # The default shape scale only supports 6 discrete values - when the
+    # combined grouping factor has more levels than that (e.g. several
+    # grouping variables combined together), supply enough manual shape
+    # codes (cycling through the 26 available point shapes) so every level
+    # gets a real shape instead of being dropped with a warning.
+    scale_shape_manual(
+      values = rep(0:25, length.out = nlevels(data$grp))
+    ) +
+
     # Dashed line connecting group means
     geom_line(
       data     = means,
@@ -183,10 +206,10 @@ require(ggplot2)
     ) +
 
     labs(
-      x     = as.character(ensym(x)),
-      y     = as.character(ensym(y)),
-      shape = as.character(ensym(group)),
-      color = as.character(ensym(group))
+      x     = if (!is.null(x_label))     x_label     else as.character(ensym(x)),
+      y     = if (!is.null(y_label))     y_label     else as.character(ensym(y)),
+      shape = if (!is.null(group_label)) group_label else as.character(ensym(group)),
+      color = if (!is.null(group_label)) group_label else as.character(ensym(group))
     ) +
 
     {{selected.BSkyThemes | safe}} +
@@ -253,20 +276,28 @@ multiVariNestedPlot <- function(data,
                                  outer_group,
                                  inner_group,
                                  y,
-                                 color1          = "blue",
-                                 color2          = "black",
+                                 color1          = "blue", 
+                                 color2          = "black", 
                                  chart_title     = "Multi-Vari Chart",
                                  showMeanValues  = TRUE,
 								 digits = 2,
                                  ref_line_y      = NULL,
-                                 ref_line_labels = NULL) {
+                                 ref_line_labels = NULL,
+								 outer_group_label = NULL,
+								 inner_group_label = NULL) {
 
   # ── 1. Subset and rename ──────────────────────────────────────
   df <- data[, c(outer_group, inner_group, y)]
   colnames(df) <- c("outer", "inner", "y")
 
-  df$outer <- as.factor(df$outer)
-  df$inner <- as.factor(df$inner)
+  # Ensure both grouping variables are factors before executing any of the
+  # logic below - if they are not already factors, convert them temporarily.
+  if (!is.factor(df$outer)) {
+    df$outer <- as.factor(df$outer)
+  }
+  if (!is.factor(df$inner)) {
+    df$inner <- as.factor(df$inner)
+  }
 
   # ── 2. Build x positions with gap between outer groups ────────
   outer_levels <- levels(df$outer)
@@ -381,6 +412,9 @@ multiVariNestedPlot <- function(data,
   }
 
   # ── 10. Build plot ────────────────────────────────────────────
+  bsky_outer_label <- if (!is.null(outer_group_label)) outer_group_label else outer_group
+  bsky_inner_label <- if (!is.null(inner_group_label)) inner_group_label else inner_group
+
   p <- ggplot(df, aes(x = x_pos, y = y)) +
 
     # Grand mean horizontal reference line
@@ -414,51 +448,10 @@ multiVariNestedPlot <- function(data,
       size  = 3
     ) +
 
-    # Dashed line connecting ALL inner+outer group means (color2)
-    # kept in fixed color2 so it stands apart from group colors
-    #geom_line(
-    #  data      = range_df,
-    # aes(x     = x_pos,
-    #     y     = y_mean,
-    #     group = 1),
-    # color     = color2,
-    #  linetype  = "dashed",
-    # linewidth = 0.7
-    #) +
-
-    # Mean square points in color2 on top of colored points
-    # small size so colored point still shows around the edge
-    #geom_point(
-    #  data  = range_df,
-    #  aes(x = x_pos,
-    #     y = y_mean),
-    #  shape = 15,
-    #  size  = 1.5,               # ← smaller so color points visible behind
-    #  color = color2
-    #) +
-
     # Add legend title for outer group color
     scale_color_discrete(
-      name = outer_group         # ← legend labelled with actual column name
+      name = bsky_outer_label     # ← legend labelled with actual column name
     ) +
-
-    # Annotation explaining mean line color
-    #annotate(
-    #  geom  = "text",
-    #  x     = Inf,
-    #  y     = Inf,
-    #  vjust = 1.5,
-    #  hjust = 1.1,
-    #  label = paste("Mean values in", color2),
-    #  size  = 3,
-    #  color = "black"
-    #) +
-
-    # Inner group labels on x axis
-    #scale_x_continuous(
-    #  breaks = inner_x_labels$x_pos,
-    # labels = inner_x_labels$inner
-    #) +
 
     scale_x_continuous(
 		  breaks = inner_x_labels$x_pos,
@@ -473,7 +466,7 @@ multiVariNestedPlot <- function(data,
 	) +
 
     labs(
-      x     = paste(outer_group, "_", inner_group),
+      x     = paste0(bsky_outer_label, " _ ", bsky_inner_label),
       y     = y,
       title = chart_title
     ) +
@@ -565,13 +558,6 @@ multiVariNestedPlot <- function(data,
   }
 
   # ── 14. Constrain y axis to data range with padding ───────────
-  #p + coord_cartesian(
-  #  clip = "off",
-  #  ylim = c(
-  #    y_range[1] - y_span * 0.10,
-  #    y_range[2] + y_span * 0.15
-  #  )
- # )
   p + coord_cartesian(
   clip = "off",
   xlim = c(
@@ -587,11 +573,39 @@ multiVariNestedPlot <- function(data,
 
 #########################################
 
-{{dataset.name}}_tmp = {{dataset.name}}[,c('{{selected.X_variableSelcted | safe}}', '{{selected.Y_variableRespSelcted | safe}}', '{{selected.G_variableSelcted | safe}}')]
+# ── Build the list of selected grouping variables (unlimited, no longer
+#    restricted to exactly two) ────────────────────────────────────────
+bsky_group_vars = c({{selected.G_variableSelcted | safe}})
+
+{{dataset.name}}_tmp = {{dataset.name}}[, c('{{selected.Y_variableRespSelcted | safe}}', bsky_group_vars)]
 {{dataset.name}}_tmp = na.omit({{dataset.name}}_tmp)
 
-{{dataset.name}}_tmp[,1] = as.factor({{dataset.name}}_tmp[,1])
-{{dataset.name}}_tmp[,3] = as.factor({{dataset.name}}_tmp[,3])
+# For every grouping variable selected, if it is not already a factor,
+# temporarily convert it to a factor before executing any of the logic below.
+for (bsky_v in bsky_group_vars) {
+  if (!is.factor({{dataset.name}}_tmp[[bsky_v]])) {
+    {{dataset.name}}_tmp[[bsky_v]] = as.factor({{dataset.name}}_tmp[[bsky_v]])
+  }
+}
+
+# The first grouping variable selected drives the X-axis; any remaining
+# grouping variables selected are combined into a single grouping factor.
+bsky_X_var  = bsky_group_vars[1]
+bsky_G_vars = if (length(bsky_group_vars) > 1) bsky_group_vars[-1] else character(0)
+
+if (length(bsky_G_vars) > 0) {
+  {{dataset.name}}_tmp$bsky_combined_grp = interaction({{dataset.name}}_tmp[, bsky_G_vars, drop = FALSE], sep = "_", drop = TRUE)
+  bsky_group_label = paste(bsky_G_vars, collapse = "_")
+} else {
+  # Only a single grouping variable was selected - use it as both the
+  # X-axis and the grouping (color/shape) variable.
+  {{dataset.name}}_tmp$bsky_combined_grp = {{dataset.name}}_tmp[[bsky_X_var]]
+  bsky_group_label = bsky_X_var
+}
+
+if (!is.factor({{dataset.name}}_tmp$bsky_combined_grp)) {
+  {{dataset.name}}_tmp$bsky_combined_grp = as.factor({{dataset.name}}_tmp$bsky_combined_grp)
+}
 
 bsky_yIntercept = NULL
 bsky_hRefLabels = NULL
@@ -604,73 +618,110 @@ bsky_yIntercept = as.numeric(c({{selected.yIntercept | safe}}))
 bsky_hRefLabels = c({{selected.horizontalLinelabel | safe}})
 if(length(bsky_hRefLabels) == 1 && trimws(bsky_hRefLabels) == "") bsky_hRefLabels = rep(c(" "), length(bsky_yIntercept))
 
+# ── Apply the configurable legend position to a ggplot object ────────────
+# Legend position can be "right", "left", "top", "bottom", or "Do not show"
+# (mirrors the same "legends" control used in the Pareto Chart Pro dialog).
+bsky_apply_legend_position <- function(bsky_p) {
+	{{if(options.selected.legends =="Do not show")}}
+		bsky_p <- bsky_p + theme(legend.position = "none")
+	{{#else}}
+		bsky_p <- bsky_p + theme(legend.position = '{{selected.legends | safe}}')
+	{{/if}}
+	bsky_p
+}
 
-multiVariGroupingPlot(data = {{dataset.name}}_tmp, 
-					x = '{{selected.X_variableSelcted | safe}}', 
+bsky_mv_plot1 <- multiVariGroupingPlot(data = {{dataset.name}}_tmp, 
+					x = bsky_X_var, 
 					y = '{{selected.Y_variableRespSelcted | safe}}', 
-					group ='{{selected.G_variableSelcted | safe}}', 
-					chart_title = "Multi-Vari Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by {{selected.X_variableSelcted | safe}}",
-					showMeanValues = {{selected.showMeanNumbersChk | safe}},
-					digits = {{selected.digits | safe}},
-					 ref_line_y        = bsky_yIntercept,
-                     ref_line_labels   = bsky_hRefLabels
-					) 
-
-BSkyFormat("\n")
-
-{{dataset.name}}_tmp\${{selected.X_variableSelcted | safe}}_{{selected.G_variableSelcted | safe}} = with({{dataset.name}}_tmp, paste({{selected.X_variableSelcted | safe}}, {{selected.G_variableSelcted | safe}}, sep='_'))
-{{dataset.name}}_tmp\${{selected.X_variableSelcted | safe}}_{{selected.G_variableSelcted | safe}} = with({{dataset.name}}_tmp, factor({{selected.X_variableSelcted | safe}}_{{selected.G_variableSelcted | safe}}, levels=unlist(lapply(levels({{selected.X_variableSelcted | safe}}),function(x)paste(x,levels({{selected.G_variableSelcted | safe}}), sep='_')))))
-
-multiVariGroupingPlot(data = {{dataset.name}}_tmp, 
-					x = '{{selected.X_variableSelcted | safe}}_{{selected.G_variableSelcted | safe}}', 
-					y = '{{selected.Y_variableRespSelcted | safe}}', 
-					group ='{{selected.G_variableSelcted | safe}}',
-					chart_title = "Multi-Vari Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by ({{selected.X_variableSelcted | safe}} and {{selected.G_variableSelcted | safe}})",
-					 showMeanValues = {{selected.showMeanNumbersChk | safe}}, 
-					 digits = {{selected.digits | safe}},
-					 ref_line_y        = bsky_yIntercept,
-                     ref_line_labels   = bsky_hRefLabels
-					)				
-
-
-{{if(options.selected.plotNestedMultiVariChk === 'TRUE')}}
-BSkyFormat("Nested Multi-Vari Chart")
-
-multiVariNestedPlot(data = {{dataset.name}}_tmp, 
-					outer_group = '{{selected.X_variableSelcted | safe}}', 
-					y = '{{selected.Y_variableRespSelcted | safe}}', 
-					inner_group ='{{selected.G_variableSelcted | safe}}', 
-					chart_title = "Multi-Vari (Nested) Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by ({{selected.X_variableSelcted | safe}} and {{selected.G_variableSelcted | safe}})",
+					group = 'bsky_combined_grp', 
+					chart_title = paste0("Multi-Vari Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by ", bsky_X_var),
 					showMeanValues = {{selected.showMeanNumbersChk | safe}},
 					digits = {{selected.digits | safe}},
 					ref_line_y        = bsky_yIntercept,
-                     ref_line_labels   = bsky_hRefLabels
+                    ref_line_labels   = bsky_hRefLabels,
+					x_label           = bsky_X_var,
+					y_label           = '{{selected.Y_variableRespSelcted | safe}}',
+					group_label       = bsky_group_label
 					) 
+bsky_mv_plot1 <- bsky_apply_legend_position(bsky_mv_plot1)
+bsky_mv_plot1
+
+BSkyFormat("\n")
+
+{{dataset.name}}_tmp$bsky_X_combined = with({{dataset.name}}_tmp, paste(get(bsky_X_var), bsky_combined_grp, sep = '_'))
+{{dataset.name}}_tmp$bsky_X_combined = factor({{dataset.name}}_tmp$bsky_X_combined, levels = unlist(lapply(levels({{dataset.name}}_tmp[[bsky_X_var]]), function(bsky_lv) paste(bsky_lv, levels({{dataset.name}}_tmp$bsky_combined_grp), sep = '_'))))
+
+bsky_mv_plot2 <- multiVariGroupingPlot(data = {{dataset.name}}_tmp, 
+					x = 'bsky_X_combined', 
+					y = '{{selected.Y_variableRespSelcted | safe}}', 
+					group = 'bsky_combined_grp',
+					chart_title = paste0("Multi-Vari Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by (", bsky_X_var, " and ", bsky_group_label, ")"),
+					 showMeanValues = {{selected.showMeanNumbersChk | safe}}, 
+					 digits = {{selected.digits | safe}},
+					 ref_line_y        = bsky_yIntercept,
+                     ref_line_labels   = bsky_hRefLabels,
+					 x_label           = paste0(bsky_X_var, " _ ", bsky_group_label),
+					 y_label           = '{{selected.Y_variableRespSelcted | safe}}',
+					 group_label       = bsky_group_label
+					)				
+bsky_mv_plot2 <- bsky_apply_legend_position(bsky_mv_plot2)
+bsky_mv_plot2
+
+
+{{if(options.selected.plotNestedMultiVariChk === 'TRUE')}}
+if (length(bsky_G_vars) > 0) {
+	BSkyFormat("Nested Multi-Vari Chart")
+
+	bsky_mv_plot3 <- multiVariNestedPlot(data = {{dataset.name}}_tmp, 
+						outer_group = bsky_X_var, 
+						y = '{{selected.Y_variableRespSelcted | safe}}', 
+						inner_group = 'bsky_combined_grp', 
+						chart_title = paste0("Multi-Vari (Nested) Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by (", bsky_X_var, " and ", bsky_group_label, ")"),
+						showMeanValues = {{selected.showMeanNumbersChk | safe}},
+						digits = {{selected.digits | safe}},
+						ref_line_y        = bsky_yIntercept,
+                        ref_line_labels   = bsky_hRefLabels,
+						outer_group_label = bsky_X_var,
+						inner_group_label = bsky_group_label
+						) 
+	bsky_mv_plot3 <- bsky_apply_legend_position(bsky_mv_plot3)
+	bsky_mv_plot3
+} else {
+	BSkyFormat("Nested Multi-Vari Chart requires at least 2 grouping variables to be selected - skipped.")
+}
 {{/if}}
 
 
 {{if(options.selected.printStatChk === 'TRUE')}}
 	{{dataset.name}}_tmp %>%
-	dplyr::group_by({{selected.X_variableSelcted | safe}}) %>%
-		dplyr::select({{selected.Y_variableRespSelcted | safe}},{{selected.X_variableSelcted | safe}}) %>%
+	dplyr::group_by(across(all_of(bsky_X_var))) %>%
+		dplyr::select(all_of(c('{{selected.Y_variableRespSelcted | safe}}', bsky_X_var))) %>%
 			BSkySummaryStats(stats = c(min=TRUE, 
 										max=TRUE, 
 										mean=TRUE, 
 										median=TRUE, 
 										quantiles=FALSE) 
 										) %>%
-			BSkyFormat(outputTableIndex = c(2), outputTableRenames = "Stats for {{selected.Y_variableRespSelcted | safe}} by {{selected.X_variableSelcted | safe}}", decimalDigitsRounding = c({{selected.digits | safe}}))	 
+			BSkyFormat(outputTableIndex = c(2), outputTableRenames = paste0("Stats for {{selected.Y_variableRespSelcted | safe}} by ", bsky_X_var), decimalDigitsRounding = c({{selected.digits | safe}}))	 
+
+	# dplyr::group_by(across(all_of(...))) prints its grouping columns in the
+	# REVERSE of the order supplied (outermost group ends up on the far left).
+	# The chart's x-axis nests groups in the order given in bsky_group_vars
+	# (first var = outermost/primary, last var = innermost), so we reverse
+	# bsky_group_vars here to make the printed table's column order (left =
+	# outermost) match that same outer-to-inner order shown on the x-axis.
+	bsky_group_vars_stats_order = rev(bsky_group_vars)
 
 	{{dataset.name}}_tmp %>%
-	dplyr::group_by({{selected.G_variableSelcted | safe}},{{selected.X_variableSelcted | safe}}) %>%
-		dplyr::select({{selected.Y_variableRespSelcted | safe}},{{selected.G_variableSelcted | safe}},{{selected.X_variableSelcted | safe}}) %>%
+	dplyr::group_by(across(all_of(bsky_group_vars_stats_order))) %>%
+		dplyr::select(all_of(c('{{selected.Y_variableRespSelcted | safe}}', bsky_group_vars_stats_order))) %>%
 			BSkySummaryStats(stats = c(min=TRUE, 
 										max=TRUE, 
 										mean=TRUE, 
 										median=TRUE, 
 										quantiles=FALSE)
 										) %>%
-			BSkyFormat(outputTableIndex = c(2), outputTableRenames = "Stats for {{selected.Y_variableRespSelcted | safe}} by ({{selected.X_variableSelcted | safe}} and {{selected.G_variableSelcted | safe}})", decimalDigitsRounding = c({{selected.digits | safe}})) 	
+			BSkyFormat(outputTableIndex = c(2), outputTableRenames = paste0("Stats for {{selected.Y_variableRespSelcted | safe}} by (", paste(bsky_group_vars, collapse = ", "), ")"), decimalDigitsRounding = c({{selected.digits | safe}})) 	
 			
 {{/if}}
 
@@ -691,26 +742,15 @@ rm({{dataset.name}}_tmp)
                     extraction: "NoPrefix",
                 }), r: ['{{ var | safe}}']
             },
-			X_variableSelcted: {
-                el: new dstVariable(config, {
-                    label: localization.en.X_variableSelcted,
-                    no: "X_variableSelcted",
-                    required: true,
-                    filter: "String|Numeric|Logical|Ordinal|Nominal|Scale",
-					//filter: "String|Ordinal|Nominal",
-					style: "mb-3",
-                    extraction: "NoPrefix",
-                }), r: ['{{ var | safe}}']
-            },
 			G_variableSelcted: {
-                el: new dstVariable(config, {
+                el: new dstVariableList(config, {
                     label: localization.en.G_variableSelcted,
                     no: "G_variableSelcted",
                     required: true,
                     filter: "String|Numeric|Logical|Ordinal|Nominal|Scale",
 					//filter: "String|Ordinal|Nominal",
 					style: "mb-3",
-                    extraction: "NoPrefix",
+                    extraction: "NoPrefix|UseComma|Enclosed",
                 }), r: ['{{ var | safe}}']
             },
 			plotNestedMultiVariChk: {
@@ -802,6 +842,18 @@ rm({{dataset.name}}_tmp)
                     width: "w-25",
             })
 		  },
+		  legends: {
+                el: new selectVar(config, {
+                    no: 'legends',
+                    label: localization.en.legends,
+                    multiple: false,
+					extraction: "NoPrefix",
+					required: false,
+                    options: ["right", "left", "top", "bottom", "Do not show"],
+                    default: "right",
+					width: "w-25",
+                })
+            },
 		  label1: {
                 el: new labelVar(config, {
                     label: localization.en.label1,
@@ -824,19 +876,6 @@ rm({{dataset.name}}_tmp)
                     value: ""
                 })
             },
-		/*
-		horizontalLinelabel: {
-                el: new input(config, {
-                    no: 'horizontalLinelabel',
-                    label: localization.en.horizontalLinelabel,
-                    placeholder: "",
-                    type: "character",
-                    enforceRobjectRules: false,
-                    extraction: "TextAsIs",
-                    value: ""
-                })
-            },
-			*/
 			horizontalLinelabel: {
                 el: new input(config, {
                     no: 'horizontalLinelabel',
@@ -854,24 +893,24 @@ rm({{dataset.name}}_tmp)
         const content = {
             left: [objects.content_var.el.content],
             right: [
-					objects.Y_variableRespSelcted.el.content,
-					objects.X_variableSelcted.el.content,
-					objects.G_variableSelcted.el.content,
-					
-					objects.plotNestedMultiVariChk.el.content,
-					
-					objects.showMeanNumbersChk.el.content,
-					objects.digits.el.content,
-					objects.pctMeanRangeAsYoffset.el.content,
-					objects.pctMeanRangeAsXoffset.el.content, 
-					
-					objects.label1.el.content,
-					objects.yIntercept.el.content,
-					objects.horizontalLinelabel.el.content,
-					
-					objects.printStatChk.el.content,
-					objects.angleXaxis_text.el.content,
-					],
+						objects.Y_variableRespSelcted.el.content,
+						objects.G_variableSelcted.el.content,
+						
+						objects.plotNestedMultiVariChk.el.content,
+						
+						objects.showMeanNumbersChk.el.content,
+						objects.digits.el.content,
+						objects.pctMeanRangeAsYoffset.el.content,
+						objects.pctMeanRangeAsXoffset.el.content, 
+						
+						objects.label1.el.content,
+						objects.yIntercept.el.content,
+						objects.horizontalLinelabel.el.content,
+						
+						objects.printStatChk.el.content,
+						objects.angleXaxis_text.el.content,
+						objects.legends.el.content,
+						],
             nav: {
                 name: localization.en.navigation,
                 icon: "icon-sixsigma",

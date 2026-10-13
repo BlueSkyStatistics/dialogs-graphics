@@ -29,6 +29,8 @@ var localization = {
         Facetcolumn: "Facet column",
         Facetwrap: "Facet wrap",
         Facetscale: "Facet scale",
+		degroupFacetsChk: "De-group facet group plots to plot individually",
+		legends: "Show Legends and if so, position of Legends (default is right)",
         facets_lbl : "Facets",
         facets_lbl : "Facets",
         help: {
@@ -122,7 +124,12 @@ BSkyTemp <- base::table({{dataset.name}}[,{{selected.stringForDatasetWithFreqPer
 BSkyTemp <- as.data.frame(BSkyTemp)
 #names(counts_df) <- c("{{selected.pieVar | safe}}", "Count")
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}\n
+{{if(options.selected.facetVarsPercentGroup !== '')}}
+#Facets used: percentages are computed within each facet panel so every pie adds up to 100%
+BSkyTemp <- BSkyTemp %>% {{if(options.selected.yVar == undefined)}}dplyr::filter({{selected.newVariable | safe}} > 0) %>% {{/if}}dplyr::group_by({{selected.facetVarsPercentGroup | safe}}) %>% dplyr::mutate(Percentage = base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() )) %>% dplyr::ungroup() %>% as.data.frame()
+{{#else}}
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+{{/if}}
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
 BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)" , sep="")
 BSkyTemp <- BSkyTemp %>%
@@ -130,7 +137,7 @@ BSkyTemp <- BSkyTemp %>%
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
     {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
     )
-ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+bsky_ggplot = ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
   coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x ={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n",  PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
@@ -138,6 +145,26 @@ ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.
     ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
     xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+  # Legend visibility
+  {{if(options.selected.legends =="Do not show")}}
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = "none")
+  {{#else}}
+    # Legend position can be: "right", "left", "top", "bottom"
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = '{{selected.legends | safe}}')
+  {{/if}}
+  {{if(options.selected.degroupFacetsChk === 'TRUE' && options.selected.degroupFacetCode !== '')}}
+  # --- DE-GROUPED FACET PLOTS ---
+  # Splits the facet categories (row, column, row+column combination, or wrap) and
+  # prints each one on its own separate, full-size plot.
+  require(ggforce)
+  bsky_page_num <- 1
+  bsky_total_pages <- ggforce::n_pages(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  for (bsky_page_num in seq_len(bsky_total_pages)) {
+    print(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  }
+  {{#else}}
+  bsky_ggplot
+  {{/if}}
 {{/if}}
 
 
@@ -147,14 +174,19 @@ ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.
 {{if (options.selected.yVar ==undefined && options.selected.xVar !=undefined && options.selected.color[5] != undefined)}}
 {{if (options.selected.concentricCircles)}} 
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}{{selected.facetGroupBy | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 #Creating a new factor variable
 BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 #Calculating percents
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+{{if(options.selected.facetVarsPercentGroup !== '')}}
+#Facets used: percentages are computed within each facet panel so every pie adds up to 100%
+BSkyTemp <- BSkyTemp %>% {{if(options.selected.yVar == undefined)}}dplyr::filter({{selected.newVariable | safe}} > 0) %>% {{/if}}dplyr::group_by({{selected.facetVarsPercentGroup | safe}}) %>% dplyr::mutate(Percentage = base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() )) %>% dplyr::ungroup() %>% as.data.frame()
+{{#else}}
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+{{/if}}
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
 BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
@@ -162,7 +194,7 @@ BSkyTemp <- BSkyTemp %>%
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
     {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
     )
-ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+bsky_ggplot = ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
   coord_polar("y", start = 0) + {{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x="", label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
@@ -170,17 +202,42 @@ ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.
     ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
     xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+  # Legend visibility
+  {{if(options.selected.legends =="Do not show")}}
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = "none")
+  {{#else}}
+    # Legend position can be: "right", "left", "top", "bottom"
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = '{{selected.legends | safe}}')
+  {{/if}}
+  {{if(options.selected.degroupFacetsChk === 'TRUE' && options.selected.degroupFacetCode !== '')}}
+  # --- DE-GROUPED FACET PLOTS ---
+  # Splits the facet categories (row, column, row+column combination, or wrap) and
+  # prints each one on its own separate, full-size plot.
+  require(ggforce)
+  bsky_page_num <- 1
+  bsky_total_pages <- ggforce::n_pages(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  for (bsky_page_num in seq_len(bsky_total_pages)) {
+    print(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  }
+  {{#else}}
+  bsky_ggplot
+  {{/if}}
 {{#else}}
 #No concentric circles
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}},{{selected.xVar | safe}}{{selected.facetGroupBy | safe}}) %>%\n dplyr::summarize( {{selected.newVariable | safe}} = dplyr::n(), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 #Creating a new factor variable
 BSkyTemp <- BSkyTemp  %>%
   dplyr::mutate({{selected.colorVar | safe }}_{{selected.xVar | safe }} = paste({{selected.colorVar | safe }}, {{selected.xVar | safe }}, sep = "_"))
 #Calculating percents
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+{{if(options.selected.facetVarsPercentGroup !== '')}}
+#Facets used: percentages are computed within each facet panel so every pie adds up to 100%
+BSkyTemp <- BSkyTemp %>% {{if(options.selected.yVar == undefined)}}dplyr::filter({{selected.newVariable | safe}} > 0) %>% {{/if}}dplyr::group_by({{selected.facetVarsPercentGroup | safe}}) %>% dplyr::mutate(Percentage = base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() )) %>% dplyr::ungroup() %>% as.data.frame()
+{{#else}}
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+{{/if}}
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
 BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
@@ -188,7 +245,7 @@ BSkyTemp <- BSkyTemp %>%
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
     {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
     )
-ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+bsky_ggplot = ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.yVar | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
   coord_polar("y", start = 0) + {{if (options.selected.suppressLabels!="TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}}, label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.yVar | safe}}AsString{{/if}}, "\n", PercentageAsString )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
@@ -196,6 +253,26 @@ ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{s
   ylab("{{if (options.selected.x_label == "")}}Each pie represents the count of the fill variable: {{selected.color[5] | safe}} grouped by the variable: {{selected.xVar | safe}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
   xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+  # Legend visibility
+  {{if(options.selected.legends =="Do not show")}}
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = "none")
+  {{#else}}
+    # Legend position can be: "right", "left", "top", "bottom"
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = '{{selected.legends | safe}}')
+  {{/if}}
+  {{if(options.selected.degroupFacetsChk === 'TRUE' && options.selected.degroupFacetCode !== '')}}
+  # --- DE-GROUPED FACET PLOTS ---
+  # Splits the facet categories (row, column, row+column combination, or wrap) and
+  # prints each one on its own separate, full-size plot.
+  require(ggforce)
+  bsky_page_num <- 1
+  bsky_total_pages <- ggforce::n_pages(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  for (bsky_page_num in seq_len(bsky_total_pages)) {
+    print(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  }
+  {{#else}}
+  bsky_ggplot
+  {{/if}}
 {{/if}}
 {{/if}}
 
@@ -205,7 +282,7 @@ ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{s
 {{if (options.selected.yVar !=undefined && options.selected.color[5] != undefined)}}
 {{if (options.selected.concentricCircles)}} 
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}{{selected.facetGroupBy | safe}}) %>%\n dplyr::summarize ({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
 names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 {{if(options.selected.xVar != undefined)}}
 #Creating a new factor variable if x variable is specified
@@ -214,7 +291,12 @@ BSkyTemp <- BSkyTemp  %>%
 {{/if}}
 #Calculating percents
 #BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
+{{if(options.selected.facetVarsPercentGroup !== '')}}
+#Facets used: percentages are computed within each facet panel so every pie adds up to 100%
+BSkyTemp <- BSkyTemp %>% {{if(options.selected.yVar == undefined)}}dplyr::filter({{selected.newVariable | safe}} > 0) %>% {{/if}}dplyr::group_by({{selected.facetVarsPercentGroup | safe}}) %>% dplyr::mutate(Percentage = base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() )) %>% dplyr::ungroup() %>% as.data.frame()
+{{#else}}
 BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+{{/if}}
 BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
 BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
 BSkyTemp <- BSkyTemp %>%
@@ -222,7 +304,7 @@ BSkyTemp <- BSkyTemp %>%
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
     {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
     )
-ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+bsky_ggplot = ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.xVar | safe}}{{#else}}x = ""{{/if}}, {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
   geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
   coord_polar("y", start = 0) +{{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x="",label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n", Percentage )), position = position_stack(vjust = 0.5)) +{{/if}}
   theme_void() +
@@ -230,10 +312,30 @@ ggplot(BSkyTemp, aes({{if( options.selected.xVar != undefined)}} x = {{selected.
       ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
       xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
     {{selected.Facets | safe}} + {{selected.themes | safe}}
+  # Legend visibility
+  {{if(options.selected.legends =="Do not show")}}
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = "none")
+  {{#else}}
+    # Legend position can be: "right", "left", "top", "bottom"
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = '{{selected.legends | safe}}')
+  {{/if}}
+  {{if(options.selected.degroupFacetsChk === 'TRUE' && options.selected.degroupFacetCode !== '')}}
+  # --- DE-GROUPED FACET PLOTS ---
+  # Splits the facet categories (row, column, row+column combination, or wrap) and
+  # prints each one on its own separate, full-size plot.
+  require(ggforce)
+  bsky_page_num <- 1
+  bsky_total_pages <- ggforce::n_pages(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  for (bsky_page_num in seq_len(bsky_total_pages)) {
+    print(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  }
+  {{#else}}
+  bsky_ggplot
+  {{/if}}
 {{#else}}
 #No concentric circles
 #Aggregating the dataset
-BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
+BSkyTemp <- {{dataset.name}} %>%\n dplyr::group_by({{selected.color[5] | safe}}{{if (options.selected.xVar != undefined)}}, {{selected.xVar | safe}}{{/if}}{{selected.facetGroupBy | safe}}) %>%\n dplyr::summarize({{selected.newVariable | safe}} = sum({{selected.yVar | safe}}, na.rm = TRUE), .groups ='drop')
     names(BSkyTemp) <- {{selected.namesOfDataset | safe}}
 {{if(options.selected.xVar != undefined)}}
 #Creating a new factor variable if x variable is specified
@@ -242,7 +344,12 @@ BSkyTemp <- BSkyTemp  %>%
 {{/if}}
    #Calculating percents
    # BSkyTemp$Percentage <- with(BSkyTemp, {{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100)
-   BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+   {{if(options.selected.facetVarsPercentGroup !== '')}}
+#Facets used: percentages are computed within each facet panel so every pie adds up to 100%
+BSkyTemp <- BSkyTemp %>% {{if(options.selected.yVar == undefined)}}dplyr::filter({{selected.newVariable | safe}} > 0) %>% {{/if}}dplyr::group_by({{selected.facetVarsPercentGroup | safe}}) %>% dplyr::mutate(Percentage = base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() )) %>% dplyr::ungroup() %>% as.data.frame()
+{{#else}}
+BSkyTemp$Percentage <- with(BSkyTemp, base::round(({{selected.newVariable | safe}} / sum({{selected.newVariable | safe}}) * 100), digits =BSkyGetDecimalDigitSetting() ))
+{{/if}}
    BSkyTemp\${{selected.newVariable | safe}}AsString = as.character(BSkyTemp\${{selected.newVariable | safe}})
    BSkyTemp$PercentageAsString = paste( "(",BSkyTemp$Percentage, "%)", sep="" )
    BSkyTemp <- BSkyTemp %>%
@@ -250,7 +357,7 @@ BSkyTemp <- BSkyTemp  %>%
     PercentageAsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", PercentageAsString),
     {{selected.newVariable | safe}}AsString = if_else(Percentage < {{selected.suppressThreshold | safe}}, "", {{selected.newVariable | safe}}AsString),
     )
-   ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
+   bsky_ggplot = ggplot(BSkyTemp, aes(x = "", {{if( options.selected.yVar != undefined)}} y = {{selected.newVariable | safe}},{{#else}}y = {{selected.newVariable | safe}},{{/if}} fill = {{selected.pieVar | safe}})) +
       geom_bar({{selected.alpha | safe}}{{selected.width | safe}} stat = "identity") +
       coord_polar("y", start = 0) +{{if (options.selected.suppressLabels != "TRUE")}}\n\tgeom_text(aes(x={{selected.radius | safe}},label = paste({{if (options.selected.yVar ==undefined)}}{{selected.newVariable | safe}}AsString{{#else}}{{selected.newVariable | safe}}AsString{{/if}}, "\n", PercentageAsString)), position = position_stack(vjust = 0.5)) +{{/if}}
       theme_void() +
@@ -258,6 +365,26 @@ BSkyTemp <- BSkyTemp  %>%
       ylab("{{if (options.selected.x_label == "")}}Each pie represents the total of variable {{selected.yVar | safe}} for each group created by variable(s) {{selected.color[5] | safe}} {{if (options.selected.xVar != undefined)}} and {{selected.xVar | safe}}{{/if}}{{#else}}{{selected.x_label | safe}}{{/if}}") + 
       xlab("{{if (options.selected.y_label != "")}}{{selected.y_label | safe}}{{/if}}") + {{selected.title|safe}} {{selected.flipaxis | safe}}  
       {{selected.Facets | safe}} + {{selected.themes | safe}}
+  # Legend visibility
+  {{if(options.selected.legends =="Do not show")}}
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = "none")
+  {{#else}}
+    # Legend position can be: "right", "left", "top", "bottom"
+    bsky_ggplot <- bsky_ggplot + theme(legend.position = '{{selected.legends | safe}}')
+  {{/if}}
+  {{if(options.selected.degroupFacetsChk === 'TRUE' && options.selected.degroupFacetCode !== '')}}
+  # --- DE-GROUPED FACET PLOTS ---
+  # Splits the facet categories (row, column, row+column combination, or wrap) and
+  # prints each one on its own separate, full-size plot.
+  require(ggforce)
+  bsky_page_num <- 1
+  bsky_total_pages <- ggforce::n_pages(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  for (bsky_page_num in seq_len(bsky_total_pages)) {
+    print(bsky_ggplot + {{selected.degroupFacetCode | safe}})
+  }
+  {{#else}}
+  bsky_ggplot
+  {{/if}}
 {{/if}}
 {{/if}}
 
@@ -362,6 +489,17 @@ BSkyTemp <- BSkyTemp  %>%
                     default: ""
                 })
             },
+            degroupFacetsChk: {
+                el: new checkbox(config, {
+                    label: localization.en.degroupFacetsChk,
+                    no: "degroupFacetsChk",
+                    bs_type: "valuebox",
+                    extraction: "BooleanValue",
+                    true_value: "TRUE",
+                    false_value: "FALSE",
+                    newline: true,
+                }),
+            },
             Facetscale: {
                 el: new comboBox(config, {
                     no: 'Facetscale',
@@ -397,6 +535,18 @@ BSkyTemp <- BSkyTemp  %>%
                     extraction: "NoPrefix|UseComma"
             })},
 
+            legends: {
+                el: new selectVar(config, {
+                    no: 'legends',
+                    label: localization.en.legends,
+                    multiple: false,
+                    extraction: "NoPrefix",
+                    required: false,
+                    options: ["right", "left", "top", "bottom", "Do not show"],
+                    default: "right",
+                    width: "w-25",
+                })
+            },
             label1: { el: new labelVar(config, { no: 'label1', style: "mt-2",label: localization.en.optionsLabels, h: 5 }) },
 
             suppressLabels: {
@@ -445,7 +595,8 @@ BSkyTemp <- BSkyTemp  %>%
                 objects.suppressLabels.el,
                 objects.suppressThreshold.el,
                 objects.radius.el,
-                objects.label2.el
+                objects.label2.el,
+                objects.legends.el
             ]
         })
         var Facets = {
@@ -457,6 +608,7 @@ BSkyTemp <- BSkyTemp  %>%
                     objects.Facetcolumn.el,
                     objects.Facetwrap.el,
                     objects.Facetscale.el,
+                    objects.degroupFacetsChk.el,
                 ]
             })
         };
@@ -512,6 +664,8 @@ BSkyTemp <- BSkyTemp  %>%
                     Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
                     Facetwrap: instance.objects.Facetwrap.el.getVal(),
                     Facetscale: instance.objects.Facetscale.el.getVal(),
+                    degroupFacetsChk: instance.objects.degroupFacetsChk.el.getVal(),
+                    legends: instance.objects.legends.el.getVal(),
                 }
             }
 
@@ -526,6 +680,25 @@ BSkyTemp <- BSkyTemp  %>%
             // Check if each input string is not empty, then add it to the array
             if (code_vars.selected.x[5] !== '') {
                 nonEmptyStrings.push(code_vars.selected.x[5]);
+            }
+            // Include facet variables in the aggregated data so the facets can find them
+            {
+                let normF = function (v) {
+                    if (v === null || v === undefined) return "";
+                    if (Array.isArray(v)) v = v.length > 0 ? v[0] : "";
+                    if (v === null || v === undefined) return "";
+                    return String(v).trim();
+                };
+                let fW = normF(code_vars.selected.Facetwrap);
+                let fR = normF(code_vars.selected.Facetrow);
+                let fC = normF(code_vars.selected.Facetcolumn);
+                // Facet wrap takes precedence and ignores row/column
+                let fv = fW !== "" ? [fW] : [fR, fC].filter(function (v) { return v !== ""; });
+                fv = fv.filter(function (v, i) { return fv.indexOf(v) === i; });
+                let extraFacetVars = fv.filter(function (v) { return nonEmptyStrings.indexOf(v) === -1; });
+                extraFacetVars.forEach(function (v) { nonEmptyStrings.push(v); });
+                code_vars.selected.facetGroupBy = extraFacetVars.length > 0 ? ", " + extraFacetVars.join(", ") : "";
+                code_vars.selected.facetVarsPercentGroup = fv.join(", ");
             }
             let namesOfDataset = nonEmptyStrings.concat()
 
@@ -555,6 +728,34 @@ BSkyTemp <- BSkyTemp  %>%
             //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
             code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
             code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
+
+            // De-group facets: build a one-panel-per-page ggforce facet call (empty string if nothing to de-group)
+            {
+                let fScaleMap = { "free_x": "free_x", "free_y": "free_y", "free_x_and_y": "free" };
+                let fScale = fScaleMap[code_vars.selected.Facetscale] || "fixed";
+                // Normalize: getVal() may return "", null, undefined or an array when nothing/something is chosen
+                let normFacet = function (v) {
+                    if (v === null || v === undefined) return "";
+                    if (Array.isArray(v)) v = v.length > 0 ? v[0] : "";
+                    if (v === null || v === undefined) return "";
+                    return String(v).trim();
+                };
+                let fWrap = normFacet(code_vars.selected.Facetwrap);
+                let fRow = normFacet(code_vars.selected.Facetrow);
+                let fCol = normFacet(code_vars.selected.Facetcolumn);
+                let fCode = "";
+                if (fWrap !== "") {
+                    // Facet wrap takes precedence and ignores row/column
+                    fCode = `ggforce::facet_wrap_paginate(~ ${fWrap}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fRow !== "" && fCol !== "") {
+                    fCode = `ggforce::facet_grid_paginate(${fRow} ~ ${fCol}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fRow !== "") {
+                    fCode = `ggforce::facet_grid_paginate(${fRow} ~ ., scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fCol !== "") {
+                    fCode = `ggforce::facet_grid_paginate(. ~ ${fCol}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                }
+                code_vars.selected.degroupFacetCode = fCode;
+            }
             code_vars.selected.themes = themeRsyntax;
             let cmd = instance.dialog.renderR(code_vars)
             cmd = removenewline(cmd);
@@ -588,6 +789,8 @@ BSkyTemp <- BSkyTemp  %>%
                         Facetcolumn: instance.objects.Facetcolumn.el.getVal(),
                         Facetwrap: instance.objects.Facetwrap.el.getVal(),
                         Facetscale: instance.objects.Facetscale.el.getVal(),
+                        degroupFacetsChk: instance.objects.degroupFacetsChk.el.getVal(),
+                        legends: instance.objects.legends.el.getVal(),
                     }
                 }
 
@@ -606,6 +809,25 @@ BSkyTemp <- BSkyTemp  %>%
                 //Creates a , separated string with the contents of the array
                 //so if the 1st element of the array is val1 and the 2nd element is val2
                 //arr.concat() = val1,val2
+                // Include facet variables in the aggregated data so the facets can find them
+                {
+                    let normF = function (v) {
+                        if (v === null || v === undefined) return "";
+                        if (Array.isArray(v)) v = v.length > 0 ? v[0] : "";
+                        if (v === null || v === undefined) return "";
+                        return String(v).trim();
+                    };
+                    let fW = normF(code_vars.selected.Facetwrap);
+                    let fR = normF(code_vars.selected.Facetrow);
+                    let fC = normF(code_vars.selected.Facetcolumn);
+                    // Facet wrap takes precedence and ignores row/column
+                    let fv = fW !== "" ? [fW] : [fR, fC].filter(function (v) { return v !== ""; });
+                    fv = fv.filter(function (v, i) { return fv.indexOf(v) === i; });
+                    let extraFacetVars = fv.filter(function (v) { return nonEmptyStrings.indexOf(v) === -1; });
+                    extraFacetVars.forEach(function (v) { nonEmptyStrings.push(v); });
+                    code_vars.selected.facetGroupBy = extraFacetVars.length > 0 ? ", " + extraFacetVars.join(", ") : "";
+                    code_vars.selected.facetVarsPercentGroup = fv.join(", ");
+                }
                 let namesOfDataset = nonEmptyStrings.concat()
 
                 let vars4 = nonEmptyStrings.map(nonEmptyStrings => '\"' + nonEmptyStrings + "\"");
@@ -635,6 +857,34 @@ BSkyTemp <- BSkyTemp  %>%
                 //code_vars.selected["y_label"] = instance.opts.config.content[2].getVal() === "" ? code_vars.selected.y[3] : instance.opts.config.content[2].getVal()
                 code_vars.selected["y_label"] = instance.opts.config.content[2].getVal()
                 code_vars.selected.Facets = createfacets(code_vars.selected.Facetwrap, code_vars.selected.Facetcolumn, code_vars.selected.Facetrow, code_vars.selected.Facetscale)
+
+            // De-group facets: build a one-panel-per-page ggforce facet call (empty string if nothing to de-group)
+            {
+                let fScaleMap = { "free_x": "free_x", "free_y": "free_y", "free_x_and_y": "free" };
+                let fScale = fScaleMap[code_vars.selected.Facetscale] || "fixed";
+                // Normalize: getVal() may return "", null, undefined or an array when nothing/something is chosen
+                let normFacet = function (v) {
+                    if (v === null || v === undefined) return "";
+                    if (Array.isArray(v)) v = v.length > 0 ? v[0] : "";
+                    if (v === null || v === undefined) return "";
+                    return String(v).trim();
+                };
+                let fWrap = normFacet(code_vars.selected.Facetwrap);
+                let fRow = normFacet(code_vars.selected.Facetrow);
+                let fCol = normFacet(code_vars.selected.Facetcolumn);
+                let fCode = "";
+                if (fWrap !== "") {
+                    // Facet wrap takes precedence and ignores row/column
+                    fCode = `ggforce::facet_wrap_paginate(~ ${fWrap}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fRow !== "" && fCol !== "") {
+                    fCode = `ggforce::facet_grid_paginate(${fRow} ~ ${fCol}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fRow !== "") {
+                    fCode = `ggforce::facet_grid_paginate(${fRow} ~ ., scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                } else if (fCol !== "") {
+                    fCode = `ggforce::facet_grid_paginate(. ~ ${fCol}, scales = "${fScale}", nrow = 1, ncol = 1, page = bsky_page_num)`;
+                }
+                code_vars.selected.degroupFacetCode = fCode;
+            }
                 code_vars.selected.themes = themeRsyntax;
                 let cmd = instance.dialog.renderR(code_vars)
                 cmd = removenewline(cmd);
