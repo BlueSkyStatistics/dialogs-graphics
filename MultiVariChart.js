@@ -21,9 +21,10 @@ var localization = {
 		pctMeanRangeAsXoffset: "Horizontal offset to place the labels for the mean points on the plot",
 		
 		printStatChk: "Print stats in addition to charts",
-		angleXaxis_text: "Angle to slant x-axis text values (default 0 for no slanting)",
+		angleXaxis_text: "Angle to slant the x-axis tick labels, with or without stacked labels (0 for no slanting)",
 		legends: "Show Legends and if so, position of Legends (default is right)",
-		
+		stackedAxisChk: "Organize the x-axis tick labels for the combined-group chart into separate stacked rows, one row per grouping variable. If unchecked, the x-axis shows a single row with the hyphenated combination of group values",
+
 		label1: "Horizontal reference lines",
 		yIntercept: "Enter comma separated Y intercept value(s) for the horizontal lines, e.g. 100, 200, 300 (i.e., count values). Lines will be drawn only if a Counts axis is present",
         horizontalLinelabel: "Specify comma separated labels (no enclosing quotes) for the horizontal line(s)",
@@ -61,12 +62,117 @@ class MultiVariChart extends baseModal {
 require(dplyr)
 require(ggplot2)
 
-	multiVariGroupingPlot <- function(data, 
-                                    x, 
-                                    y, 
-                                    group, 
-                                    color1          = "blue", 
-                                    color2          = "black", 
+# ── Stacked (tiered) x-axis labels ─────────────────────────────────────
+# Draws one row of labels per grouping variable underneath the x-axis, with
+# the innermost (finest) variable closest to the axis and the outermost
+# variable furthest from it. A value that repeats over several adjacent
+# positions is printed once, centered under the span it covers.
+#   p         : ggplot object
+#   level_df  : one row per x position (in x order), one column per variable
+#   vars      : column names to draw, outermost first / innermost last
+#   pos       : numeric x position of each row of level_df
+#   row_names : caption printed at the left of each row
+#   angle     : slant (degrees) of the innermost row, which is the one that
+#               gets crowded; 0 keeps it horizontal
+bsky_add_stacked_axis <- function(p, level_df, vars, pos = seq_len(nrow(level_df)),
+                                  row_names = vars, add_clip = TRUE,
+                                  add_separators = TRUE, angle = 0) {
+  n     <- nrow(level_df)
+  depth <- length(vars)
+
+  # For every variable find the runs of adjacent positions that share its
+  # value; a run also restarts whenever any outer variable changes.
+  tiers <- lapply(seq_len(depth), function(k) {
+    key    <- do.call(paste, c(lapply(vars[seq_len(k)],
+                                      function(v) as.character(level_df[[v]])),
+                               sep = "\r"))
+    run_id <- cumsum(c(TRUE, key[-1] != key[-n]))
+    vals   <- as.character(level_df[[vars[k]]])
+    data.frame(
+      x_start = as.numeric(tapply(pos, run_id, min)),
+      x_end   = as.numeric(tapply(pos, run_id, max)),
+      x_pos   = as.numeric(tapply(pos, run_id, mean)),
+      label   = as.character(tapply(vals, run_id, function(bsky_z) bsky_z[1])),
+      stringsAsFactors = FALSE
+    )
+  })
+
+  # Light vertical separators between the groups of every outer variable
+  if (isTRUE(add_separators) && depth > 1) {
+    bnd <- unlist(lapply(seq_len(depth - 1), function(k) {
+      tk <- tiers[[k]]
+      if (nrow(tk) > 1) (tk$x_end[-nrow(tk)] + tk$x_start[-1]) / 2 else numeric(0)
+    }))
+    bnd <- sort(unique(bnd))
+    if (length(bnd) > 0) {
+      p <- p + geom_vline(xintercept = bnd, colour = "grey60", linewidth = 0.3)
+    }
+  }
+
+  # One row of text per variable, plus its caption on the left. The text
+  # gets a little smaller when there are many positions to keep it readable.
+  txt_size <- if (n > 90) 2.4 else if (n > 45) 2.8 else 3.2
+  fs_pt    <- txt_size * 2.845         # font size in points
+  h_pt     <- txt_size * 2.03          # height of one line of text in points
+
+  ang <- suppressWarnings(as.numeric(angle))
+  if (length(ang) != 1 || is.na(ang)) ang <- 0
+  rad <- ang * pi / 180
+  fv  <- if (abs(ang) >= 60) 0.5 else 1  # which point of a slanted label sits at its position
+
+  # Rough size of the plot area, used to tell whether a row's labels fit
+  # side by side. The innermost row is always slanted when an angle is set;
+  # an outer row is slanted too when its labels are wider than the room it has.
+  pt_per_unit <- 480 / max(max(pos) - min(pos) + 1, 1)
+  row_gap_pt  <- 1.1 * h_pt            # blank space between two rows
+  D           <- 0.4 * h_pt            # distance of the next row below the axis
+
+  for (r in seq_len(depth)) {
+    k     <- depth - r + 1             # r = 1 is the row nearest the axis
+    lab   <- tiers[[k]]$label
+    w_est <- pmax(nchar(lab) * 0.5 * fs_pt, fs_pt * 0.5)   # label widths in points
+    room  <- min(tiers[[k]]$x_end - tiers[[k]]$x_start + 1) * pt_per_unit
+    slant <- ang != 0 && (r == 1 || max(w_est) > 0.9 * room)
+
+    if (slant) {
+      # Slanted labels end right under their position; hjust/vjust are
+      # chosen so that the row starts D points below the axis.
+      p <- p + annotate("text", x = tiers[[k]]$x_pos, y = -Inf, label = lab, angle = ang,
+                        hjust = 1 + D * sin(rad) / w_est,
+                        vjust = fv + D * cos(rad) / h_pt, size = txt_size)
+      row_h <- abs(max(w_est) * sin(rad)) + h_pt * abs(cos(rad))
+    } else {
+      p <- p + annotate("text", x = tiers[[k]]$x_pos, y = -Inf, label = lab,
+                        hjust = 0.5, vjust = 1 + D / h_pt, size = txt_size)
+      row_h <- h_pt
+    }
+    p <- p + annotate("text", x = -Inf, y = -Inf, label = row_names[k],
+                      hjust = 1.15, vjust = 1 + D / h_pt, size = txt_size, fontface = "bold")
+    D <- D + row_h + row_gap_pt
+  }
+  extent <- D - row_gap_pt             # total height used by all rows, in points
+
+  # Make room: push the axis title below the rows and widen the left margin
+  # so the captions fit. (1 text height is about 2 points per unit of size.)
+  left_pad <- max(0, max(nchar(row_names)) * 1.85 * txt_size - 25)
+  p <- p + theme(
+    axis.text.x  = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.x = element_text(margin = margin(t = ceiling(extent) + 14)),
+    plot.margin  = margin(t = 10, r = 20, b = 10, l = 10 + left_pad)
+  )
+
+  # Labels live outside the panel, so drawing must not be clipped to it
+  if (isTRUE(add_clip)) p <- p + coord_cartesian(clip = "off")
+  p
+}
+
+	multiVariGroupingPlot <- function(data,
+                                    x,
+                                    y,
+                                    group,
+                                    color1          = "blue",
+                                    color2          = "black",
                                     chart_title     = "MultiVari Chart",
                                     showMeanValues  = TRUE,
 									digits = 2,
@@ -74,7 +180,9 @@ require(ggplot2)
                                     ref_line_labels = NULL,
 									x_label         = NULL,
 									y_label         = NULL,
-									group_label     = NULL) {
+									group_label     = NULL,
+									stacked_axis     = FALSE,
+									stacked_vars_df  = NULL) {
 
   # ── 1. Subset and rename ──────────────────────────────────────
   data <- data[, c(x, y, group)]
@@ -223,6 +331,14 @@ require(ggplot2)
                       hjust = 1)
     )
 
+  # ── 4b. Optional stacked x-axis labels ─────────────────────────
+  # Replaces the single row of hyphenated combined-group tick labels with one
+  # row per grouping variable, stacked below the axis.
+  if (isTRUE(stacked_axis) && !is.null(stacked_vars_df) && ncol(stacked_vars_df) >= 1) {
+    p <- bsky_add_stacked_axis(p, stacked_vars_df, colnames(stacked_vars_df),
+                               angle = {{selected.angleXaxis_text | safe}})
+  }
+
   # ── 5. Conditionally add mean value text labels ───────────────
   if (isTRUE(showMeanValues)) {
     p <- p +
@@ -284,7 +400,9 @@ multiVariNestedPlot <- function(data,
                                  ref_line_y      = NULL,
                                  ref_line_labels = NULL,
 								 outer_group_label = NULL,
-								 inner_group_label = NULL) {
+								 inner_group_label = NULL,
+								 stacked_axis      = FALSE,
+								 stacked_inner_df  = NULL) {
 
   # ── 1. Subset and rename ──────────────────────────────────────
   df <- data[, c(outer_group, inner_group, y)]
@@ -414,6 +532,7 @@ multiVariNestedPlot <- function(data,
   # ── 10. Build plot ────────────────────────────────────────────
   bsky_outer_label <- if (!is.null(outer_group_label)) outer_group_label else outer_group
   bsky_inner_label <- if (!is.null(inner_group_label)) inner_group_label else inner_group
+  bsky_use_stacked <- isTRUE(stacked_axis) && !is.null(stacked_inner_df)
 
   p <- ggplot(df, aes(x = x_pos, y = y)) +
 
@@ -455,7 +574,7 @@ multiVariNestedPlot <- function(data,
 
     scale_x_continuous(
 		  breaks = inner_x_labels$x_pos,
-		  labels = inner_x_labels$inner,
+		  labels = if (bsky_use_stacked) rep("", nrow(inner_x_labels)) else inner_x_labels$inner,
 		  expand = c(0.05, 0.05),        # ← minimal padding, was default ~0.05 but
 										  #   the continuous scale also adds an
 										  #   additive term — setting both removes it
@@ -544,17 +663,33 @@ multiVariNestedPlot <- function(data,
     }
   }
 
-  # ── 13. Add outer group labels below x axis ───────────────────
-  for (i in seq_along(outer_x_labels$outer)) {
-    p <- p + annotate(
-      geom     = "text",
-      x        = outer_x_labels$x_pos[i],
-      y        = -Inf,
-      label    = outer_x_labels$outer[i],
-      vjust    = 5.5,
-      size     = 3.8,
-      fontface = "bold"
-    )
+  # ── 13. Add group labels below x axis ─────────────────────────
+  if (bsky_use_stacked) {
+    # stacked rows: outer group (bottom row) + one row per inner variable
+    bsky_inner_cols <- setdiff(colnames(stacked_inner_df), "inner")
+    bsky_idx        <- match(position_map$inner, as.character(stacked_inner_df$inner))
+    bsky_lvl        <- cbind(data.frame(bsky_outer_col = position_map$outer,
+                                        stringsAsFactors = FALSE),
+                             stacked_inner_df[bsky_idx, bsky_inner_cols, drop = FALSE])
+    p <- bsky_add_stacked_axis(p, bsky_lvl,
+                               vars           = c("bsky_outer_col", bsky_inner_cols),
+                               pos            = position_map$x_pos,
+                               row_names      = c(bsky_outer_label, bsky_inner_cols),
+                               add_clip       = FALSE,
+                               add_separators = FALSE,
+                               angle          = {{selected.angleXaxis_text | safe}})
+  } else {
+    for (i in seq_along(outer_x_labels$outer)) {
+      p <- p + annotate(
+        geom     = "text",
+        x        = outer_x_labels$x_pos[i],
+        y        = -Inf,
+        label    = outer_x_labels$outer[i],
+        vjust    = 5.5,
+        size     = 3.8,
+        fontface = "bold"
+      )
+    }
   }
 
   # ── 14. Constrain y axis to data range with padding ───────────
@@ -588,13 +723,18 @@ for (bsky_v in bsky_group_vars) {
   }
 }
 
+# When the stacked x-axis is on, group levels are ordered so the first variable
+# changes slowest and the last changes fastest (e.g. Left_A, Left_B, Left_C,
+# Right_A, ...), which is the order the stacked rows need.
+bsky_lex_order = {{selected.stackedAxisChk | safe}}
+
 # The first grouping variable selected drives the X-axis; any remaining
 # grouping variables selected are combined into a single grouping factor.
 bsky_X_var  = bsky_group_vars[1]
 bsky_G_vars = if (length(bsky_group_vars) > 1) bsky_group_vars[-1] else character(0)
 
 if (length(bsky_G_vars) > 0) {
-  {{dataset.name}}_tmp$bsky_combined_grp = interaction({{dataset.name}}_tmp[, bsky_G_vars, drop = FALSE], sep = "_", drop = TRUE)
+  {{dataset.name}}_tmp$bsky_combined_grp = interaction({{dataset.name}}_tmp[, bsky_G_vars, drop = FALSE], sep = "_", drop = TRUE, lex.order = bsky_lex_order)
   bsky_group_label = paste(bsky_G_vars, collapse = "_")
 } else {
   # Only a single grouping variable was selected - use it as both the
@@ -650,20 +790,41 @@ BSkyFormat("\n")
 
 {{dataset.name}}_tmp$bsky_X_combined = with({{dataset.name}}_tmp, paste(get(bsky_X_var), bsky_combined_grp, sep = '_'))
 {{dataset.name}}_tmp$bsky_X_combined = factor({{dataset.name}}_tmp$bsky_X_combined, levels = unlist(lapply(levels({{dataset.name}}_tmp[[bsky_X_var]]), function(bsky_lv) paste(bsky_lv, levels({{dataset.name}}_tmp$bsky_combined_grp), sep = '_'))))
+{{dataset.name}}_tmp$bsky_X_combined = droplevels({{dataset.name}}_tmp$bsky_X_combined)
 
-bsky_mv_plot2 <- multiVariGroupingPlot(data = {{dataset.name}}_tmp, 
-					x = 'bsky_X_combined', 
-					y = '{{selected.Y_variableRespSelcted | safe}}', 
+# ── Build the per-variable breakdown used for the optional tiered
+#    stacked x-axis labels on the combined (X_var + group) chart. One row
+#    per level of bsky_X_combined, in that same level order, with a column
+#    for bsky_X_var and each of bsky_G_vars so each can be drawn as its own
+#    label row instead of one hyphenated string.
+bsky_stacked_vars_df = NULL
+{{if(options.selected.stackedAxisChk === 'TRUE')}}
+if (length(bsky_G_vars) > 0) {
+	bsky_axis_vars    = c(bsky_X_var, bsky_G_vars)
+	bsky_level_lookup = unique({{dataset.name}}_tmp[, c('bsky_X_combined', bsky_axis_vars)])
+	bsky_level_lookup = bsky_level_lookup[order(match(as.character(bsky_level_lookup$bsky_X_combined), levels({{dataset.name}}_tmp$bsky_X_combined))), ]
+	bsky_stacked_vars_df = bsky_level_lookup[, bsky_axis_vars, drop = FALSE]
+	for (bsky_col in bsky_axis_vars) {
+		bsky_stacked_vars_df[[bsky_col]] = as.character(bsky_stacked_vars_df[[bsky_col]])
+	}
+}
+{{/if}}
+
+bsky_mv_plot2 <- multiVariGroupingPlot(data = {{dataset.name}}_tmp,
+					x = 'bsky_X_combined',
+					y = '{{selected.Y_variableRespSelcted | safe}}',
 					group = 'bsky_combined_grp',
 					chart_title = paste0("Multi-Vari Chart for {{selected.Y_variableRespSelcted | safe}} (with mean) by (", bsky_X_var, " and ", bsky_group_label, ")"),
-					 showMeanValues = {{selected.showMeanNumbersChk | safe}}, 
+					 showMeanValues = {{selected.showMeanNumbersChk | safe}},
 					 digits = {{selected.digits | safe}},
 					 ref_line_y        = bsky_yIntercept,
                      ref_line_labels   = bsky_hRefLabels,
 					 x_label           = paste0(bsky_X_var, " _ ", bsky_group_label),
 					 y_label           = '{{selected.Y_variableRespSelcted | safe}}',
-					 group_label       = bsky_group_label
-					)				
+					 group_label       = bsky_group_label,
+					 stacked_axis      = {{selected.stackedAxisChk | safe}},
+					 stacked_vars_df   = bsky_stacked_vars_df
+					)
 bsky_mv_plot2 <- bsky_apply_legend_position(bsky_mv_plot2)
 bsky_mv_plot2
 
@@ -671,6 +832,17 @@ bsky_mv_plot2
 {{if(options.selected.plotNestedMultiVariChk === 'TRUE')}}
 if (length(bsky_G_vars) > 0) {
 	BSkyFormat("Nested Multi-Vari Chart")
+
+	# one row per inner level, with a column for each grouping variable it is made of
+	bsky_stacked_inner_df = NULL
+	{{if(options.selected.stackedAxisChk === 'TRUE')}}
+	bsky_stacked_inner_df = unique({{dataset.name}}_tmp[, c('bsky_combined_grp', bsky_G_vars), drop = FALSE])
+	bsky_stacked_inner_df$inner = as.character(bsky_stacked_inner_df$bsky_combined_grp)
+	bsky_stacked_inner_df = bsky_stacked_inner_df[, c('inner', bsky_G_vars), drop = FALSE]
+	for (bsky_col in bsky_G_vars) {
+		bsky_stacked_inner_df[[bsky_col]] = as.character(bsky_stacked_inner_df[[bsky_col]])
+	}
+	{{/if}}
 
 	bsky_mv_plot3 <- multiVariNestedPlot(data = {{dataset.name}}_tmp, 
 						outer_group = bsky_X_var, 
@@ -682,7 +854,9 @@ if (length(bsky_G_vars) > 0) {
 						ref_line_y        = bsky_yIntercept,
                         ref_line_labels   = bsky_hRefLabels,
 						outer_group_label = bsky_X_var,
-						inner_group_label = bsky_group_label
+						inner_group_label = bsky_group_label,
+						stacked_axis      = {{selected.stackedAxisChk | safe}},
+						stacked_inner_df  = bsky_stacked_inner_df
 						) 
 	bsky_mv_plot3 <- bsky_apply_legend_position(bsky_mv_plot3)
 	bsky_mv_plot3
@@ -837,7 +1011,7 @@ rm({{dataset.name}}_tmp)
                     min: 0,
                     max: 360,
                     step: 1,
-                    value: 30,
+                    value: 45,
                     extraction: "NoPrefix",
                     width: "w-25",
             })
@@ -852,6 +1026,19 @@ rm({{dataset.name}}_tmp)
                     options: ["right", "left", "top", "bottom", "Do not show"],
                     default: "right",
 					width: "w-25",
+                })
+            },
+			stackedAxisChk: {
+                el: new checkbox(config, {
+                    label: localization.en.stackedAxisChk,
+					no: "stackedAxisChk",
+                    bs_type: "valuebox",
+                    style: "mt-2",
+                    extraction: "BooleanValue",
+                    true_value: "TRUE",
+                    false_value: "FALSE",
+					state: "checked",
+					newline: true,
                 })
             },
 		  label1: {
@@ -910,6 +1097,7 @@ rm({{dataset.name}}_tmp)
 						objects.printStatChk.el.content,
 						objects.angleXaxis_text.el.content,
 						objects.legends.el.content,
+						objects.stackedAxisChk.el.content,
 						],
             nav: {
                 name: localization.en.navigation,
